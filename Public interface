@@ -8,10 +8,10 @@ tuple.cpp - line 176
 range.cpp - line 354
 list.cpp - line 459
 string.cpp - line 861
-numeric.cpp - line 1477
-bit_operations.cpp - line 1612
-byte_operations.cpp - line 1718
-unicode.cpp - line 1752
+numeric.cpp - line 1474
+bit_operations.cpp - line 1609
+byte_operations.cpp - line 1713
+unicode.cpp - line 1747
 
 -----------------------------------------------------------------------------------------
 
