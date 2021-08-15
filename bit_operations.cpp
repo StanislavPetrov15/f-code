@@ -331,11 +331,11 @@
 
 		if (_value)
 		{
-			_number |= mask;
+		     _number |= mask;
 		}
 		else
 		{
-			_number &= ~mask;
+		     _number &= ~mask;
 		}
 	}
 
@@ -346,7 +346,7 @@
 
 		for (int i = 0; i < 8; i++)
 		{
-			bits.Append(GetBit(static_cast<unsigned char>(_value), i));
+		     bits.Append(GetBit(static_cast<unsigned char>(_value), i));
 		}
 
 		return bits;
@@ -359,7 +359,7 @@
 
 		for (int i = 0; i < 16; i++)
 		{
-			bits.Append(GetBit(_value, i));
+		     bits.Append(GetBit(_value, i));
 		}
 
 		return bits;
@@ -372,7 +372,7 @@
 
 		for (int i = 0; i < 32; i++)
 		{
-			bits.Append(GetBit(_value, i));
+		     bits.Append(GetBit(_value, i));
 		}
 
 		return bits;
@@ -385,21 +385,21 @@
 
 		for (int i = 0; i < 64; i++)
 		{
-			bits.Append(GetBit(_value, i));
+		     bits.Append(GetBit(_value, i));
 		}
 
 		return bits;
 	}
 
-	//returns the number of bits needed for binary representation of _number
+	//returns the number of bits needed for the binary representation of _number
 	int BitLengthOf(unsigned int _number)
 	{
 		int length = 0;
 
 		while (_number > 0)
 		{
-			_number /= 2;
-			length++;
+		     _number /= 2;
+		     length++;
 		}
 
 		return length;
