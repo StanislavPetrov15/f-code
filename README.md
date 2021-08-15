@@ -83,10 +83,9 @@
     a program object (a variable, function, structure, etc.); some tags can be applied only to specific program objects;
     if a tag is applied to a file then the tag should be included in the beginning of the file, and if it's applied to a program object it is
 	included right before the object; the tags used in the library (and the description of their meaning) are the following:
-   -  (!) <value> - a very important note
-   -  (STATE) <value> - describes the state of a specific object in the order в който е указан тага
-   -  (END-STATE) this tag is always preceded by tag (STATE); this tag specifies that the state of the object specified by tag (STATE) is no more valid, i.e. after the line in which the tag (END-STATE) is 
-	  located the state of the object may be different than the state of the object described in the tag (STATE)
+-      (!) <value> - a very important note
+-      (STATE) <value> - describes the state of a specific object in the order в който е указан тага
+-      (END-STATE) this tag is always preceded by tag (STATE); this tag specifies that the state of the object specified by tag (STATE) is no more valid, i.e. after the line in which the tag (END-STATE) is located the state of the object may be different than the state of the object described in the tag (STATE)
 
 
 
