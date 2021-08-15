@@ -10,12 +10,12 @@
 
 (!) the functionality of the library will be expanded in the near future by (adding new files) and (expanding the capabilities of the existing files)
 
-(!) the ranges used in the library are inclusive 
-
 (!) sometimes in the comments the name of a (global object, local object(that is not an argument) or pointer 'this') is preceded by character '&'
 
 (!) some constructors/functions accept 'activation atoms' - these are enum values that force a specific constructor/function call; this is needed when there is a 
     conflict between constructors/functions with otherwise exact signatures
+
+(!) the ranges used in the library are inclusive 
 
 (!) the library consists of the following files:
 -   array.cpp
