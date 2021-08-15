@@ -18,12 +18,12 @@
     conflict between constructors/functions with otherwise exact signatures
 
 (!) the library consists of the following files:
-    array.cpp
+-   array.cpp
     range.cpp
     tuple.cpp
     pair.cpp
     list.cpp
-	string.cpp
+    string.cpp
     bit_operations.cpp
     byte_operations.cpp
     numeric.cpp
