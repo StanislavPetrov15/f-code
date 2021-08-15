@@ -46,22 +46,22 @@
 -   #include "string.cpp"
 
 (!) each file can be used independently of the library:
-    - array.cpp - depends on <Windows.h>
-    - range.cpp - do not depend on other files
-    - tuple.cpp - do not depend on other files
-    - pair.cpp - do not depend on other files
-    - list.cpp - depends on <functional> and range.cpp
-    - bit_operations.cpp - depends on list.cpp
-    - byte_operations.cpp - depends on list.cpp
-    - numeric.cpp - depends on list.cpp
-    - unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
-    - string.cpp - depends on <iostream>, byte_operations.cpp, numeric.cpp и unicode.cpp
-    (example) as numeric.cpp depends on list.cpp we must first include the files on which list.cpp depends, i.e. <functional> and range.cpp; 
+-   array.cpp - depends on <Windows.h>
+-   range.cpp - do not depend on other files
+-   tuple.cpp - do not depend on other files
+-   pair.cpp - do not depend on other files
+-   list.cpp - depends on <functional> and range.cpp
+-   bit_operations.cpp - depends on list.cpp
+-   byte_operations.cpp - depends on list.cpp
+-   numeric.cpp - depends on list.cpp
+-   unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
+-   string.cpp - depends on <iostream>, byte_operations.cpp, numeric.cpp и unicode.cpp
+-   (example) as numeric.cpp depends on list.cpp we must first include the files on which list.cpp depends, i.e. <functional> and range.cpp; 
 	      therefore numeric.cpp can be used in the program by including the following code:
-              #include <functional>
-              #include "range.cpp"
-              #include "list.cpp"
-              #include "numeric.cpp"
+           -  #include <functional>
+           -  #include "range.cpp"
+           -  #include "list.cpp"
+           -  #include "numeric.cpp"
 
 (!) some functions contains notes describing the following (in the order shown below):
     - description of the function
