@@ -4,9 +4,6 @@ enum class TraversalMode { BOUNDED, CIRCULAR };
 
 enum class ReleaseMode { IMMEDIATE, FUTURE };
 
-const int EXCLUDED_BLOCK_BEGIN = INT_MIN + 1;
-const int EXCLUDED_BLOCK_END = INT_MAX - 1;
-
 //(!) the size(accessed by size()) of a segment is equal to the size of the list that the segment refers to
 template<typename T> struct list
 {
