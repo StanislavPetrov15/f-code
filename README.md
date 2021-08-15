@@ -31,19 +31,19 @@
 
 (!) all of the functionality in the library can be used in a program by including the following files:
 -   #include <Windows.h>
-    - #include <iostream>
-    - #include <functional>
-    - (!) here the order of includes is important 
-    - #include "array.cpp"
-    - #include "range.cpp"
-    - #include "tuple.cpp"
-    - #include "pair.cpp"
-    - #include "list.cpp"
-    - #include "bit_operations.cpp"
-    - #include "byte_operations.cpp"
-    - #include "numeric.cpp"
-    - #include "unicode.cpp"
-    - #include "string.cpp"
+-   #include <iostream>
+-   #include <functional>
+-   (!) here the order of includes is important 
+-   #include "array.cpp"
+-   #include "range.cpp"
+-   #include "tuple.cpp"
+-   #include "pair.cpp"
+-   #include "list.cpp"
+-   #include "bit_operations.cpp"
+-   #include "byte_operations.cpp"
+-   #include "numeric.cpp"
+-   #include "unicode.cpp"
+-   #include "string.cpp"
 
 (!) each file can be used independently of the library:
     - array.cpp - depends on <Windows.h>
