@@ -19,18 +19,18 @@
 
 (!) the library consists of the following files:
 -   array.cpp
-    range.cpp
-    tuple.cpp
-    pair.cpp
-    list.cpp
-    string.cpp
-    bit_operations.cpp
-    byte_operations.cpp
-    numeric.cpp
-    unicode.cpp
+-   range.cpp
+-   tuple.cpp
+-   pair.cpp
+-   list.cpp
+-   string.cpp
+-   bit_operations.cpp
+-   byte_operations.cpp
+-   numeric.cpp
+-   unicode.cpp
 
 (!) all of the functionality in the library can be used in a program by including the following files:
-    - #include <Windows.h>
+-   #include <Windows.h>
     - #include <iostream>
     - #include <functional>
     - (!) here the order of includes is important 
