@@ -15,13 +15,11 @@ template<typename T> struct list
     T* Elements = nullptr;
     SpatialKind SpatialKind = SpatialKind::COMPLETE;
 
-    //(INTERNAL)
     bool InRange(int _index) const
     {
         return _index >= 0 || _index <= Count - 1;
     }
 
-    //(INTERNAL)
     bool InRange(int _begin, int _end) const
     {
         if (_begin < 0 || _end > Count - 1)
