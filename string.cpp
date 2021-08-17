@@ -84,15 +84,15 @@ Encoding DefaultStorageEncoding = UTF8;
 /*(!) (the constructors accepting byte arrays) may accept the array length (in bytes), (in code units) or (in characters); in order to pass
         the length in bytes one have to use <N> or <N>|b, to pass the length in code units <N>|u, and to pass the length in characters <N>|c; 
 		the maximum value of <N> is 1073741823 (constant MAX_LENGTH)
-        (Е1) 162 (162 bytes)
-        (Е2) 495|b (495 bytes)
-        (E3) 829|u (829 code units)
-        (Е3) 327|c (327 characters)
-        (Е5) [utf16]:array -> string(array, 94|c) (construction of a string accepting an array of UTF-16 code units with length 94 characters) */
+        (ЕXAMPLE) 162 (162 bytes)
+        (ЕXAMPLE) 495|b (495 bytes)
+        (EXAMPLE) 829|u (829 code units)
+        (ЕXAMPLE) 327|c (327 characters)
+        (ЕXAMPLE) [utf16]:array -> string(array, 94|c) (construction of a string accepting an array of UTF-16 code units with length 94 characters) */
 /*(!) (MAY-NEED-BETTER-EXPLANATION) 
 	    when an incorrect length value is passed to a (constructor accepting UTF-16 or UTF-32 arrays) it is possible for a discrepancy to occur between
         the number of the specified number of bytes/code-units/characters and the number of the processed bytes/code-units/characters
-        (E) string(const utf16*...) receive a length of 4 bytes; the first code unit is BMP character, and the second and third 
+        (EXAMPLE) string(const utf16*...) receive a length of 4 bytes; the first code unit is BMP character, and the second and third 
             code units are respectively high and low surrogate of a non-BMP character; in this case 6 bytes (not 4) will be processed, because in 
 			constructors there is an iteration over characters (the first character is represented by the first two bytes, and the second
 			by the next four bytes) */
