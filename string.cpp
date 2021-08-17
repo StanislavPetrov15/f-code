@@ -266,7 +266,6 @@ struct string
         return Range(- 2, - 2);
     }
 
-    //(INTERNAL)
     list<unsigned char> bytesOf(CodePoint _codePoint)
     {
         //if the storage format is UTF8
