@@ -2,6 +2,8 @@
 
 © August 2021, Stanislav Petrov
 
+stanislav.nikolaev.petrov@gmail.com 
+
 (!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code 
 
 (!) the library is intended to work on Windows 10 and 64-byte processor 
