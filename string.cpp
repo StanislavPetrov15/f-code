@@ -130,7 +130,6 @@ struct string
         return true;
     }
 
-    //(INTERNAL)
     //_characterIndex < 0 => (-1, -1)
     //_characterIndex is larger than the number of characters | the binary size of the string is incorrect => (-2, -2)
     Range<int> byteRangeOf(int _characterIndex) const
