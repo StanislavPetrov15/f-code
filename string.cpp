@@ -98,7 +98,7 @@ Encoding DefaultStorageEncoding = UTF8;
 			by the next four bytes) */
 /*(!) the constructors must not receive an empty string or a string without terminating character(for ASCII and UTF-8) or terminating sequence
 	    (for UTF-16 and UTF-32); accessing of (an element outside the range of string) is 'undefined behavior' */
-//(!) the size(accessed by size()) of a segment is equal to the size of the list that the segment refers to
+//(!) the size(accessed by size()) of a segment is equal to the size of the string that the segment refers to
 struct string
 {
     protected:
@@ -1766,7 +1766,7 @@ struct string
         return Append(_string);
     }
 
-    //_index is in the range of list ->
+    //_index is in the range of string ->
     CodePoint operator[](int _index)
     {
         int i = byteRangeOf(_index).begin();
@@ -1827,7 +1827,7 @@ struct string
         }
     }
 
-    //_index is in the range of list ->
+    //_index is in the range of string ->
     CodePoint operator[](int _index) const
     {
         int i = byteRangeOf(_index).begin();
@@ -1964,7 +1964,7 @@ struct string
         }
     }
 
-    //_index is outside the range of list => -1
+    //_index is outside the range of string => -1
     //<T> is utf8, utf16 or utf32 ->
     template<typename T> T codeUnitAt(int _index) const
     {
@@ -2181,7 +2181,7 @@ struct string
         return *this;
     }
 
-    //_size < 0 -> state of the list doesn't change
+    //_size < 0 -> state of the string doesn't change
     string& Clear(int _size = 0)
     {
         if (IsSegment()) return *this;
@@ -3034,6 +3034,7 @@ struct string
         return false;
     }
 
+	//the specified element does not exist or _begin is outside the range of string => -1
     int IndexOf(CodePoint _value, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3049,6 +3050,7 @@ struct string
         return - 1;
     }
 
+	//the specified element does not exist or _begin is outside the range of string => -1
     int IndexOf(const string& _value, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3074,6 +3076,7 @@ struct string
         return -1;
     }
 
+	//the specified element does not exist or _begin is outside the range of string => -1
     int IndexOf(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3089,6 +3092,7 @@ struct string
         return - 1;
     }
 
+	//the specified element does not exist or _begin is outside the range of string => -1
     int IndexOfAny(const list<CodePoint>& _set, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3107,6 +3111,10 @@ struct string
         return - 1;
     }
 
+	//[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
+    //[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
+    //[].IndexOf(4) => -1
+    //_begin is outside the range of string => -2
     int IndexOfNot(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3122,7 +3130,7 @@ struct string
         return - 1;
     }
 
-	//_begin is outside the range of list => -2
+	//_begin is outside the range of string => -2
     //[].IndexOf(4) => -1
     //[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
 	//[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
