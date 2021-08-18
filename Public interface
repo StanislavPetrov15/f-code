@@ -8,10 +8,10 @@ tuple.cpp - line 176
 range.cpp - line 354
 list.cpp - line 459
 string.cpp - line 861
-numeric.cpp - line 1474
-bit_operations.cpp - line 1609
-byte_operations.cpp - line 1713
-unicode.cpp - line 1747
+numeric.cpp - line 1477
+bit_operations.cpp - line 1612
+byte_operations.cpp - line 1716
+unicode.cpp - line 1750
 
 -----------------------------------------------------------------------------------------
 
@@ -1328,10 +1328,13 @@ struct String:
 
   bool HasDuplicates() const
 
+  # the specified element does not exist or _begin is outside the range of string => -1
   int IndexOf(CodePoint _value, int _begin = 0) const
 
+  # the specified element does not exist or _begin is outside the range of string => -1
   int IndexOf(const string& _value, int _begin = 0) const
 
+  # the specified element does not exist or _begin is outside the range of string => -1
   int IndexOf(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
 
   int IndexOfAny(const list<CodePoint>& _set, int _begin = 0) const
@@ -1864,15 +1867,19 @@ utf32 ToUTF32(unsigned char _high, unsigned char _lowa, unsigned char _lowb, uns
 # the parameters represent a valid surrogate pair -> 
 utf32 ToUTF32(utf16 _highSurrogate, utf16 _lowSurrogate)
     
+# (SYNONYM:ToUTF32)
 # the parameters represent UTF-8 character that is part of BMP ->
 CodePoint ToCodePoint(unsigned char _high, unsigned char _lowa)
     
-#  the parameters represent UTF-8 character that is not part of BMP ->
+# (SYNONYM:ToUTF32)
+# параметрите представят UTF-8 символ който не е част от BMP ->
 CodePoint ToCodePoint(unsigned char _high, unsigned char _lowa, unsigned char _lowb)
     
+# (SYNONYM:ToUTF32)
 # the parameters represent UTF-8 character that is not part of BMP ->
 utf32 ToCodePoint(unsigned char _high, unsigned char _lowa, unsigned char _lowb, unsigned char _lowc)
 
+# (SYNONYM:ToUTF32)
 # the parameters represent a valid UTF-8 sequence ->
 utf32 ToCodePoint(utf16 _highSurrogate, utf16 _lowSurrogate)
 
