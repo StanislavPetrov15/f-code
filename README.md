@@ -2,8 +2,6 @@
 
 © August 2021, Stanislav Petrov
 
-stanislav.nikolaev.petrov@gmail.com 
-
 (!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code 
 
 (!) the library is intended to work on Windows 10 and 64-byte processor 
@@ -91,6 +89,11 @@ stanislav.nikolaev.petrov@gmail.com
    -   (STATE) <value> - describes the state of a specific object  (if the code is correctly executed) at the location of the tag
    -   (END-STATE) this tag is always preceded by tag (STATE); this tag specifies that the state of the object specified by tag (STATE) is no more valid, i.e. after the line in  which the tag (END-STATE) is located the state of the object may be different than the state of the object described in the tag (STATE)
   
+
+
+
+
+
 
 
 
