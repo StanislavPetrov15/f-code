@@ -2,7 +2,8 @@
 
 © August 2021, Stanislav Petrov
 
-(!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code 
+(!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation,
+    networking, time functions, regular expressions, 2D graphics rendering and few other things
 
 (!) the library is intended to work on Windows 10 and 64-byte processor 
 
