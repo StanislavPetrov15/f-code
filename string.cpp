@@ -3034,7 +3034,7 @@ struct string
         return false;
     }
 
-	//the specified element does not exist or _begin is outside the range of string => -1
+	//the specified value does not exist or _begin is outside the range of string => -1
     int IndexOf(CodePoint _value, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3047,10 +3047,10 @@ struct string
             }
         }
 
-        return - 1;
+        return -1;
     }
 
-	//the specified element does not exist or _begin is outside the range of string => -1
+	//the specified value does not exist or _begin is outside the range of string => -1
     int IndexOf(const string& _value, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3076,7 +3076,7 @@ struct string
         return -1;
     }
 
-	//the specified element does not exist or _begin is outside the range of string => -1
+	//the specified value does not exist or _begin is outside the range of string => -1
     int IndexOf(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3089,10 +3089,10 @@ struct string
             }
         }
 
-        return - 1;
+        return -1;
     }
 
-	//the specified element does not exist or _begin is outside the range of string => -1
+	//the specified value does not exist or _begin is outside the range of string => -1
     int IndexOfAny(const list<CodePoint>& _set, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -3108,16 +3108,16 @@ struct string
             }
         }
 
-        return - 1;
+        return -1;
     }
 
-	//[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
+	//_begin is outside the range of string => -2
+	//[].IndexOf(4) => -1
+	//[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot([](const CodePoint& x) { return x == 9; }) => 3
     //[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
-    //[].IndexOf(4) => -1
-    //_begin is outside the range of string => -2
     int IndexOfNot(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
     {
-        if (!InRange(_begin)) return -1;
+        if (!InRange(_begin)) return -2;
 
         for (int i = _begin; i < CharacterCount; i++)
         {
@@ -3127,7 +3127,7 @@ struct string
             }
         }
 
-        return - 1;
+        return -1;
     }
 
 	//_begin is outside the range of string => -2
@@ -3146,9 +3146,10 @@ struct string
             }
         }
 
-        return - 1;
+        return -1;
     }
 
+	//the specified value does not exist => -1
     int LastIndexOf(CodePoint _value) const
     {
         for (int i = CharacterCount - 1; i > - 1; i--)
@@ -3162,6 +3163,7 @@ struct string
         return -1;
     }
 
+	//the specified value does not exist => -1
     int LastIndexOf(const string& _value) const
     {
         int index = - 1;
@@ -3170,7 +3172,7 @@ struct string
         {
             int index_ = IndexOf(_value, index + _value.CharacterCount);
 
-            if (index_ == - 1)
+            if (index_ == -1)
             {
                 return index;
             }
@@ -3181,6 +3183,7 @@ struct string
         }
     }
 
+	//the specified value does not exist => -1
     int LastIndexOf(const std::function<bool(CodePoint)>& _predicate) const
     {
         for (int i = CharacterCount - 1; i > - 1; i--)
@@ -3191,7 +3194,7 @@ struct string
             }
         }
 
-        return - 1;
+        return -1;
     }
 
 	//returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
