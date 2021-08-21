@@ -29,7 +29,7 @@ array.cpp:
 int equality(const char* const _array1, const char* const _array2, int _length1, int _length2)
 
 # _length specifies the length of _array
-# _array = nullptr | указаната стойност не съществува => -1
+# _array = nullptr | the specified value does not exist => -1
 # _length < 1 => -2
 int indexOf(const char* const _array, int _length, char _value)
 
@@ -41,7 +41,7 @@ int indexOf(const char* const _array, int _length, char _value)
 int indexOfNot(const char* const _array, int _length, char _value)
 
 # _length specifies the length of _array
-# _array = nullptr | указаната стойност не съществува => -1
+# _array = nullptr | the specified value does not exist => -1
 # _length < 1 => -2
 int lastIndexOf(const char* const _array, int _length, char _value)
 
@@ -744,13 +744,16 @@ struct list<T>:
   # the specified element does not exist or _begin is outside the range of list => -1
   int IndexOfAny(const list<T>& _set, int _begin = 0) const
 
+  # _begin is outside the range of list => -2
+  # [].IndexOf(4) => -1
   # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
   # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
-  # [].IndexOf(4) => -1
-  # _begin is outside the range of list => -2
   int IndexOfNot(const T& _value, int _begin = 0) const
 
-  # the specified element does not exist or _begin is outside the range of list => -1
+  # _begin is outside the range of list => -2
+  # [].IndexOf(4) => -1
+  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
+  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
   int IndexOfNot(const std::function<bool(const T&)>& _predicate, int _begin = 0) const
 
   # A = [5, 0, 3, 6]
@@ -766,10 +769,13 @@ struct list<T>:
   # count() > 1 ->
   bool IsHomogeneous() const
 
+  # the specified value does not exist => -1
   int LastIndexOf(const T& _value) const
 
+  # the specified value does not exist => -1
   int LastIndexOf(const list<T>& _value) const
 
+  # the specified value does not exist => -1
   int LastIndexOf(const std::function<bool(const T&)>& _predicate) const
 
   # count() == 0 => nullptr
@@ -1084,19 +1090,19 @@ struct String:
   string(const utf32*_array) -> string(_array, DefaultEndianity, DefaultStorageEncoding)
 
   # _length specifies the length of _array
-    # _array is a UTF-32 string ->
+  # _array is a UTF-32 string ->
   string(const utf32*_array, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
 
- # _length specifies the length of _array
-    # _array is a UTF-32 string ->
+  # _length specifies the length of _array
+  # _array is a UTF-32 string ->
   string(const utf32*_array, Endianity _endianity, unsigned int _length) -> string(_array, _endianity, _length, DefaultStorageEncoding)
 
- # _length specifies the length of _array
-    # _array is a UTF-32 string ->
+  # _length specifies the length of _array
+  # _array is a UTF-32 string ->
   string(const utf32*_array, unsigned int _length, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _length, _storageEncoding)
 
- # _length specifies the length of _array
-    # _array is a UTF-32 string ->
+  # _length specifies the length of _array
+  # _array is a UTF-32 string ->
   string(const utf32*_array, unsigned int _length) -> string(_array, DefaultEndianity, _length, DefaultStorageEncoding)
 
   string(const wchar_t* _string, Encoding _storageEncoding) -> string(reinterpret_cast<const utf16*>(_string), LE, _storageEncoding)
@@ -1337,8 +1343,13 @@ struct String:
   # the specified element does not exist or _begin is outside the range of string => -1
   int IndexOf(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
 
+  # the specified value does not exist or _begin is outside the range of string => -1
   int IndexOfAny(const list<CodePoint>& _set, int _begin = 0) const
 
+  # _begin is outside the range of list => -2
+  # [].IndexOf(4) => -1
+  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
+  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
   int IndexOfNot(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
 
   # _begin is outside the range of list => -2
@@ -1347,10 +1358,13 @@ struct String:
   # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
   int IndexOfNot(CodePoint _value, int _begin = 0) const
 
+  # the specified value does not exist => -1
   int LastIndexOf(CodePoint _value) const
 
+  # the specified value does not exist => -1
   int LastIndexOf(const string& _value) const
 
+  # the specified value does not exist => -1
   int LastIndexOf(const std::function<bool(CodePoint)>& _predicate) const
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
