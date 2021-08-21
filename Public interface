@@ -7,11 +7,11 @@ pair.cpp - line 148
 tuple.cpp - line 176
 range.cpp - line 354
 list.cpp - line 459
-string.cpp - line 861
-numeric.cpp - line 1477
-bit_operations.cpp - line 1612
-byte_operations.cpp - line 1716
-unicode.cpp - line 1750
+string.cpp - line 867
+numeric.cpp - line 1491
+bit_operations.cpp - line 1626
+byte_operations.cpp - line 1730
+unicode.cpp - line 1764
 
 -----------------------------------------------------------------------------------------
 
