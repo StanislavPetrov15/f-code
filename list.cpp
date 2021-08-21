@@ -1278,7 +1278,7 @@ template<typename T> struct list
         return false;
     }
 
-    //the specified element does not exist or _begin is outside the range of list => -1
+    //the specified value does not exist or _begin is outside the range of list => -1
     int IndexOf(const T& _value, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -1294,7 +1294,7 @@ template<typename T> struct list
         return - 1;
     }
 
-    //the specified element does not exist or _begin is outside the range of list => -1
+    //the specified value does not exist or _begin is outside the range of list => -1
     int IndexOf(const list<T>& _value, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -1320,7 +1320,7 @@ template<typename T> struct list
         return -1;
     }
 
-    //the specified element does not exist or _begin is outside the range of list => -1
+    //the specified value does not exist or _begin is outside the range of list => -1
     int IndexOf(const std::function<bool(const T&)>& _predicate, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -1336,7 +1336,7 @@ template<typename T> struct list
         return - 1;
     }
 
-    //the specified element does not exist or _begin is outside the range of list => -1
+    //the specified value does not exist or _begin is outside the range of list => -1
     int IndexOfAny(const list<T>& _set, int _begin = 0) const
     {
         if (!InRange(_begin)) return -1;
@@ -1355,10 +1355,10 @@ template<typename T> struct list
         return - 1;
     }
 
+	//_begin is outside the range of list => -2
+	//[].IndexOf(4) => -1
     //[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
     //[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
-    //[].IndexOf(4) => -1
-    //_begin is outside the range of list => -2
     int IndexOfNot(const T& _value, int _begin = 0) const
     {
         if (!InRange(_begin)) return -2;
@@ -1374,10 +1374,13 @@ template<typename T> struct list
         return -1;
     }
 
-    //the specified element does not exist or _begin is outside the range of list => -1
+	//_begin is outside the range of string => -2
+	//[].IndexOf(4) => -1
+	//[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot([](const CodePoint& x) { return x == 9; }) => 3
+	//[9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
     int IndexOfNot(const std::function<bool(const T&)>& _predicate, int _begin = 0) const
     {
-        if (!InRange(_begin)) return -1;
+        if (!InRange(_begin)) return -2;
 
         for (int i = _begin; i < Count; i++)
         {
@@ -1452,6 +1455,7 @@ template<typename T> struct list
         return true;
     }
 
+	//the specified value does not exist => -1
     int LastIndexOf(const T& _value) const
     {
         for (int i = Count - 1; i > - 1; i--)
@@ -1465,15 +1469,16 @@ template<typename T> struct list
         return -1;
     }
 
+	//the specified value does not exist => -1
     int LastIndexOf(const list<T>& _value) const
     {
-        int index = - 1;
+        int index = -1;
 
         while (true)
         {
             int index_ = IndexOf(_value, index + _value.count());
 
-            if (index_ == - 1)
+            if (index_ == -1)
             {
                 return index;
             }
@@ -1484,6 +1489,7 @@ template<typename T> struct list
         }
     }
 
+	//the specified value does not exist => -1
     int LastIndexOf(const std::function<bool(const T&)>& _predicate) const
     {
         for (int i = Count - 1; i > - 1; i--)
@@ -1848,19 +1854,19 @@ template<typename T> struct list
 
     ///
 
-    void extend(int _size)
-    {
-	Size = _size;
-
-	T* oldElements = Elements;
-
-	Elements = new T[Size];
-
-	for (int i = 0; i < Count; i++)
+	void extend(int _size)
 	{
-		Elements[i] = oldElements[i];
-	}
+		Size = _size;
 
-	delete[] oldElements;
-   }
+		T* oldElements = Elements;
+
+		Elements = new T[Size];
+
+		for (int i = 0; i < Count; i++)
+		{
+			Elements[i] = oldElements[i];
+		}
+
+		delete[] oldElements;
+	}
 };
