@@ -47,7 +47,7 @@ f-code
 - #include "unicode.cpp"
 - #include "string.cpp"
 
-(!) each file can be used independently of the library:
+(!) file dependencies:
 - array.cpp - depends on <Windows.h>
 - range.cpp - do not depend on other files
 - tuple.cpp - do not depend on other files
