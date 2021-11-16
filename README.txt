@@ -2,8 +2,7 @@ f-code
 
 © November 2021, Stanislav Petrov
 
-(!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation,
-    networking, time functions, regular expressions, 2D graphics rendering and few other things; this is a very early version - at this stage the library contains only a small portion of the planned features
+(!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation, networking, time functions, regular expressions, 2D graphics rendering and few other things; this is a very early version - at this stage the library contains only a small portion of the planned features
 
 (!) the library is intended to work on Windows 10 and 64-byte processor 
 
