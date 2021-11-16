@@ -79,8 +79,7 @@ f-code
 
 (!) f-code use five tags that gives additional information to the programmer; these tags can be applied to a file or
     a program object (a variable, function, structure, etc.); some tags can be applied only to specific program objects;
-    if a tag is applied to a file then the tag should be included in the beginning of the file, and if it's applied to a program object it is
-	included right before the object; the tags used in the library (and the description of their meaning) are the following:
+    if a tag is applied to a file then the tag should be included in the beginning of the file, and if it's applied to a program object it is included right before the object; the tags used in the library (and the description of their meaning) are the following:
    - (!) { value } - a very important note
    - (EXAMPLE) { value }  - example of a certain functionality 
    - (MAY-NEED-BETTER-EXPLANATION) { value } - the functionality described by 'value' may need better explanation
