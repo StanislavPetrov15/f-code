@@ -33,8 +33,8 @@
 
 (!) all of the functionality in the library can be used in a program by including the following files:
 -   #include <Windows.h>
--   #include <iostream>
--   #include <functional>
+  - #include <iostream>
+  - #include <functional>
 -   (!) here the order of includes is important 
 -   #include "array.cpp"
 -   #include "range.cpp"
