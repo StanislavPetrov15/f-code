@@ -1,4 +1,4 @@
-# f-code
+f-code
 
 © November 2021, Stanislav Petrov
 
