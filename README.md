@@ -1,6 +1,6 @@
 # f-code
 
-© August 2021, Stanislav Petrov
+© November 2021, Stanislav Petrov
 
 (!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation,
     networking, time functions, regular expressions, 2D graphics rendering and few other things; at this stage though the library contains only a small portion of the planned
