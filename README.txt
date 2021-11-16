@@ -20,50 +20,50 @@
 (!) the ranges used in the library are inclusive 
 
 (!) the library consists of the following files:
--   array.cpp
--   range.cpp
--   tuple.cpp
--   pair.cpp
--   list.cpp
--   string.cpp
--   bit_operations.cpp
--   byte_operations.cpp
--   numeric.cpp
--   unicode.cpp
+- array.cpp
+- range.cpp
+- tuple.cpp
+- pair.cpp
+- list.cpp
+- string.cpp
+- bit_operations.cpp
+- byte_operations.cpp
+- numeric.cpp
+- unicode.cpp
 
 (!) all of the functionality in the library can be used in a program by including the following files:
--   #include <Windows.h>
--   #include <iostream>
--   #include <functional>
--   (!) here the order of includes is important 
--   #include "array.cpp"
--   #include "range.cpp"
--   #include "tuple.cpp"
--   #include "pair.cpp"
--   #include "list.cpp"
--   #include "bit_operations.cpp"
--   #include "byte_operations.cpp"
--   #include "numeric.cpp"
--   #include "unicode.cpp"
--   #include "string.cpp"
+- #include <Windows.h>
+- #include <iostream>
+- #include <functional>
+- (!) here the order of includes is important 
+- #include "array.cpp"
+- #include "range.cpp"
+- #include "tuple.cpp"
+- #include "pair.cpp"
+- #include "list.cpp"
+- #include "bit_operations.cpp"
+- #include "byte_operations.cpp"
+- #include "numeric.cpp"
+- #include "unicode.cpp"
+- #include "string.cpp"
 
 (!) each file can be used independently of the library:
--   array.cpp - depends on <Windows.h>
--   range.cpp - do not depend on other files
--   tuple.cpp - do not depend on other files
--   pair.cpp - do not depend on other files
--   list.cpp - depends on <functional> and range.cpp
--   bit_operations.cpp - depends on list.cpp
--   byte_operations.cpp - depends on list.cpp
--   numeric.cpp - depends on list.cpp
--   unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
--   string.cpp - depends on <iostream>, byte_operations.cpp, numeric.cpp и unicode.cpp
--   (example) as numeric.cpp depends on list.cpp we must first include the files on which list.cpp depends, i.e. <functional> and range.cpp; 
-	      therefore numeric.cpp can be used in the program by including the following code:
-           -  #include <functional>
-           -  #include "range.cpp"
-           -  #include "list.cpp"
-           -  #include "numeric.cpp"
+- array.cpp - depends on <Windows.h>
+- range.cpp - do not depend on other files
+- tuple.cpp - do not depend on other files
+- pair.cpp - do not depend on other files
+- list.cpp - depends on <functional> and range.cpp
+- bit_operations.cpp - depends on list.cpp
+- byte_operations.cpp - depends on list.cpp
+- numeric.cpp - depends on list.cpp
+- unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
+- string.cpp - depends on <iostream>, byte_operations.cpp, numeric.cpp и unicode.cpp
+- (example) as numeric.cpp depends on list.cpp we must first include the files on which list.cpp depends, i.e. <functional> and range.cpp; 
+  therefore numeric.cpp can be used in the program by including the following code:
+  -  #include <functional>
+  -  #include "range.cpp"
+  -  #include "list.cpp"
+  -  #include "numeric.cpp"
 
 (!) some functions contains notes describing the following (in the order shown below):
     - description of the function
@@ -85,11 +85,11 @@
     a program object (a variable, function, structure, etc.); some tags can be applied only to specific program objects;
     if a tag is applied to a file then the tag should be included in the beginning of the file, and if it's applied to a program object it is
 	included right before the object; the tags used in the library (and the description of their meaning) are the following:
-   -   (!) { value } - a very important note
-   -   (EXAMPLE) { value }  - example of a certain functionality 
-   -   (MAY-NEED-BETTER-EXPLANATION) { value } - the functionality described by 'value' may need better explanation
-   -   (STATE) { value } - describes the state of a specific object  (if the code is correctly executed) at the location of the tag
-   -   (END-STATE) this tag is always preceded by tag (STATE); this tag specifies that the state of the object specified by tag (STATE) is no more valid, i.e. after the line in  which the tag (END-STATE) is located the state of the object may be different than the state of the object described in the tag (STATE)
+   - (!) { value } - a very important note
+   - (EXAMPLE) { value }  - example of a certain functionality 
+   - (MAY-NEED-BETTER-EXPLANATION) { value } - the functionality described by 'value' may need better explanation
+   - (STATE) { value } - describes the state of a specific object  (if the code is correctly executed) at the location of the tag
+   - (END-STATE) this tag is always preceded by tag (STATE); this tag specifies that the state of the object specified by tag (STATE) is no more valid, i.e. after the line in  which the tag (END-STATE) is located the state of the object may be different than the state of the object described in the tag (STATE)
   
 
 
