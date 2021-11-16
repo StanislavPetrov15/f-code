@@ -35,7 +35,7 @@
 -   #include <Windows.h>
 -   #include <iostream>
 -   #include <functional>
--   !!! here the order of includes is important 
+-   (!) here the order of includes is important 
 -   #include "array.cpp"
 -   #include "range.cpp"
 -   #include "tuple.cpp"
