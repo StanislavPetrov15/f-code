@@ -56,8 +56,7 @@ f-code
 - numeric.cpp - depends on list.cpp
 - unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
 - string.cpp - depends on <iostream>, byte_operations.cpp, numeric.cpp и unicode.cpp
-- (example) as numeric.cpp depends on list.cpp we must first include the files on which list.cpp depends, i.e. <functional> and range.cpp; 
-  therefore numeric.cpp can be used in the program by including the following code:
+- (example) as numeric.cpp depends on list.cpp we must first include the files on which list.cpp depends, i.e. <functional> and range.cpp;  therefore numeric.cpp can be used in the program by including the following code:
   - #include <functional>
   - #include "range.cpp"
   - #include "list.cpp"
