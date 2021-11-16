@@ -66,15 +66,13 @@ f-code
   - #include "numeric.cpp"
 
 (!) some functions contains notes describing the following (in the order shown below):
-    - description of the function
-    - description of one or more parameters of the function (if their meaning is not clear at first)
-    - the result from (a function call with specific argument values) in the format "<argument-values> => <result>", 
-      where 'argument-values' consists of one or more argument values; the character '|' means 'or'
-    - examples in format "<function-call> => <result>"; some arguments in the example can have value 'x' which means that the value of the argument 
-      does not matter for the specific example; the examples not always show every possible variant of the particular function call; most of the time
-      only the variants for which the result is not clear (which is subjective) are shown
-    - (a set of one or more argument values) followed by character '->' means that (the argument(s) must have the specified values) for the 
-      correct execution of the function
+- description of the function
+- description of one or more parameters of the function (if their meaning is not clear at first)
+- the result from (a function call with specific argument values) in the format "<argument-values> => <result>", 
+  where 'argument-values' consists of one or more argument values; the character '|' means 'or'
+- examples in format "<function-call> => <result>"; some arguments in the example can have value 'x' which means that the value of the argument 
+  does not matter for the specific example; the examples not always show every possible variant of the particular function call; most of the time
+  only the variants for which the result is not clear (which is subjective) are shown - (a set of one or more argument values) followed by character '->' means that (the   argument(s) must have the specified values) for the correct execution of the function
 
 (!) (a character '->' after the body of a function) followed by (set of object values) means that the objects receive the specified values
 
