@@ -1,23 +1,31 @@
 !!! this document describes the public interface of the library
 
-Index:
-
-array.cpp - line 18 
-pair.cpp - line 148
-tuple.cpp - line 176
-range.cpp - line 354
-list.cpp - line 459
-string.cpp - line 867
-numeric.cpp - line 1491
-bit_operations.cpp - line 1626
-byte_operations.cpp - line 1730
-unicode.cpp - line 1764
-
 -----------------------------------------------------------------------------------------
+
+struct array:
+  # FIELDS:
+  T* pointer
+  int length
+
+struct range:
+  # FIELDS:
+  int begin
+  int end
 
 array.cpp:
 
 # NON-MUTATING FUNCTIONS:
+
+# _length specifies the length of _array
+template<typename T> bool contains(const T* const _array, int _length, T _value)
+
+# _length specifies the length of _array
+# _length_ specifies the length of _value
+template<typename T> bool contains(const T* const _array, int _length, const T* const _value, int _length_)
+
+# _length specifies the length of _array
+# except([2, 9, 0, 1, 4, 9, 7, 3], 8, 9) => [2, 0, 1, 4, 7, 3]
+template<typename T> array except(const T* const _array, int _length, T _value)
 
 # _length1 specifies the length of _array1
 # _length2 specifies the length of _array2
@@ -26,122 +34,122 @@ array.cpp:
 # equality([5, 0, 9], [6, 4, 1], 3, 3) => FALSE
 # equality([5, 0, 9], [5, 9, 0], 3, 3) => FALSE
 # equality([5, 0, 9], [5, 0, 9], 3, 3) => TRUE
-int equality(const char* const _array1, const char* const _array2, int _length1, int _length2)
+template<typename T> bool equality(const T* const _array1, const T* const _array2, int _length1, int _length2)
 
 # _length specifies the length of _array
-# _array = nullptr | the specified value does not exist => -1
-# _length < 1 => -2
-int indexOf(const char* const _array, int _length, char _value)
+# the specified value does not exist => -1
+template<typename T> int indexOf(const T* const _array, int _length, T _value)
 
 # _length specifies the length of _array
-# ([9, 9, 9, 5, 8, 10, 2, 7], 8, 9) => 3
-# ([9, 9, 9, 5, 8, 10, 2, 7], 8, 4) => 0
-# _array = nullptr => -1
-# _length < 1 => -2
-int indexOfNot(const char* const _array, int _length, char _value)
+# indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 9) => 3
+# indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 4) => 0
+template<typename T> int indexOfNot(const T* const _array, int _length, T _value)
 
 # _length specifies the length of _array
-# _array = nullptr | the specified value does not exist => -1
-# _length < 1 => -2
-int lastIndexOf(const char* const _array, int _length, char _value)
+template<typename T> bool isHeterogenous(const T* const _array, int _length)
+
+# _length specifies the length of _array
+template<typename T> bool isHomogenous(const T* const _array, int _length)
+
+# _length specifies the length of _array
+# the specified value does not exist => -1
+template<typename T> int lastIndexOf(const T* const _array, int _length, T _value)
+
+# returns the range of a sequence consisting of certain set of values (it is not mandatory for the sequence to contain each value in the set)
+# _length specifies the length of _array
+# _length_ specifies the length of _set
+# [3, 10, 15, 12, 8, 5, 7, 5, 5, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
+# [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
+# [3, 10, 15, 12, 0, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (4, 4)
+# [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (-1, -1)
+template<typename T> range rangeOf(const T* const _array, int _length, const T* const _set, int _length_)
+
+# - the first two elements returned by this function are meta-markers
+  - the elements between (the first two) and (the last four) elements represent (a sequence of pointer pairs where each pair
+    is representing either (an empty sequence) or (non-empty sequence)); an empty sequence is indicated by (array[1], array[0])
+    and non-empty sequence is indicated by (<begin-pointer>, <end-pointer>)
+  - the last four elements indicate the end of the pointer array; the value of the sequence is (array[0], array[1], array[0], array[1]) #
+# returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+# empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+# _length specifies the length of _array
+# _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+# split([3, 7, 18, 5, 19, 76, 15], 7, 353) => []
+# split([18, 5, 19, 76, 15, 9, 20, 5], 8, 9) => [[18, 5, 19, 76, 15], [20, 5]]
+# split([56, 3, 7, 18, 5, 19, 76, 7], 8, 7) => [[56, 3], [18, 5, 19, 76]]
+# split([56, 7, 7, 18, 5, 19, 76, 15, 9], 9, 7) => [[56], [], [18, 5, 19, 76, 15, 9]]
+# split([56, 7, 7, 18, 5, 19, 76, 15, 9], 9, 7) => [[56], [18, 5, 19, 76, 15, 9]]
+# split([7, 41, 56, 7, 18, 76, 15, 9, 7], 9,7 ) => [[41, 56], [18, 76, 15, 9]]
+# split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7) => [[41, 56], [], [], [18, 5, 15]]
+template<typename T> T** split(T* const _array, int _length, T _separator, bool _ignoreEmptyValues = false)
+
+# _length specifies the length of _array
+template<typename T> array where(const T* const _array, int _length, const std::function<bool(T)>& _predicate)
 
 # MUTATION FUNCTIONS:
 
 # it copies segment (from _source to _destination) (beginning at _sourceBegin) and (with length specified by _length)
-# _source = nullptr | _destination = nullptr => -1
-# invalid parameter_sourceLength|_destinationLength|_sourceBegin|_sourceEnd|_destinationBegin => -2
-# returns 0 on successful execution
 # copy("variance", "namespace", 8, 9, 2, 4, 5) >> "namerianc"
 # copy("variance", "namespace", 8, 9, 2, 7, 5) >> "namespari"
 # copy("variance", "namespace", 8, 9, 6, 2, 5) >> "nacespace"
-int copy(const char* const _source, char* const _destination, int _sourceLength, int _destinationLength, int _sourceBegin, int _destinationBegin, int _copyLength)
+template<typename T> void copy(const T* const _source, T* const _destination, int _sourceLength, int _destinationLength, int _sourceBegin,
+         int _destinationBegin, int _copyLength)
 
 # it copies segment (from _source to _destination) (beginning at_sourceBegin and ending at _sourceEnd)
-# _source = nullptr | _destination = nullptr => -1
-# invalid parameter_sourceLength|_destinationLength|_sourceBegin|_sourceEnd|_destinationBegin => -2
-# returns 0 on successful execution
 # copyRange("variance", "namespace", 8, 9, 2, 4, 5) >> "namesriae"
 # copyRange("variance", "namespace", 8, 9, 5, 5, 3) >> "namespace"
 # copyRange("variance", "namespace", 8, 9, 5, 7, 8) >> "namespacn"
-int copyRange(const char* const _source, char* const _destination, int _sourceLength, int _destinationLength,
-    int _sourceBegin, int _sourceEnd, int _destinationBegin)
+template<typename T> void copyRange(const T* const _source, T* const _destination, int _sourceLength, int _destinationLength,
+int _sourceBegin, int _sourceEnd, int _destinationBegin)
 
 # _length specifies the length of _array
-# returns the new length of _array
-# _array = nullptr => -1
-# _length < 0 => -2
 # extendLeft([1, 2, 3, 4, 5], 5, 2) >> [x, x, 1, 2, 3, 4, 5]
-int extendLeft(char*& _array, int _length, int _extensor)
+template<typename T> void extendLeft(T*& _array, int _extensor)
 
 # _length specifies the length of _array
-# returns the new length of _array
-# _array = nullptr => -1
-# _length < 0 => -2
 # extendRight([1, 2, 3, 4, 5], 5, 2) >> [1, 2, 3, 4, 5, x, x]
-int extendRight(char*& _array, int _length, int _extensor)
+template<typename T> void extendRight(T*& _array, int _extensor)
 
 # _length specifies the length of _array
-# returns the new length of _array
-# _array = nullptr => -1
-# _length < 0 => -2
-# _reducer > _length => -3
 # reduceLeft([1, 2, 3, 4, 5], 5, 2) >> [3, 4, 5]
-int reduceLeft(char*& _array, int _length, int _reducer)
+template<typename T> void reduceLeft(T*& _array, int _length, int _reducer)
 
 # _length specifies the length of _array
-# returns the new length of _array
-# _array = nullptr => -1
-# _length < 0 => -2
-# _reducer > _length => -3
 # reduceRight([1, 2, 3, 4, 5], 5, 2) >> [1, 2, 3]
-int reduceRight(char*& _array, int _length, int _reducer)
+template<typename T> void reduceRight(T*& _array, int _length, int _reducer)
 
 # _length specifies the length of _array
-# returns the new length of _array
-# _array = nullptr => -1
-# _length < 1 => -2
-# _begin < 0 | _begin > _length - 1 => -2
-# _reducer > _length => -3
 # remove([5, 8, 1, 9, 2, 4, 7], 7, 2, 3) >> [5, 8, 4, 7]
 # remove([5, 8, 1, 9, 2, 4, 7], 7, 5, 3) >> [5, 8, 1, 9, 2]
-int remove(char*& _array, int _length, int _begin, int _reducer)
+template<typename T> void remove(T*& _array, int _length, int _begin, int _reducer)
 
 # _length specifies the length of _array
-# returns the new length of _array
-# _array = nullptr => -1
-# _length < 1 => -2
-# _begin > _end => -3
-int removeRange(char*& _array, int _length, int _begin, int _end)
+template<typename T> void removeRange(chTar*& _array, int _length, int _begin, int _end)
+
+# T = built-in integral type ->
+template<typename T> void resize(T*& _array, int _currentLength, int _newLength)
 
 # _length specifies the length of _array
-# _array = nullptr => -1
-# _length < 1 => -2
-# returns 0 on successful execution
-int reverse(char* const _array, int _length)
+template<typename T> void reverse(T*& _array, int _length)
 
 # _length specifies the length of _array
-# _array = nullptr => -1
-# _length < 1 => -2
-# returns 0 on successful execution
-int set(char* const _array, int _length, int _begin, int _end, char _value)
+# rotateLeft([1, 2, 3, 4, 5], 5, 5) >> [4, 5, 1, 2, 3]
+void rotateLeft(T*& _array, int _length, int _positions = 1)
 
 # _length specifies the length of _array
-# _array = nullptr => -1
-# _length < 1 => -2
-# returns 0 on successful execution
-int swap(char* const _array, int _length, int _i1, int _i2)
+# rotateRight([1, 2, 3, 4, 5], 5, 4) >> [5, 1, 2, 3, 4]
+template<typename T> void rotateRight(T*& _array, int _length, int _positions = 1)
 
 # _length specifies the length of _array
-# returns the new length of _array
-# _array = nullptr => -1
-# _length < 1 => -2
-int trimBegin(char*& _array, int _length, char _value)
+template<typename T> void set(T*& _array, int _length, int _begin, int _end, T _value)
 
 # _length specifies the length of _array
-# returns the new length of _array
-# _array = nullptr => -1
-# _length < 1 => -2
-int trimEnd(char*& _array, int _length, char _value)
+template<typename T> void swap(T*& _array, int _length, int _i1, int _i2)
+
+# _length specifies the length of _array
+template<typename T> void trimBegin(T*& _array, int _length, T _value)
+
+# _length specifies the length of _array
+template<typename T> void trimEnd(T*& _array, int _length, T _value)
 
 -----------------------------------------------------------------------------------------
 
@@ -349,6 +357,120 @@ template<typename T1, typename T2, typename T3, typename T4, typename T5, typena
 
   const T7& e7() const
 
+template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8> struct t8
+
+  # CONSTRUCTORS:
+
+  t8() = default
+
+  t8(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8)
+
+  t8(const t8&) = default
+
+  # OPERATORS:
+
+  t8& operator=(const t8&) = default
+
+  bool operator==(const t8&) const
+
+  bool operator!=(const t8&) const
+
+  # FIELDS:
+
+  const T1& e1() const
+
+  const T2& e2() const
+
+  const T3& e3() const
+
+  const T4& e4() const
+
+  const T5& e5() const
+
+  const T6& e6() const
+
+  const T7& e7() const
+
+  const T8& e8() const
+
+template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9> struct t9
+
+  # CONSTRUCTORS:
+
+  t9() = default
+
+  t9(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9)
+
+  t9(const t9&) = default
+
+  # OPERATORS:
+
+  t9& operator=(const t9&) = default
+
+  bool operator==(const t9&) const
+
+  bool operator!=(const t9&) const
+
+  # FIELDS:
+
+  const T1& e1() const
+
+  const T2& e2() const
+
+  const T3& e3() const
+
+  const T4& e4() const
+
+  const T5& e5() const
+
+  const T6& e6() const
+
+  const T7& e7() const
+
+  const T8& e8() const
+
+  const T9& e9() const
+
+template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10> struct t10
+
+  # CONSTRUCTORS:
+
+  t10() = default
+
+  t10(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10)
+
+  t10(const t10&) = default
+
+  # OPERATORS:
+
+  t10& operator=(const t10&) = default
+
+  bool operator==(const t10&) const
+
+  bool operator!=(const t10&) const
+
+  # FIELDS:
+
+  const T1& e1() const
+
+  const T2& e2() const
+
+  const T3& e3() const
+
+  const T4& e4() const
+
+  const T5& e5() const
+
+  const T6& e6() const
+
+  const T7& e7() const
+
+  const T8& e8() const
+
+  const T9& e9() const
+
+  const T10& e10() const
+
 -----------------------------------------------------------------------------------------
 
 range.cpp:
@@ -460,10 +582,20 @@ list.cpp:
 
 # TYPES:
 
-enum class SpatialKind = COMPLETE | SEGMENT
-
+# this type determines what happens (when an instance of a sequence type is traversed) and these four scenarios happen:
+  - the current traversal position is 0 and either previous() or back() is used; if the traversal mdoe is set to BOUNDED then (previous() returns the first element)
+    and (back() does nothing)
+  - the current traversal position is 0 and either previous() or back() is used; if the traversal mode is set to CIRCULAR then (previous() returns the last element) and
+    (back() sets the current traversal position to a value that points to the last element)
+  - the current traversal position is the position of the last element and either next() or advance() is used;
+	if the traversal mode is set to BOUNDED then (next() returns the last element) and (advance() does nothing)
+  - the current traversal position is the position of the last element and either next() or advance() is used;
+    if the traversal mode is set to CIRCULAR then (next() returns the first element) and (advance() sets the current traversal position to a value
+	that points to the first element) #
 enum class TraversalMode = BOUNDED | CIRCULAR
 
+# when an instance of (a sequence type that uses ReleaseMode) is about to be destructed the elements (are freed automatically and immediately
+	 (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future moment (when FUTURE is used)) #
 enum class ReleaseMode = IMMEDIATE | FUTURE
 
 # (!) the size(accessed by size()) of a segment is equal to the size of the list that the segment refers to
@@ -471,7 +603,7 @@ struct list<T>:
 
   # VARIABLES:
 
-  TraversalMode TraversalMode
+  TraversalMode TraversalMode = TraversalMode::BOUNDED;
 
   # when an instance of this type is about to be destructed the elements (are freed automatically and immediately
     (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future moment (when FUTURE is used)) #
@@ -504,6 +636,14 @@ struct list<T>:
   bool operator==(const list<T>&) const
 
   bool operator!=(const list<T>&) const
+
+  # [5, 0, 9] == [[5, 1, 3], [5, 1, 9], [5, 0, 0]] => false
+  # [5, 0, 9] == [[5, 1, 0], [5, 0, 9], [4, 3, 1]] => true
+  bool operator==(const list<list<T>>& _values) const
+
+  # [5, 0, 9] == [[5, 1, 0], [5, 0, 9], [4, 3, 1]] => false
+  # [5, 0, 9] == [[5, 1, 3], [5, 1, 9], [5, 0, 0]] => true
+  bool operator!=(const list<list<T>>& _values) const
 
   list<T>& operator=(const list<T>&)
 
@@ -568,6 +708,9 @@ struct list<T>:
   int set_position(int _position)
 
   # MUTATION FUNCTIONS:
+
+  # acquire ownership of _list; after the operation is completed _list becomes invalid
+  void Acquire(list<T>& _list)
 
   list<T>& Append(const T& _value)
 
@@ -644,6 +787,9 @@ struct list<T>:
   list<T>& SelectionSort(bool _ascending = true)
 
   list<T>& SelectionSort(const std::function<bool(const T&, const T&)>& _predicate, bool _ascending = true)
+
+  # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
+  list<T>& Set(int _begin, int _end, const T& _value)
 
   list<T>& Swap(int _index1, int _index2)
 
@@ -730,6 +876,9 @@ struct list<T>:
     list<int> l = items.Generate<int>([](const Item& _item) { return _item.Price * 2; }); => [10, 4, 70] #
   template<typename A> list<A> Generate(const std::function<A(const T&)>& _generator) const
 
+  # it checks whether the list contains an element with the specified index
+  bool Has(int _index) const
+
   bool HasDuplicates() const
 
   # the specified element does not exist or _begin is outside the range of list => -1
@@ -790,8 +939,8 @@ struct list<T>:
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
   # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result 
-  # [41, 56, 3, 7, 18, 5, 19, 76, 15].Multisplit([353, 12]) => [[41, 56, 3, 7, 18, 5, 19, 76, 15]]
+  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+  # [41, 56, 3, 7, 18, 5, 19, 76, 15].Multisplit([353, 12]) => []
   # [41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 20, 5].Multisplit([56, 9]) => [[41], [3, 7, 18, 5, 19, 76, 15], [20, 5]]
   # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9]) => [[41, 56, 3], [18, 5, 19, 76, 15], [], [20]]
   # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9], true) => [[41, 56, 3], [18, 5, 19, 76, 15], [20]]
@@ -814,7 +963,7 @@ struct list<T>:
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
   # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
   # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [3, 7, 18, 5, 19, 76, 15].Split(353) => [[3, 7, 18, 5, 19, 76, 15]]
+  # [3, 7, 18, 5, 19, 76, 15].Split(353) => []
   # [18, 5, 19, 76, 15, 9, 20, 5].Split(9) => [[18, 5, 19, 76, 15], [20, 5]]
   # [56, 3, 7, 18, 5, 19, 76, 7].Split(7) => [[56, 3], [18, 5, 19, 76]]
   # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7) => [[56], [], [18, 5, 19, 76, 15, 9]]
@@ -826,7 +975,7 @@ struct list<T>:
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
   # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
   # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [41, 56, 3, 5, 7, 18, 5, 19, 76, 15].Split([3, 8]) => [[41, 56, 3, 5, 7, 18, 5, 19, 76, 15]]
+  # [41, 56, 3, 5, 7, 18, 5, 19, 76, 15].Split([3, 8]) => []
   # [41, 56, 3, 5, 7, 18, 5, 19, 9, 7, 76, 15, 9].Split([9, 7]) => [[41, 56, 3, 5, 7, 18, 5, 19], [76, 15, 9]]
   # [41, 56, 3, 9, 7, 18, 5, 19, 76, 15, 9, 20, 9, 7].Split([9, 7]) => [[41, 56, 3], [18, 5, 19, 76, 15, 9, 20]]
   # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7]) => [[41, 56], [], [18, 5, 19, 76, 15, 9, 20, 3]]
@@ -838,7 +987,7 @@ struct list<T>:
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
   # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
   # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [3, 7, 18, 5, 19, 76, 15].Split([](int x) { return x == 353; }) => [[3, 7, 18, 5, 19, 76, 15]]
+  # [3, 7, 18, 5, 19, 76, 15].Split([](int x) { return x == 353; }) => []
   # [18, 5, 19, 76, 15, 9, 20, 5].Split([](int x) { return x == 9; }) => [[18, 5, 19, 76, 15], [20, 5]]
   # [56, 3, 7, 18, 5, 19, 76, 7].Split([](int x) { return x == 7; }) => [[56, 3], [18, 5, 19, 76]]
   # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }) => [[56], [], [18, 5, 19, 76, 15, 9]]
@@ -860,25 +1009,26 @@ struct list<T>:
 
   #
 
-  void extend(int _size = -1)
+  void resize(int _size = -1)
 
 -----------------------------------------------------------------------------------------
 
 string.cpp:
 
 # constructor activation atoms
-enum ASCII = ascii 
-enum U8 = u8 
-enum U16 = u16 
-enum U32 = u32 
+enum size = SIZE_A
+enum ASCII = ascii
+enum U8 = u8
+enum U16 = u16
+enum U32 = u32
 
 # activation atoms for string::ToInteger()
-enum DECIMAL_ = DECIMAL_A 
-enum BINARY_ = BINARY_A 
-enum HEX_ = HEX_A 
+enum DECIMAL_ = DECIMAL_A
+enum BINARY_ = BINARY_A
+enum HEX_ = HEX_A
 
-# encoding format for (input and output string data) 
-enum Encoding = ASCII_ | UTF8 | UTF16LE | UTF16BE | UTF32LE | UTF32BE 
+# encoding format for (input and output string data)
+enum Encoding = ASCII_ | UTF8 | UTF16LE | UTF16BE | UTF32LE | UTF32BE
 
 const int INVALID_INTEGER = INT_MIN
 
@@ -906,9 +1056,9 @@ Encoding DefaultInputEncoding = ASCII_
 # the default encoding format of the stored value of a string
 Encoding DefaultStorageEncoding = UTF8
 
-# this type belongs to the 'Sequence' type category; t:string and t:list share many equivalent functions, but t:string do not implement 
+# this type belongs to the 'Sequence' type category; t:string and t:list share many equivalent functions, but t:string do not implement
   First(), Generate(), Intersects(), IntersectionOf(), IsHeterogenous(), IsHomogenous(), Max(), Min(), fm:Sort() and Swap(*, *), while at the same time
-  implements a set of extension functions #   
+  implements a set of extension functions #
 # the input string (passed to the constructors) is in ASCII, UTF-8, UTF-16LE, UTF-16BE, UTF-32LE or UTF-32BE format
 # the input string (may contain a terminating character) or (it's length may be explicitly specified)
 # the output string (the string value after the construction process has ended) is stored as (byte sequence) representing (a sequence of UTF-8, UTF-16LE or UTF-32LE code units)
@@ -919,18 +1069,18 @@ Encoding DefaultStorageEncoding = UTF8
 # (!) elements() returns a pointer to byte array containing (the characters represented as a sequence of (UTF-8, UTF-16LE, UTF-16BE, UTF-32LE or UTF-32BE) code units)
 # (!) the constructors accept (byte arrays) or (arrays of UTF-16/UTF-32 code units)
 # (!) (the constructors accepting byte arrays) may accept the array length (in bytes), (in code units) or (in characters); in order to pass
-      the length in bytes one have to use <N> or <N>|b, to pass the length in code units <N>|u, and to pass the length in characters <N>|c; 
+      the length in bytes one have to use <N> or <N>|b, to pass the length in code units <N>|u, and to pass the length in characters <N>|c;
       the maximum value of <N> is 1073741823 (constant MAX_LENGTH)
       (Е1) 162 (162 bytes)
       (Е2) 495|b (495 bytes)
       (E3) 829|u (829 code units)
       (Е3) 327|c (327 characters)
       (Е5) [utf16]:array -> string(array, 94|c) (construction of a string accepting an array of UTF-16 code units with length 94 characters) #
-# (!) (MAY-NEED-BETTER-EXPLANATION) 
+# (!) (MAY-NEED-BETTER-EXPLANATION)
 	  when an incorrect length value is passed to a (constructor accepting UTF-16 or UTF-32 arrays) it is possible for a discrepancy to occur between
       the number of the specified number of bytes/code-units/characters and the number of the processed bytes/code-units/characters
-      (E) string(const utf16*...) receive a length of 4 bytes; the first code unit is BMP character, and the second and third 
-          code units are respectively high and low surrogate of a non-BMP character; in this case 6 bytes (not 4) will be processed, because in 
+      (E) string(const utf16*...) receive a length of 4 bytes; the first code unit is BMP character, and the second and third
+          code units are respectively high and low surrogate of a non-BMP character; in this case 6 bytes (not 4) will be processed, because in
 	      constructors there is an iteration over characters (the first character is represented by the first two bytes, and the second
 	      by the next four bytes) #
 # (!) the constructors must not receive an empty string or a string without terminating character(for ASCII and UTF-8) or terminating sequence
@@ -940,16 +1090,16 @@ struct String:
 
   VARIABLES:
 
-  # this variable plays a role for the speed of string generation; the larger the final size of the string is (i.e. the size after 
+  # this variable plays a role for the speed of string generation; the larger the final size of the string is (i.e. the size after
 	ending of the generation process), the larger the value of this variable must be; it needs to be increased by 1 every 2kb;
 	if the string is very large and it's final size is known before the construction, then it is better to set the binary size before
 	the start of the generation process - in such a way there wouldn't be need for (potentialy multiple) resize operations #
-  int Extensor = 50 # in bytes 
+  int Extensor = 50 # in bytes
 
   TraversalMode TraversalMode = TraversalMode::BOUNDED
-  
+
   # when an instance of this type is about to be destructed the elements (are freed automatically and immediately
-    (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future 
+    (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future
 	moment (when FUTURE is used)) #
   ReleaseMode ReleaseMode = ReleaseMode::IMMEDIATE
 
@@ -957,10 +1107,10 @@ struct String:
 
   string() = default
 
-  explicit string(int _size)
+  explicit string(int _size, size)
 
   # _array is an ASCII string with an available terminating character ->
-  string(const char* _array) 
+  string(const char* _array)
 
   # _array is an ASCII|UTF-8|UTF-16|UTF-32 string with an available terminating character ->
   string(const unsigned char* _array)
@@ -991,59 +1141,59 @@ struct String:
 
   # _length specifies the length of _array
   # _array is a UTF-8 string ->
-  string(const unsigned char*_array, U8, unsigned int _length) -> string(_array, u8, _length, DefaultStorageEncoding)
+  string(const unsigned char* _array, U8, unsigned int _length) -> string(_array, u8, _length, DefaultStorageEncoding)
 
   # _array is a UTF-16 string with an available terminating character ->
-  string(const unsigned char*_array, U16, Endianity _endianity, Encoding _storageEncoding)
+  string(const unsigned char* _array, U16, Endianity _endianity, Encoding _storageEncoding)
 
   # _array is a UTF-16 string with an available terminating character ->
-  string(const unsigned char*_array, U16, Endianity _endianity) -> string(_array, u16, _endianity, DefaultStorageEncoding)
+  string(const unsigned char* _array, U16, Endianity _endianity) -> string(_array, u16, _endianity, DefaultStorageEncoding)
 
   # _array is a UTF-16 string with an available terminating character ->
-  string(const unsigned char*_array, U16, Encoding _storageEncoding) -> string(_array, u16, DefaultEndianity, _storageEncoding)
+  string(const unsigned char* _array, U16, Encoding _storageEncoding) -> string(_array, u16, DefaultEndianity, _storageEncoding)
 
   # _array is a UTF-16 string with an available terminating character ->
   string(const unsigned char*_array, U16) -> string(_array, u16, DefaultEndianity, DefaultStorageEncoding)
 
   # _length specifies the length of _array
   # _array is a UTF-16 string ->
-  string(const unsigned char*_array, U16, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
+  string(const unsigned char* _array, U16, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
 
   # _length specifies the length of _array
   # _array is a UTF-16 string ->
-  string(const unsigned char*_array, U16, Endianity _endianity, unsigned int _length) -> string(_array, u16, _endianity, _length, DefaultStorageEncoding)
+  string(const unsigned char* _array, U16, Endianity _endianity, unsigned int _length) -> string(_array, u16, _endianity, _length, DefaultStorageEncoding)
 
   # _length specifies the length of _array
   # _array is a UTF-16 string ->
-  string(const unsigned char*_array, U16, unsigned int _length, Encoding _storageEncoding) -> string(_array, u16, DefaultEndianity, _length, _storageEncoding)
+  string(const unsigned char* _array, U16, unsigned int _length, Encoding _storageEncoding) -> string(_array, u16, DefaultEndianity, _length, _storageEncoding)
 
   # _length specifies the length of _array
   # _array is a UTF-16 string ->
-  string(const unsigned char*_array, U16, unsigned int _length) -> string(_array, u16, DefaultEndianity, _length, DefaultStorageEncoding)
+  string(const unsigned char* _array, U16, unsigned int _length) -> string(_array, u16, DefaultEndianity, _length, DefaultStorageEncoding)
 
   # _array is a UTF-32 string with an available terminating character ->
-  string(const unsigned char*_array, U32, Endianity _endianity, Encoding _storageEncoding)
+  string(const unsigned char* _array, U32, Endianity _endianity, Encoding _storageEncoding)
 
   # _array is a UTF-32 string with an available terminating character ->
   string(const unsigned char*_array, U32, Endianity _endianity) -> string(_array, u32, _endianity, DefaultStorageEncoding)
 
   # _array is a UTF-32 string with an available terminating character ->
-  string(const unsigned char*_array, U32, Encoding _storageEncoding) -> string(_array, u32, DefaultEndianity, _storageEncoding)
+  string(const unsigned char* _array, U32, Encoding _storageEncoding) -> string(_array, u32, DefaultEndianity, _storageEncoding)
 
   # _array is a UTF-32 string with an available terminating character ->
   string(const unsigned char* _array, U32) -> string(_array, u32, DefaultEndianity, DefaultStorageEncoding)
 
   # _length specifies the length of _array
   # _array is a UTF-32 string ->
-  string(const unsigned char*_array, U32, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
+  string(const unsigned char* _array, U32, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
 
   # _length specifies the length of _array
   # _array is a UTF-32 string ->
-  string(const unsigned char*_array, U32, Endianity _endianity, unsigned int _length) -> string(_array, u32, _endianity, _length, DefaultStorageEncoding)
+  string(const unsigned char* _array, U32, Endianity _endianity, unsigned int _length) -> string(_array, u32, _endianity, _length, DefaultStorageEncoding)
 
   # _length specifies the length of _array
   # _array is a UTF-32 string ->
-  string(const unsigned char*_array, U32, unsigned int _length, Encoding _storageEncoding) -> string(_array, u32, DefaultEndianity, _length, _storageEncoding)
+  string(const unsigned char* _array, U32, unsigned int _length, Encoding _storageEncoding) -> string(_array, u32, DefaultEndianity, _length, _storageEncoding)
 
   # _length specifies the length of _array
   # _array is a UTF-32 string ->
@@ -1107,6 +1257,8 @@ struct String:
 
   string(const wchar_t* _string, Encoding _storageEncoding) -> string(reinterpret_cast<const utf16*>(_string), LE, _storageEncoding)
 
+  string(const wchar_t* _string) -> string(reinterpret_cast<const utf16*>(_string), LE, DefaultStorageEncoding) {}
+
   string(const string& _string)
 
   # it generates a segment
@@ -1115,6 +1267,12 @@ struct String:
   # it generates a segment
   string(const string& _source, const Range<int>& _range)
 
+  string(char _character)
+
+  string(wchar_t _character)
+
+  string(CodePoint _codePoint)
+
   # OPERATORS:
 
   # this operator does not compare the fields of the two objects; it compares only the character content
@@ -1122,6 +1280,14 @@ struct String:
 
   # this operator does not compare the fields of the two objects; it compares only the character content
   bool operator!=(const string&) const
+
+  # "East" == ["North", "South", "Left", "Right"] => false
+  # "East" == ["North", "South", "East", "West"] => true
+  bool operator==(const list<string>& _values) const
+
+  # "East" == ["North", "South", "East", "West"] => false
+  # "East" == ["North", "South", "Left", "Right"] => true
+  bool operator!=(const list<string>& _values) const
 
   string& operator=(const string&)
 
@@ -1186,6 +1352,9 @@ struct String:
   int set_position(int _position)
 
   # MUTATION FUNCTIONS:
+
+  # acquire ownership of _string; after the operation is completed _string becomes invalid
+  void Acquire(string& _string)
 
   # the bytes in _value represent a single character (in a specific encoding) and (are appended to &elements() in the same order as they are in _value)
   string& Append(const list<unsigned char>& _value)
@@ -1265,6 +1434,9 @@ struct String:
 
   string& Set(int _index, CodePoint _value)
 
+  # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
+  string& Set(int _begin, int _end, CodePoint _value)
+
   string& Swap(int _index1, int _index2)
 
   # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].Trim(2) => [5, 9, 0, 6]
@@ -1276,7 +1448,7 @@ struct String:
   # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimEnd(2) => [2, 2, 2, 5, 9, 0, 6]
   string& TrimEnd(CodePoint _value)
 
-  NON-MUTATING FUNCTIONS:
+  # NON-MUTATING FUNCTIONS:
 
   bool BeginsWith(const string& _value) const
 
@@ -1369,8 +1541,8 @@ struct String:
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
   # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result 
-  # [41, 56, 3, 7, 18, 5, 19, 76, 15].Multisplit([353, 12]) => [[41, 56, 3, 7, 18, 5, 19, 76, 15]]
+  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+  # [41, 56, 3, 7, 18, 5, 19, 76, 15].Multisplit([353, 12]) => []
   # [41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 20, 5].Multisplit([56, 9]) => [[41], [3, 7, 18, 5, 19, 76, 15], [20, 5]]
   # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9]) => [[41, 56, 3], [18, 5, 19, 76, 15], [], [20]]
   # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9], true) => [[41, 56, 3], [18, 5, 19, 76, 15], [20]]
@@ -1392,8 +1564,8 @@ struct String:
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
   # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result 
-  # [3, 7, 18, 5, 19, 76, 15].Split(353) => [[3, 7, 18, 5, 19, 76, 15]]
+  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+  # [3, 7, 18, 5, 19, 76, 15].Split(353) => []
   # [18, 5, 19, 76, 15, 9, 20, 5].Split(9) => [[18, 5, 19, 76, 15], [20, 5]]
   # [56, 3, 7, 18, 5, 19, 76, 7].Split(7) => [[56, 3], [18, 5, 19, 76]]
   # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7) => [[56], [], [18, 5, 19, 76, 15, 9]]
@@ -1404,8 +1576,8 @@ struct String:
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
   # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result 
-  # [41, 56, 3, 5, 7, 18, 5, 19, 76, 15].Split([3, 8]) => [[41, 56, 3, 5, 7, 18, 5, 19, 76, 15]]
+  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+  # [41, 56, 3, 5, 7, 18, 5, 19, 76, 15].Split([3, 8]) => []
   # [41, 56, 3, 5, 7, 18, 5, 19, 9, 7, 76, 15, 9].Split([9, 7]) => [[41, 56, 3, 5, 7, 18, 5, 19], [76, 15, 9]]
   # [41, 56, 3, 9, 7, 18, 5, 19, 76, 15, 9, 20, 9, 7].Split([9, 7]) => [[41, 56, 3], [18, 5, 19, 76, 15, 9, 20]]
   # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7]) => [[41, 56], [], [18, 5, 19, 76, 15, 9, 20, 3]]
@@ -1416,8 +1588,8 @@ struct String:
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
   # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result 
-  # [3, 7, 18, 5, 19, 76, 15].Split([](int x) { return x == 353; }) => [[3, 7, 18, 5, 19, 76, 15]]
+  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+  # [3, 7, 18, 5, 19, 76, 15].Split([](int x) { return x == 353; }) => []
   # [18, 5, 19, 76, 15, 9, 20, 5].Split([](int x) { return x == 9; }) => [[18, 5, 19, 76, 15], [20, 5]]
   # [56, 3, 7, 18, 5, 19, 76, 7].Split([](int x) { return x == 7; }) => [[56, 3], [18, 5, 19, 76]]
   # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }) => [[56], [], [18, 5, 19, 76, 15, 9]]
@@ -1437,7 +1609,7 @@ struct String:
 
   string Until(CodePoint _value) const
 
-  # OTHER FUNCTIONS
+  # OTHER FUNCTIONS:
 
   # *this == "true" | "false" ->
   bool ToBool() const
@@ -1481,7 +1653,7 @@ struct String:
 
   #
 
-  void extend(int _size = -1)
+  void resize(int _size = -1)
 
 # the value of _string contains only ASCII characters ->
 void print(const string& _string)
@@ -1616,8 +1788,8 @@ int CircularSubtraction(int _rangeBegin, int _rangeEnd, int _currentValue, int _
 
 unsigned long long ToDecimal(const list<char>& _hex)
 
-# activation atom 
-enum BINARY_ = BINARY_A 
+# activation atom
+enum BINARY_ = BINARY_A
 # the bits in _bits represents unsigned integral value ->
 unsigned long long ToDecimal(const list<bool>& _bits, BINARY_)
 
@@ -1731,9 +1903,9 @@ byte_operations.cpp:
 
 (!) the functionality in this file is located in namespace 'byte_operations'
 
-# (!) byte index '0' specifies the least significant byte 
+# (!) byte index '0' specifies the least significant byte
 
-enum Endianity = LE | BE 
+enum Endianity = LE | BE
 
 # _index = 0..1 ->
 unsigned char ByteOf(unsigned short _value, int _index)
@@ -1757,11 +1929,17 @@ unsigned short _16(unsigned char a, unsigned char b, Endianity _endianity)
 
 unsigned int _32(unsigned char a, unsigned char b, unsigned char c, unsigned char d, Endianity _endianity)
 
+# _low (low1, high1) + _high (low2, high2) => unsigned int { high2, low2, high1, low1 }, where 'high1' is the high byte of the result
+unsigned int _32(unsigned short _low, unsigned short _high)
+
 unsigned long long _64(unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e, unsigned char f, unsigned char g, unsigned char h, Endianity _endianity)
+
+# _low (low1...high2) + _high (low2...high2) => unsigned long long { high2...low2, high1...low1 }, where 'high2' is the high byte of the result
+unsigned long long _64(unsigned int _low, unsigned int _high)
 
 -----------------------------------------------------------------------------------------
 
-unicode.cpp
+unicode.cpp:
 
 (!) the functionality in this file is located in namespace 'unicode'
 
@@ -1829,66 +2007,66 @@ const Range ARABIC_DIGITS = (48, 57)
 bool IsDigit(CodePoint _character)
 
 bool IsHighSurrogate(utf16 _codeUnit)
- 
+
 bool IsLowSurrogate(utf16 _codeUnit)
-  
+
 # determines if the code point is part of Basic Multilingual Plane (it doesn't include the surrogate range)
 bool IsBMP(CodePoint _codePoint)
-    
+
 # determines if the code point is part of Supplementary Multilingual Plane
 bool IsSMP(CodePoint _codePoint)
-    
+
 # determines if the code point is part of Supplementary Ideographic Plane
 bool IsSIP(CodePoint _codePoint)
-    
+
 # determines if the code point is part of Supplementary Special-purpose Plane
 bool IsSSP(CodePoint _codePoint)
-    
+
 # determines if the code point is part of Private Use Area
 bool IsPUA(CodePoint _codePoint)
 
 # returns (high surrogate, low surrogate)
 # _codePoint is not a code point from BMP ->
 t2<utf16, utf16> GetSurrogatePair(CodePoint _codePoint)
-    
+
 # the parameters rerpesents UTF-8 character that is part of BMP ->
 utf16 ToUTF16(unsigned char _high, unsigned char _low)
-    
+
 # the parameters represent UTF-8 character that is part of BMP ->
 utf16 ToUTF16(unsigned char _high, unsigned char _lowa, unsigned char _lowb)
-    
+
 # returns a single UTF-8 character
 # _codeUnit represent a BMP code point ->
 list<utf8> ToUTF8(utf16 _codeUnit)
-    
+
 # returns a single UTF-8 character
-# the parameters represent a valid surrogate pair -> 
+# the parameters represent a valid surrogate pair ->
 list<utf8> ToUTF8(utf16 _highSurrogate, utf16 _lowSurrogate)
-     
+
 # returns a single UTF-8 character
-# _codePoint represent a valid Unicode code point -> 
+# _codePoint represent a valid Unicode code point ->
 list<utf8> ToUTF8(CodePoint _codePoint)
-    
+
 # the parameters represent UTF-8 character that is part of BMP ->
 utf32 ToUTF32(unsigned char _high, unsigned char _lowa)
-    
+
 # the parameters represent UTF-8 character that is part of BMP ->
 utf32 ToUTF32(unsigned char _high, unsigned char _lowa, unsigned char _lowb)
-    
+
 # the parameters represent UTF-8 character that is not part of BMP ->
 utf32 ToUTF32(unsigned char _high, unsigned char _lowa, unsigned char _lowb, unsigned char _lowc)
 
-# the parameters represent a valid surrogate pair -> 
+# the parameters represent a valid surrogate pair ->
 utf32 ToUTF32(utf16 _highSurrogate, utf16 _lowSurrogate)
-    
+
 # (SYNONYM:ToUTF32)
 # the parameters represent UTF-8 character that is part of BMP ->
 CodePoint ToCodePoint(unsigned char _high, unsigned char _lowa)
-    
+
 # (SYNONYM:ToUTF32)
 # параметрите представят UTF-8 символ който не е част от BMP ->
 CodePoint ToCodePoint(unsigned char _high, unsigned char _lowa, unsigned char _lowb)
-    
+
 # (SYNONYM:ToUTF32)
 # the parameters represent UTF-8 character that is not part of BMP ->
 utf32 ToCodePoint(unsigned char _high, unsigned char _lowa, unsigned char _lowb, unsigned char _lowc)
@@ -1896,4 +2074,383 @@ utf32 ToCodePoint(unsigned char _high, unsigned char _lowa, unsigned char _lowb,
 # (SYNONYM:ToUTF32)
 # the parameters represent a valid UTF-8 sequence ->
 utf32 ToCodePoint(utf16 _highSurrogate, utf16 _lowSurrogate)
+
+-----------------------------------------------------------------------------------------
+
+time.cpp:
+
+TimeUnit = NANOSECOND | MICROSECOND | MILLISECOND | SECOND
+
+struct DateTime:
+
+  # CONSTRUCTORS:
+
+  DateTime() = default
+
+  DateTime(int _day, int _month, int _year, int _hour, int _minute, int _second, int _timezone_ = 0)
+
+  DateTime(const DateTime&) = default
+
+  # OPERATORS:
+
+  DateTime& operator=(const DateTime&) = default
+
+  bool operator==(const DateTime& _datetime) const
+
+  bool operator!=(const DateTime& _datetime) const
+
+  # FIELDS:
+
+  int year() const
+
+  int month() const
+
+  int day() const
+
+  int hour() const
+
+  int minute() const
+
+  int second() const
+
+  int timezone() const
+
+  # FUNCTIONS:
+
+  # 23-5-2009 09:51:07 +3 -> ToTimezone(7) => 23-5-2009 13:51:07 7
+  # 23-5-2009 09:51:07 +3 -> ToTimezone(-8) => 22-5-2009 22:51:07 -8
+  # _timezone_ >= -11 & _timezone_ <= 14 ->
+  void ToTimezone(int _timezone_)
+
+  bool IsAfter(const DateTime& _datetime) const
+
+  bool IsBefore(const DateTime& _datetime) const
+
+bool IsValidDateTime(const DateTime& _datetime)
+
+# _year >= 1 ->
+bool IsLeap(int _year)
+
+int DayOfYear(const DateTime& _datetime)
+
+# _datetime is not valid => -1
+int DayOfWeek(const DateTime& _datetime)
+
+# _datetime and/or _datetime_ is not valid => -1
+long IntervalOf(const DateTime& _datetime, const DateTime& _datetime_, TimeUnit _unit)
+
+# => UTC
+DateTime Now()
+
+-----------------------------------------------------------------------------------------
+
+filesystem.cpp:
+
+# status codes:
+const char SUCCESSFUL_OPERATION = 0
+const char E_UNSUCCESSFUL_OPERATION = -1
+const char E_UNKNOWN_ERROR = -2
+const char E_FILE_DOES_NOT_EXIST = -3
+const char E_DIRECTORY_DOES_NOT_EXIST = -4
+const char E_SOURCE_DIRECTORY_DOES_NOT_EXIST = -5
+const char E_DESTINATION_DIRECTORY_DOES_NOT_EXIST = -6
+const char E_FILE_ALREADY_EXISTS = -7
+const char E_DIRECTORY_ALREADY_EXISTS = -8
+const char E_INVALID_PATH = -9
+const char E_INVALID_SOURCE_PATH = -10
+const char E_INVALID_DESTINATION_PATH = -11
+const char E_NAME_CONTAINS_INVALID_CHARACTERS = -12
+const char E_NAME_HAS_INVALID_VALUE = -13
+const char E_NAME_ENDS_WITH_EMPTY_SPACE = -14
+const char E_EMPTY_NAME = -15
+const char E_FILENAME_CONTAINS_INVALID_CHARACTERS = -16
+const char E_FILENAME_ENDS_WITH_EMPTY_SPACE = -17
+const char E_EMPTY_FILENAME = -18
+const char E_FILE_EXTENSION_CONTAINS_INVALID_CHARACTERS = -19
+const char E_FILE_NOT_BOUND = -20
+const char E_READONLY_FILE = -21
+const char E_ACCESS_DENIED = -22
+const char E_SYSTEM_FILE_MANIPULATION_ATTEMPT = -23
+const char E_SYSTEM_DIRECTORY_MANIPULATION_ATTEMPT = -24
+const char E_INDEX_OUT_OF_RANGE = -25
+const char E_FIRST_INDEX_LARGER_THAN_SECOND_INDEX = -26
+
+const list<CodePoint> INVALID_NAME_CHARACTERS = [0, '.', ':', '/', '\\', '*', '?', '"', '<', '>', '|']
+
+const list<string> INVALID_NAME_VALUES = ["CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5",
+            "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"]
+
+# _name is a valid name => 0
+int IsValidName(const string& _name)
+
+# _filename is a valid filename => 0
+int IsValidFilename(const string& _filename)
+
+# "Es\\pictures\\travels" => false (invalid root element)
+# "E:\\pictures\\travels \\" => false (empty stem element)
+# "E:\\pictures\\travels \\desert" => false (the second stem element ends with ' ')
+# "E:\\pictures\\travels\\desert" => true
+bool IsValidDirectoryPath(const string& _path)
+
+# "Es\\pictures\\travels \\291.jpg" => false (invalid root element)
+# "E:\\pictures\\travels \\" => false (empty stem element)
+# "E:\\pictures\\travels \\291.jpg" => false (the second stem element ends with ' ')
+# "E:\\pictures\\travels\\291.jpg" => true
+bool IsValidFilePath(const string& _path)
+
+# _path is syntactically valid path ->
+bool IsFilePath(const string& _path)
+
+# _path is syntactically valid path ->
+bool IsDirectoryPath(const string& _path)
+
+# _path is syntactically valid path ->
+string FilenameOf(const string& _path)
+
+# _path is syntactically valid path ->
+string NameOf(const string& _path)
+
+# "a.jpg" => "jpg"
+# _filepath is syntactically valid file path ->
+string ExtensionOf(const string& _filepath)
+
+# "C:\\contents\\images" => "C:\\contents"
+# _path is syntactically valid path ->
+string ParentDirectoryOf(const string& _path)
+
+# (!) this type is used to (conveniently read or mutate) files without making a copy of the file in RAM, ofcourse at the expense of
+	performance (due to writing/reading to/from the permanent storage)
+  (!) an instance of this type is always associated with the same physical file, i.e. with the same 'path'
+  (!) member function Close() dissociate the object from the physical file; it is automatically invoked on destruction of the object (i.e.
+	  when the t:File object goes out of scope); if we want to release the physical file before the destruction of the object we need to
+      call Close() explicitly; when calling Close() explicitly no other operations should be performed on the object afterwards #
+struct File:
+
+  # VARIABLES:
+
+  TraversalMode TraversalMode = TraversalMode::BOUNDED
+
+  # CONSTRUCTORS:
+
+  File() = default;
+
+  # if the file is successfuly opened then &Path and &Name will have a set value
+  # _path is ASCII value ->
+  explicit File(const string& _path)
+
+  File(const File&) = delete
+
+  # OPERATORS:
+
+  # if the function returns UNSUCCESSFUL_OPERATION then it is recommended to check field &os_
+  # _index is in the range of file ->
+  unsigned char operator[](int _index)
+
+  # if the function returns UNSUCCESSFUL_OPERATION then it is recommended to check field &os_
+  # _index is in the range of file ->
+  unsigned char operator[](int _index) const
+
+  # assignment is performed only on uncostructed object, i.e. if *this is not associated with a physical file
+  # after the operation is completed the old object becomes invalid
+  # field &os is not copied
+  File& operator=(const File& _file)
+
+  # FIELDS:
+
+  int size() const
+
+  int position() const
+
+  const string& path() const
+
+  const string& name() const
+
+  const string& extension() const
+
+  char os_() const
+
+  # OTHER FUNCTIONS:
+
+  bool IsBound() const
+
+  void Close()
+
+  # TRAVERSAL FUNCTIONS:
+
+  bool can_reverse() const
+
+  bool can_advance() const
+
+  # position() > 0 >> position() = position() - 1
+  # traversalMode() == BOUNDED && position() == 0 >> position() = position()
+  # traversalMode() == CIRCULAR && position() == 0 >> position() = count() - 1
+  File& back()
+
+  # position() < count() - 1 >> position() = position() + 1
+  # traversalMode() == BOUNDED && position() == count() - 1 >> position() = position()
+  # traversalMode() == CIRCULAR && position() == count() - 1 >> position() = 0
+  File& advance()
+
+  # position() > 0 => [position() - 1]
+  # traversalMode() == BOUNDED && position() == 0 => [0]
+  # traversalMode() == CIRCULAR && position() == 0 => [count() - 1]
+  unsigned char previous() const
+
+  # count() > 0 ->
+  unsigned char current() const
+
+  # position() < count() - 1 => [position() + 1]
+  # traversalMode() == BOUNDED && position() == count() - 1 => [position()]
+  # traversalMode() == CIRCULAR && position() == count() - 1 => [0]
+  unsigned char next() const
+
+  # _position < -1 || _possition > count() - 1 => -1
+  int set_position(int _position)
+
+  # NON-MUTATING FUNCTIONS:
+
+  bool BeginsWith(const list<unsigned char>& _value) const
+
+  bool Contains(unsigned char _value) const
+
+  # [1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
+  bool Contains(const list<unsigned char>& _value) const
+
+  bool Contains(std::function<bool(unsigned char)> _predicate) const
+
+  bool EndsWith(const list<unsigned char>& _value) const
+
+  # the specified value does not exist => -1
+  int IndexOf(unsigned char _value, int _begin = 0) const
+
+  # the specified value does not exist => -1
+  int IndexOf(const list<unsigned char>& _value, int _begin = 0) const
+
+  # the specified value does not exist or _begin is outside the range of list => -1
+  int IndexOf(std::function<bool(unsigned char)> _predicate, int _begin = 0) const
+
+  # the specified value does not exist => -1
+  int LastIndexOf(unsigned char _value) const
+
+  # the specified value does not exist => -1
+  int LastIndexOf(const list<unsigned char>& _value) const
+
+  # the specified value does not exist => -1
+  int LastIndexOf(std::function<bool(unsigned char)> _predicate) const
+
+  # _length = 0 => [_begin..]
+  # (_begin + _length) >= size() => []
+  list<unsigned char> Sublist(int _begin, int _length = 0) const
+
+  # [5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange(2, 5) => [4, 1, 9, 6]
+  list<unsigned char> Subrange(int _begin, int _end) const
+
+  # MUTATION FUNCTIONS:
+
+  File& Append(unsigned char _value)
+
+  File& Append(const list<unsigned char>& _value)
+
+  File& Append(const unsigned char* _value, int _length)
+
+  File& Clear()
+
+  # (size() > 0 && _index > 0 && (_index <= size())) =>
+  File& Insert(unsigned char _value, int _index)
+
+  # (size() > 0 && _index > 0 && (_index <= size())) =>
+  File& Insert(const list<unsigned char>& _list, int _index)
+
+  File& RemoveAt(int _index, int _length = 1)
+
+  File& Remove(int _begin, int _end)
+
+  File& SetAt(int _index, unsigned char _value)
+
+  # _index1 <= _index2 ->
+  File& Swap(int _index1, int _index2)
+
+# if the directory exists then &Path and &Name will have a set value
+struct Directory:
+
+  # CONSTRUCTORS:
+
+  Directory() = default;
+
+  explicit Directory(const string& _path)
+
+  Directory(const Directory&) = delete;
+
+  Directory& operator=(const Directory&) = default;
+
+  # OPERATORS:
+
+  bool operator==(const Directory& _directory) const
+
+  bool operator!=(const Directory& _directory) const
+
+  const string &path() const
+
+  const string &name() const
+
+# (!) shows the hidden directories as well
+# the specified directory exists and can be accessed ->
+list<string> DirectoriesOf(const string& _directoryPath)
+
+# (!) shows the hidden files as well
+# the specified directory exists and can be accessed ->
+list<string> FilesOf(const string& _directoryPath)
+
+# (!) returns false if _path specifies a system file
+bool FileExists(const string& _path)
+
+bool DirectoryExists(const string& _path)
+
+# the specified file exists ->
+int SizeOf(const string& _path)
+
+# the specified file/directory exists ->
+bool IsEncrypted(const string& _path)
+
+# the specified file/directory exists ->
+bool IsHidden(const string& _path)
+
+# the specified file/directory exists ->
+bool IsReadOnly(const string& _path)
+
+# the specified file/directory exists ->
+bool IsSystem(const string& _path)
+
+# returns 0 on successful execution
+int CreateFile(const string& _path)
+
+# returns 0 on successful execution
+int CreateDirectory(const string& _path)
+
+# returns 0 on successful execution
+int RenameFile(const string& _filepath, const string& _newFilename)
+
+# returns 0 on successful execution
+int RenameDirectory(const string& _path, const string& _newName)
+
+# returns 0 on successful execution
+# _sourcePath specifies the copied file
+# _destinationPath specifies the directory in which the file should be copied
+int CopyFile(const string& _sourcePath, const string& _destinationPath)
+
+# returns 0 on successful execution
+# _sourcePath specifies the copied directory
+# _destinationPath specifies the directory in which the directory should be copied
+int CopyDirectory(const string& _sourcePath, const string& _destinationPath)
+
+# returns 0 on successful execution
+int DeleteFile(const string& _path)
+
+# returns 0 on successful execution
+int DeleteDirectory(const string& _path)
+
+# error => ""
+string GetApplicationDirectory()
+
+
 
