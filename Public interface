@@ -2077,7 +2077,7 @@ utf32 ToUTF32(utf16 _highSurrogate, utf16 _lowSurrogate)
 CodePoint ToCodePoint(unsigned char _high, unsigned char _lowa)
 
 # (SYNONYM:ToUTF32)
-# параметрите представят UTF-8 символ който не е част от BMP ->
+# the parameters represent UTF-8 character that is not part of BMP ->
 CodePoint ToCodePoint(unsigned char _high, unsigned char _lowa, unsigned char _lowb)
 
 # (SYNONYM:ToUTF32)
