@@ -1803,7 +1803,7 @@ unsigned long long ToDecimal(const list<char>& _hex)
 
 # activation atom
 enum BINARY_ = BINARY_A
-# the bits in _bits represents unsigned integral value ->
+# the bits in _bits represent unsigned integral value ->
 unsigned long long ToDecimal(const list<bool>& _bits, BINARY_)
 
 -----------------------------------------------------------------------------------------
