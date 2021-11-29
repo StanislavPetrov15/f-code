@@ -2266,7 +2266,7 @@ struct File:
 
   File() = default;
 
-  # if the file is successfuly opened then &Path and &Name will have a set value
+  # if the file is successfully opened then &Path and &Name will have a set value
   # _path is ASCII value ->
   explicit File(const string& _path)
 
