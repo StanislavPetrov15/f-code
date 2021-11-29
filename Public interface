@@ -1909,7 +1909,7 @@ list<bool> BitsOf(unsigned int _value)
 # returns all bits of _value; the first bit in the list is LSB
 list<bool> BitsOf(unsigned long long _value)
 
-# returns the number of bits needed for binary representation of _number
+# returns the number of bits needed for the binary representation of (the absolute value of _number)
 int BitLengthOf(unsigned int _number)
 
 -----------------------------------------------------------------------------------------
