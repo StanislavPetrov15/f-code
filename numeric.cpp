@@ -354,14 +354,9 @@ namespace numeric
         }
     }
 
-	//returns the number of bits needed for the binary representation of (the absolute value of _number)
-	int BitLengthOf(int _number)
+	//returns the number of bits needed for the binary representation of _number
+	int BitLengthOf(unsigned int _number)
 	{
-		if (_number < 0)
-		{
-			_number = Abs(_number);
-		}
-
 		if (_number == 0 || _number == 1) return 1;
 
 		int length = 0;
