@@ -354,7 +354,7 @@ namespace numeric
         }
     }
 
-	//връща броя на битовете нужни за двоичното представяне на (абсолютната стойност на _number)
+	//returns the number of bits needed for the binary representation of (the absolute value of _number)
 	int BitLengthOf(int _number)
 	{
 		if (_number < 0)
@@ -366,32 +366,9 @@ namespace numeric
 
 		int length = 0;
 
-		//определяне на битовата дължината на _integer
 		while (_number > 0)
 		{
 			_number /= 2;
-			length++;
-		}
-
-		return length;
-	}
-
-	//връща броя на цифрите в _number
-	int DecimalLengthOf(int _number)
-	{
-		if (_number < 0)
-		{
-			_number = Abs(_number);
-		}
-
-		if (_number == 0) return 1;
-
-		int n = 1;
-		int length = 0;
-
-		while (n <= _number)
-		{
-			n *= 10;
 			length++;
 		}
 
