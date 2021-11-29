@@ -51,7 +51,7 @@ namespace filesystem
        (!) a path cannot have an empty stem element
        (!) a stem element cannot contain invalid characters
        (!) the length of a path cannot be larger than (&MAX_PATH - 1)
-       (!) access to some system directories may be redirected (for example '...\Windows\System32' -> '...\Windows\SysWOW64' on 64-bit Windows)*/
+       (!) access to some system directories may be redirected (for example '...\Windows\System32' -> '...\Windows\SysWOW64' on 64-bit Windows) */
 
     const string TEMPORARY_FILE_NAME = "gxzjzrtkfrgtytsdgq4g(gbcjowna;ktlhklssvwh9eixmoqwjdw3b97vhjzgsr.";
 
