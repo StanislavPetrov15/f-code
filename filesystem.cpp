@@ -1144,7 +1144,7 @@ struct File
     }
 };
 
-//if the directory exists successfuly opened then &Path and &Name will have a set value
+//if the directory exists successfully opened then &Path and &Name will have a set value
 struct Directory
 {
     private:
