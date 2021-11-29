@@ -42,7 +42,7 @@ namespace filesystem
        - (root element) (EXAMPLE) "E:\Compiler\parser.cpp" => "E:"
        - (non-root element) (EXAMPLE) "E:\Compiler\parser.cpp" => "Compiler", "parser.cpp"
        - (stem element :: an element that is not (the root element or the last element)) (EXAMPLE) "E:\Compiler\parser.cpp" => "Compiler"
-       - (syntactically valid path :: a path that is syntactically valid but not necessarily refering to an existing physical file)
+       - (syntactically valid path :: a path that is syntactically valid but not necessarily referring to an existing physical file)
        - (existentially valid path :: a path that is referring to an existing physical file) */
 
     /* (!) the functions accept only absolute paths
