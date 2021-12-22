@@ -134,7 +134,7 @@ struct string
     {
         if (_characterIndex < 0)
         {
-            return Range(- 1, - 1);
+            return Range<int>(- 1, - 1);
         }
 
         for (int i = 0, n = -1; i < ByteCount; )
@@ -144,7 +144,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i);
+                    return Range<int>(i, i);
                 }
 
                 i++;
@@ -154,7 +154,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 1);
+                    return Range<int>(i, i + 1);
                 }
                 else
                 {
@@ -166,7 +166,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 2);
+                    return Range<int>(i, i + 2);
                 }
                 else
                 {
@@ -178,7 +178,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 3);
+                    return Range<int>(i, i + 3);
                 }
                 else
                 {
@@ -190,7 +190,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 1);
+                    return Range<int>(i, i + 1);
                 }
                 else
                 {
@@ -202,7 +202,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 1);
+                    return Range<int>(i, i + 1);
                 }
                 else
                 {
@@ -215,7 +215,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 3);
+                    return Range<int>(i, i + 3);
                 }
                 else
                 {
@@ -227,7 +227,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 3);
+                    return Range<int>(i, i + 3);
                 }
                 else
                 {
@@ -240,7 +240,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 3);
+                    return Range<int>(i, i + 3);
                 }
                 else
                 {
@@ -252,7 +252,7 @@ struct string
             {
                 if (++ n == _characterIndex)
                 {
-                    return Range(i, i + 3);
+                    return Range<int>(i, i + 3);
                 }
                 else
                 {
@@ -261,7 +261,7 @@ struct string
             }
         }
 
-        return Range(- 2, - 2);
+        return Range<int>(- 2, - 2);
     }
 
     list<unsigned char> bytesOf(CodePoint _codePoint)
@@ -1654,7 +1654,7 @@ struct string
         if (_begin < 0 || _end > _source.CharacterCount - 1) return;
         else if (_begin > _end) return;
 
-        Range byteRange { _source.byteRangeOf(_begin).begin(), _source.byteRangeOf(_end).end() };
+        Range<int> byteRange { _source.byteRangeOf(_begin).begin(), _source.byteRangeOf(_end).end() };
         Elements = &(_source.Elements[byteRange.begin()]);
         CharacterCount = (_end - _begin) + 1;
         ByteCount = byteRange.length();
@@ -1668,7 +1668,7 @@ struct string
         if (_range.begin() < 0 || _range.end() > _source.CharacterCount - 1) return;
         else if (_range.begin() > _range.end()) return;
 
-        Range byteRange { _source.byteRangeOf(_range.begin()).begin(), _source.byteRangeOf(_range.end()).end() };
+        Range<int> byteRange { _source.byteRangeOf(_range.begin()).begin(), _source.byteRangeOf(_range.end()).end() };
         Elements = &(_source.Elements[byteRange.begin()]);
         CharacterCount = _range.length();
         ByteCount = byteRange.length();
