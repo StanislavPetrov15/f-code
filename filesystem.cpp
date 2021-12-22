@@ -133,7 +133,7 @@ bool IsValidDirectoryPath(const string& _path)
         return false;
     }
     //if the first character of the path is not a letter from the English alphabet
-    else if (!Range(65, 90).Contains(path[0]))
+    else if (!Range<int>(65, 90).Contains(path[0]))
     {
         return false;
     }
@@ -206,7 +206,7 @@ bool IsValidFilePath(const string& _path)
         return false;
     }
     //if the first character of the path is not a letter from the English alphabet
-    else if (!Range(65, 90).Contains(path[0]))
+    else if (!Range<int>(65, 90).Contains(path[0]))
     {
         return false;
     }
