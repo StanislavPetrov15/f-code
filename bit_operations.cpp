@@ -289,8 +289,7 @@ namespace bit_operations
 		}
 		else
 		{
-			unsigned char ss = ~mask;
-			_number &= (unsigned char)~mask;
+			_number &= static_cast<unsigned char>(~mask);
 		}
 	}
 
