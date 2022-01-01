@@ -332,6 +332,8 @@ struct string
     //_array is an ASCII string with an available terminating character ->
     string(const char* _array)
     {
+        /* (!) calling the appropriate constructor directly through string(...) creates a local copy (i.e. the state of &this is not updated);
+                for this reason the 'this->string::string(...)' construct has to be used */
         this->string::string(_array, ascii, DefaultStorageEncoding);
     }
 
