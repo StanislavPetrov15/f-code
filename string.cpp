@@ -378,8 +378,6 @@ struct string
 
         while (true)
         {
-            auto sd = _array[i];
-
             if (_array[i] == 0)
             {
                 break;
