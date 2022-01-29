@@ -106,11 +106,11 @@ list<int> ls(1000000); //allocates space for 1000000 int values; this functional
 string s("republic", ascii, Encoding::UTF16LE); //creates a UTF16LE string from an ASCII input  
 
 //"ĞȸĨ𠀔У" = Unicode[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
-list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
+list\<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
 string s(ls.elements(), u8, Encoding::UTF16LE); //creates a UTF16LE string from an UTF8 input  
 
 //"𠀔λΨΡ" = Unicode[131092, 955, 936, 929] = UTF16[55360, 56340, 955, 936, 929] = byte[216, 64, 220, 20, 3, 187, 3, 168, 3, 161]  
-list<unsigned char> ls { 216, 64, 220, 20, 3, 187, 3, 168, 3, 161, 0, 0 };  
+list\<unsigned char> ls { 216, 64, 220, 20, 3, 187, 3, 168, 3, 161, 0, 0 };  
 string bs(ls.elements(), u16, BE, static_cast<unsigned int>(10), Encoding::UTF32BE); //creates an UTF32BE string (from UTF16BE byte input)  
 
 string s(L"oak↕country₢planet", Encoding::UTF8); //creates an UTF8 string from (UTF16LE byte input)
@@ -124,15 +124,15 @@ string s(L"oak↕country₢planet", Encoding::UTF8); //creates an UTF8 string fr
         (ЕXAMPLE) 327|c (327 characters)
         
 //"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
-list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
+list\<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
 string s(ls.elements(), u8, 5|characters, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 5 characters)  
 
 //"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
-list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
+list\<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
 string s(ls.elements(), u8, 12|units, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 12 code units)  
 
 //"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
-list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
+list\<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
 string s(ls.elements(), u8, 12|bytes, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 12 bytes)  
 
 string dir = "C:\\documents";  
@@ -143,8 +143,8 @@ filesystem::RenameFile(dir + "\\notes\\note1.txt", "note2.txt");
 bool b1 = IsSystem("E:\\folder1");  
 bool b2 = IsReadOnly("E:\\notes.txt");  
  
-list<string> files = filesystem::FilesOf("G:");  
-list<string> directories = filesystem::DirectoriesOf("G:");
+list\<string> files = filesystem::FilesOf("G:");  
+list\<string> directories = filesystem::DirectoriesOf("G:");
 
 
 
