@@ -332,8 +332,8 @@ struct string
     //_array is an ASCII string with an available terminating character ->
     string(const char* _array)
     {
-        /* (!) calling the appropriate constructor directly through string(...) creates a local copy (i.e. the state of &this is not updated);
-                for this reason the 'this->string::string(...)' construct has to be used */
+      /* (!) calling the appropriate constructor directly through string(...) creates a local copy (i.e. the state of &this is not updated);
+              for this reason the 'this->string::string(...)' construct has to be used */
         this->string::string(_array, ascii, DefaultStorageEncoding);
     }
 
@@ -1343,21 +1343,8 @@ struct string
             i = UTF16_CODE_UNIT_LENGTH;
         }
 
-        int lengthMarker = GetBits(_length, 30, 31);
-        //-> clearing the marking bits
-        SetBits(_length, false, 30, 31);
-
         while (true)
         {
-            //if a terminating character is reached
-            if (_array[i] == 0) break;
-			//if the length is specified in bytes and the end of the string is reached
-            else if (lengthMarker == 0 && i >= _length) break;
-			//if the length is specified in code units and the end of the string is reached
-            else if (lengthMarker == 1 && i >= _length) break;
-			//if the length is specified in characters and the end of the string is reached
-            else if (lengthMarker == 2 && CharacterCount == _length) break;
-
             utf16 codeUnit = _array[i];
 
             //if codeUnit is a high surrogate
@@ -1553,21 +1540,8 @@ struct string
             i ++;
         }
 
-        int lengthMarker = GetBits(_length, 30, 31);
-        //-> clearing the marking bits
-        SetBits(_length, false, 30, 31);
-
         while (true)
         {
-			//if a terminating character is reached
-            if (_array[i] == 0) break;
-			//if the length is specified in bytes and the end of the string is reached
-            else if (lengthMarker == 0 && i >= _length) break;
-			//if the length is specified in code units and the end of the string is reached
-            else if (lengthMarker == 1 && UTF16_CODE_UNIT_LENGTH >= _length) break;
-			//if the length is specified in characters and the end of the string is reached
-            else if (lengthMarker == 2 && CharacterCount == _length) break;
-
             utf32 codeUnit = _array[i];
 
             //if the storage format is UTF-8
