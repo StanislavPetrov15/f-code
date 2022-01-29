@@ -104,7 +104,7 @@ string s(ls.elements(), u8, Encoding::UTF16LE); //creates a UTF16LE string from 
 
 //"𠀔λΨΡ" = Unicode[131092, 955, 936, 929] = UTF16[55360, 56340, 955, 936, 929] = byte[216, 64, 220, 20, 3, 187, 3, 168, 3, 161]
 list<unsigned char> ls { 216, 64, 220, 20, 3, 187, 3, 168, 3, 161, 0, 0 };
-string bs(ls.elements(), u16, BE, static_cast<unsigned int>(10), Encoding::UTF32BE); //creates a UTF32BE string (from UTF16BE byte input)
+string bs(ls.elements(), u16, BE, static_cast<unsigned int>(10), Encoding::UTF32BE); //creates an UTF32BE string (from UTF16BE byte input)
 
 string s(L"oak↕country₢planet", Encoding::UTF8); //creates an UTF8 string from (UTF16LE byte input)
 
