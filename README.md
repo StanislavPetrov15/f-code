@@ -89,27 +89,27 @@ f-code
     a program object (a variable, function, structure, etc.); some tags can be applied only to specific program objects;
     if a tag is applied to a file then the tag should be included in the beginning of the file, and if it's applied to a program object it is included right before the object; the tags used in the library (and the description of their meaning) are the following:
    - (!) { value } - a very important note
-   - (EXAMPLE) { value }  - example of a certain functionality
-   - (MAY-NEED-BETTER-EXPLANATION) { value } - the functionality described by 'value' may need better explanation
-   - (STATE) { value } - describes the state of a specific object  (if the code is correctly executed) at the location of the tag
+   - (EXAMPLE) { value }  - example of a certain functionality  
+   - (MAY-NEED-BETTER-EXPLANATION) { value } - the functionality described by 'value' may need better explanation  
+   - (STATE) { value } - describes the state of a specific object  (if the code is correctly executed) at the location of the tag  
    - (END-STATE) this tag is always preceded by tag (STATE); this tag specifies that the state of the object specified by tag (STATE) is no more valid, i.e. after the line in  which the tag (END-STATE) is located the state of the object may be different than the state of the object described in the tag (STATE)
    
 **EXAMPLES (incomplete list)**
  
-list<int> ls { 5, 0, 9, 1, 8, 4 };
-list<int> lx(ls, 2, 4); //creates a 'list segment'; &lx is a segment of &ls; &ls is a source list for &lx; list segments are computationally fast way to access a continuous range; of elements of an existing list; the segment can be treated like a separate list and in some situations this makes things easier; adding and deletion of elements to/from a segment is not allowed, the values of the individual elements can be changed though; this functionality (in some form or another) is also known by different names in other languages/libraries
+list<int> ls { 5, 0, 9, 1, 8, 4 };  
+list<int> lx(ls, 2, 4); //creates a 'list segment'; &lx is a segment of &ls; &ls is a source list for &lx; list segments are computationally fast way to access a continuous range; of elements of an existing list; the segment can be treated like a separate list and in some situations this makes things easier; adding and deletion of elements to/from a segment is not allowed, the values of the individual elements can be changed though; this functionality (in some form or another) is also known by different names in other languages/libraries  
 
 list<int> ls(1000000); //allocates space for 1000000 int values; this functionality is useful if the maximum number of elements that will be added to the list is known beforehand - in this way resize operations can be avoided 
 
-string s("republic", ascii, Encoding::UTF16LE); //creates a UTF16LE string from an ASCII input
+string s("republic", ascii, Encoding::UTF16LE); //creates a UTF16LE string from an ASCII input  
 
-//"ĞȸĨ𠀔У" = Unicode[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]
-list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };
-string s(ls.elements(), u8, Encoding::UTF16LE); //creates a UTF16LE string from an UTF8 input
+//"ĞȸĨ𠀔У" = Unicode[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
+list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
+string s(ls.elements(), u8, Encoding::UTF16LE); //creates a UTF16LE string from an UTF8 input  
 
-//"𠀔λΨΡ" = Unicode[131092, 955, 936, 929] = UTF16[55360, 56340, 955, 936, 929] = byte[216, 64, 220, 20, 3, 187, 3, 168, 3, 161]
-list<unsigned char> ls { 216, 64, 220, 20, 3, 187, 3, 168, 3, 161, 0, 0 };
-string bs(ls.elements(), u16, BE, static_cast<unsigned int>(10), Encoding::UTF32BE); //creates an UTF32BE string (from UTF16BE byte input)
+//"𠀔λΨΡ" = Unicode[131092, 955, 936, 929] = UTF16[55360, 56340, 955, 936, 929] = byte[216, 64, 220, 20, 3, 187, 3, 168, 3, 161]  
+list<unsigned char> ls { 216, 64, 220, 20, 3, 187, 3, 168, 3, 161, 0, 0 };  
+string bs(ls.elements(), u16, BE, static_cast<unsigned int>(10), Encoding::UTF32BE); //creates an UTF32BE string (from UTF16BE byte input)  
 
 string s(L"oak↕country₢planet", Encoding::UTF8); //creates an UTF8 string from (UTF16LE byte input)
 
@@ -121,17 +121,17 @@ string s(L"oak↕country₢planet", Encoding::UTF8); //creates an UTF8 string fr
         (EXAMPLE) 829|u (829 code units)
         (ЕXAMPLE) 327|c (327 characters)
         
-//"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]
-list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };
-string s(ls.elements(), u8, 5|characters, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 5 characters)
+//"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
+list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
+string s(ls.elements(), u8, 5|characters, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 5 characters)  
 
-//"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]
-list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };
-string s(ls.elements(), u8, 12|units, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 12 code units)
+//"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
+list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
+string s(ls.elements(), u8, 12|units, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 12 code units)  
 
-//"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]
-list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };
-string s(ls.elements(), u8, 12|bytes, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 12 bytes)
+//"ĞȸĨ𠀔У" = U[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
+list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
+string s(ls.elements(), u8, 12|bytes, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 12 bytes)  
 
 string dir = "C:\\documents";  
 filesystem::DeleteFile(dir + "\\documents\\sunset.jpeg");   
