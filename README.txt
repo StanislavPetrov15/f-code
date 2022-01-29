@@ -133,6 +133,16 @@ string s(ls.elements(), u8, 12|units, Encoding::UTF32LE); //creates an UTF32LE s
 list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };
 string s(ls.elements(), u8, 12|bytes, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 12 bytes)
 
+string dir = "C:\\documents";
+filesystem::DeleteFile(dir + "\\documents\\sunset.jpeg"); 
+filesystem::CreateDirectory(dir + "\\notes"); 
+filesystem::RenameFile(dir + "\\notes\\note1.txt", "note2.txt"); 
+  
+bool b1 = IsSystem("E:\\folder1"); 
+bool b2 = IsReadOnly("E:\\notes.txt"); 
+ 
+list<string> files = filesystem::FilesOf("G:");
+list<string> directories = filesystem::DirectoriesOf("G:");
 
 
 
