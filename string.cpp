@@ -1589,7 +1589,7 @@ struct string
 
             i++;
 			
-			if (i >= _length) break;
+			if (i == _length) break;
         }
 		
 	
