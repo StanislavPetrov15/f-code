@@ -1875,7 +1875,7 @@ string GetApplicationDirectory()
 
     //&result specifies the length of the result (in UTF-16 code units and without counting the terminating character)
 
-    int result = GetCurrentDirectoryW(MAX_PATH, array);
+    unsigned int result = GetCurrentDirectoryW(MAX_PATH, array);
 
     if (result == 0) return {};
 
