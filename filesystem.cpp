@@ -1879,7 +1879,7 @@ string GetApplicationDirectory()
 
     if (result == 0) return {};
 
-    return string(reinterpret_cast<utf16*>(array), LE, result | c);
+    return string(reinterpret_cast<utf16*>(array), LE, result);
 }
 }
 
