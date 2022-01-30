@@ -1343,7 +1343,7 @@ struct string
             i = UTF16_CODE_UNIT_LENGTH;
         }
 
-        while (true)
+        while (i)
         {
             utf16 codeUnit = _array[i];
 
@@ -1413,6 +1413,8 @@ struct string
 
                 i++;
             }
+			
+			if (i >= _length) break;
         }
     }
 
@@ -1586,7 +1588,11 @@ struct string
             }
 
             i++;
+			
+			if (i >= _length) break;
         }
+		
+	
     }
 
         //_length specifies the length of _array
