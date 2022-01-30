@@ -3439,6 +3439,12 @@ struct string
                 accumulator.Append(Subrange(i, index - 1));
                 i = index - 1;
             }
+			//[separator...]
+			else if (match && index == -1)
+			{
+				accumulator.Append(Subrange(i + 1, CharacterCount - 1));
+				break;
+			}
             //[!separator...]
             else if (!match && index == - 1)
             {
