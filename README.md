@@ -126,7 +126,7 @@ string s(L"oak↕country₢planet", Encoding::UTF8); //creates an UTF8 string fr
         (ЕXAMPLE) 495|b (495 bytes)
         (EXAMPLE) 829|u (829 code units)
         (ЕXAMPLE) 327|c (327 characters)
-        
+ 	eere      
 //"ĞȸĨ𠀔У" = Unicode[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]  
 list\<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };  
 string s(ls.elements(), u8, 5|characters, Encoding::UTF32LE); //creates an UTF32LE string from (UTF8 input consisting of 5 characters)  
