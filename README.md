@@ -100,6 +100,7 @@ f-code
    
 **EXAMPLES (incomplete list)**
 
+<pre>
 <code>
 list\<int> ls { 5, 0, 9, 1, 8, 4 };  
 list\<int> lx(ls, 2, 4); //creates a 'list segment'; &lx is a segment of &ls; &ls is a source list for &lx; list segments are computationally fast way to access a continuous range; of elements of an existing list; the segment can be treated like a separate list and in some situations this makes things easier; adding and deletion of elements to/from a segment is not allowed, the values of the individual elements can be changed though; this functionality (in some form or another) is also known by different names in other languages/libraries  
@@ -149,7 +150,7 @@ bool b2 = IsReadOnly("E:\\notes.txt");
 list\<string> files = filesystem::FilesOf("G:");  
 list\<string> directories = filesystem::DirectoriesOf("G:");
 	
-	</code>
+</code></pre>
 
 
 
