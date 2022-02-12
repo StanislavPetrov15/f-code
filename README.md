@@ -97,7 +97,7 @@ f-code
    - (MAY-NEED-BETTER-EXPLANATION) { value } - the functionality described by 'value' may need better explanation  
    - (STATE) { value } - describes the state of a specific object  (if the code is correctly executed) at the location of the tag  
    - (END-STATE) this tag is always preceded by tag (STATE); this tag specifies that the state of the object specified by tag (STATE) is no more valid, i.e. after the line in  which the tag (END-STATE) is located the state of the object may be different than the state of the object described in the tag (STATE)
-   <span style="color:blue">some *blue* text</span>.
+
 **EXAMPLES (incomplete list)**
 	
 list\<int> ls { 5, 0, 9, 1, 8, 4 };  
