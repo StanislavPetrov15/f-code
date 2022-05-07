@@ -23,6 +23,8 @@ f-code
 
 (!) the ranges used in the library are inclusive
 
+(!) some of the things in the library are quite easy to implement but they still have to be there (for completeness)
+
 (!) the library consists of the following files:
 - array.cpp
 - range.cpp
