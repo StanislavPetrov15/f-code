@@ -5,15 +5,15 @@ Index:
 array.cpp - line 20
 pair.cpp - line 171
 tuple.cpp - line 199
-range.cpp - line 491
-list.cpp - line 596
-string.cpp - line 1031
-numeric.cpp - line 1678
-bit_operations.cpp - line 1813
-byte_operations.cpp - line 1917
-unicode.cpp - line 1957
-time.cpp - line 2095
-filesystem.cpp - line 2177
+range.cpp - line 1064
+list.cpp - line 1169
+string.cpp - line 1604
+numeric.cpp - line 2251
+bit_operations.cpp - line 2386
+byte_operations.cpp - line 2490
+unicode.cpp - line 2530
+time.cpp - line 2668
+filesystem.cpp - line 2750
 
 -----------------------------------------------------------------------------------------
 
@@ -170,7 +170,7 @@ template<typename T> void trimEnd(T*& _array, int _length, T _value)
 
 pair.cpp:
 
-template<typename K, typename V> struct pair:
+struct<K, V> pair:
 
   # CONSTRUCTORS:
 
@@ -198,7 +198,7 @@ template<typename K, typename V> struct pair:
 
 tuple.cpp:
 
-template<typename T1, typename T2> struct t2:
+struct<T1, T2> t2:
 
   # CONSTRUCTORS:
 
@@ -222,7 +222,7 @@ template<typename T1, typename T2> struct t2:
 
   const T2& e2() const
 
-template<typename T1, typename T2, typename T3> struct t3:
+struct<T1, T2, T3> t3:
 
   # CONSTRUCTORS:
 
@@ -248,7 +248,7 @@ template<typename T1, typename T2, typename T3> struct t3:
 
   const T2& e3() const
 
-template<typename T1, typename T2, typename T3, typename T4> struct t4
+struct<T1, T2, T3, T4> t4:
 
   # CONSTRUCTORS:
 
@@ -276,7 +276,7 @@ template<typename T1, typename T2, typename T3, typename T4> struct t4
 
   const T4& e4() const
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5> struct t5
+struct<T1, T2, T3, T4, T5> t5:
 
   # CONSTRUCTORS:
 
@@ -306,7 +306,7 @@ template<typename T1, typename T2, typename T3, typename T4, typename T5> struct
 
   const T5& e5() const
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> struct t6
+struct<T1, T2, T3, T4, T5, T6> t6:
 
   # CONSTRUCTORS:
 
@@ -338,7 +338,7 @@ template<typename T1, typename T2, typename T3, typename T4, typename T5, typena
 
   const T6& e6() const
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> struct t7
+struct<T1, T2, T3, T4, T5, T6, T7> t7:
 
   # CONSTRUCTORS:
 
@@ -372,7 +372,7 @@ template<typename T1, typename T2, typename T3, typename T4, typename T5, typena
 
   const T7& e7() const
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8> struct t8
+struct<T1, T2, T3, T4, T5, T6, T7, T8> t8:
 
   # CONSTRUCTORS:
 
@@ -408,7 +408,7 @@ template<typename T1, typename T2, typename T3, typename T4, typename T5, typena
 
   const T8& e8() const
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9> struct t9
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9> t9:
 
   # CONSTRUCTORS:
 
@@ -446,7 +446,7 @@ template<typename T1, typename T2, typename T3, typename T4, typename T5, typena
 
   const T9& e9() const
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10> struct t10
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> t10:
 
   # CONSTRUCTORS:
 
@@ -485,6 +485,579 @@ template<typename T1, typename T2, typename T3, typename T4, typename T5, typena
   const T9& e9() const
 
   const T10& e10() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> t11:
+
+  # CONSTRUCTORS:
+
+  t11() = default
+
+  t11(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+      const T11& _e11)
+
+  t11(const t11&) = default
+
+  # OPERATORS:
+
+  t11& operator=(const t11&) = default
+
+  bool operator==(const t11&) const
+
+  bool operator!=(const t11&) const
+
+  # FIELDS:
+
+  const T1& e1() const
+
+  const T2& e2() const
+
+  const T3& e3() const
+
+  const T4& e4() const
+
+  const T5& e5() const
+
+  const T6& e6() const
+
+  const T7& e7() const
+
+  const T8& e8() const
+
+  const T9& e9() const
+
+  const T10& e10() const
+
+  const T11& e11() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> t12:
+
+  # CONSTRUCTORS:
+
+  t12() = default
+
+  t12(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+      const T11& _e11, const T12& _e12)
+
+  t12(const t12&) = default
+
+  # OPERATORS:
+
+  t12& operator=(const t12&) = default
+
+  bool operator==(const t12&) const
+
+  bool operator!=(const t12&) const
+
+  # FIELDS:
+
+  const T1& e1() const
+
+  const T2& e2() const
+
+  const T3& e3() const
+
+  const T4& e4() const
+
+  const T5& e5() const
+
+  const T6& e6() const
+
+  const T7& e7() const
+
+  const T8& e8() const
+
+  const T9& e9() const
+
+  const T10& e10() const
+
+  const T11& e11() const
+
+  const T12& e12() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> t13:
+
+  # CONSTRUCTORS:
+
+  t13() = default
+
+  t13(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+      const T11& _e11, const T12& _e12, const T13& _e13)
+
+  t13(const t13&) = default
+
+  # OPERATORS:
+
+  t13& operator=(const t13&) = default
+
+  bool operator==(const t13&) const
+
+  bool operator!=(const t13&) const
+
+  # FIELDS:
+
+  const T1& e1() const
+
+  const T2& e2() const
+
+  const T3& e3() const
+
+  const T4& e4() const
+
+  const T5& e5() const
+
+  const T6& e6() const
+
+  const T7& e7() const
+
+  const T8& e8() const
+
+  const T9& e9() const
+
+  const T10& e10() const
+
+  const T11& e11() const
+
+  const T12& e12() const
+
+  const T13& e13() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> t14:
+
+  # CONSTRUCTORS:
+
+  t14() = default
+
+  t14(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+      const T11& _e11, const T12& _e12, const T13& _e13, const T14& _e14)
+
+  t14(const t14&) = default
+
+  # OPERATORS:
+
+  t14& operator=(const t14&) = default
+
+  bool operator==(const t14&) const
+
+  bool operator!=(const t14&) const
+
+  # FIELDS:
+
+  const T1& e1() const
+
+  const T2& e2() const
+
+  const T3& e3() const
+
+  const T4& e4() const
+
+  const T5& e5() const
+
+  const T6& e6() const
+
+  const T7& e7() const
+
+  const T8& e8() const
+
+  const T9& e9() const
+
+  const T10& e10() const
+
+  const T11& e11() const
+
+  const T12& e12() const
+
+  const T13& e13() const
+
+  const T14& e14() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> t15:
+
+    # CONSTRUCTORS:
+
+    t15() = default
+
+    t15(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+        const T11& _e11, const T12& _e12, const T13& _e13, const T14& _e14, const T15& _e15)
+
+    t15(const t15&) = default
+
+    # OPERATORS:
+
+    t15& operator=(const t15&) = default
+
+    bool operator==(const t15&) const
+
+    bool operator!=(const t15&) const
+
+    # FIELDS:
+
+    const T1& e1() const
+
+    const T2& e2() const
+
+    const T3& e3() const
+
+    const T4& e4() const
+
+    const T5& e5() const
+
+    const T6& e6() const
+
+    const T7& e7() const
+
+    const T8& e8() const
+
+    const T9& e9() const
+
+    const T10& e10() const
+
+    const T11& e11() const
+
+    const T12& e12() const
+
+    const T13& e13() const
+
+    const T14& e14() const
+
+    const T15& e15() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> t16:
+
+    # CONSTRUCTORS:
+
+    t16() = default
+
+    t16(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+        const T11& _e11, const T12& _e12, const T13& _e13, const T14& _e14, const T15& _e15, const T16& _e16)
+
+    t16(const t16&) = default
+
+    # OPERATORS:
+
+    t16& operator=(const t16&) = default
+
+    bool operator==(const t16&) const
+
+    bool operator!=(const t16&) const
+
+    # FIELDS:
+
+    const T1& e1() const
+
+    const T2& e2() const
+
+    const T3& e3() const
+
+    const T4& e4() const
+
+    const T5& e5() const
+
+    const T6& e6() const
+
+    const T7& e7() const
+
+    const T8& e8() const
+
+    const T9& e9() const
+
+    const T10& e10() const
+
+    const T11& e11() const
+
+    const T12& e12() const
+
+    const T13& e13() const
+
+    const T14& e14() const
+
+    const T15& e15() const
+
+    const T16& e16() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> t16:
+
+    # CONSTRUCTORS:
+
+    t16() = default
+
+    t16(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+        const T11& _e11, const T12& _e12, const T13& _e13, const T14& _e14, const T15& _e15, const T16& _e16)
+
+    t16(const t16&) = default
+
+    # OPERATORS:
+
+    t16& operator=(const t16&) = default
+
+    bool operator==(const t16&) const
+
+    bool operator!=(const t16&) const
+
+    # FIELDS:
+
+    const T1& e1() const
+
+    const T2& e2() const
+
+    const T3& e3() const
+
+    const T4& e4() const
+
+    const T5& e5() const
+
+    const T6& e6() const
+
+    const T7& e7() const
+
+    const T8& e8() const
+
+    const T9& e9() const
+
+    const T10& e10() const
+
+    const T11& e11() const
+
+    const T12& e12() const
+
+    const T13& e13() const
+
+    const T14& e14() const
+
+    const T15& e15() const
+
+    const T16& e16() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> t17:
+
+    # CONSTRUCTORS:
+
+    t17() = default
+
+    t17(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+        const T11& _e11, const T12& _e12, const T13& _e13, const T14& _e14, const T15& _e15, const T16& _e16, const T17& _e17)
+
+    t17(const t17&) = default
+
+    # OPERATORS:
+
+    t17& operator=(const t17&) = default
+
+    bool operator==(const t17&) const
+
+    bool operator!=(const t17&) const
+
+    # FIELDS:
+
+    const T1& e1() const
+
+    const T2& e2() const
+
+    const T3& e3() const
+
+    const T4& e4() const
+
+    const T5& e5() const
+
+    const T6& e6() const
+
+    const T7& e7() const
+
+    const T8& e8() const
+
+    const T9& e9() const
+
+    const T10& e10() const
+
+    const T11& e11() const
+
+    const T12& e12() const
+
+    const T13& e13() const
+
+    const T14& e14() const
+
+    const T15& e15() const
+
+    const T16& e16() const
+
+    const T17& e17() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> t18:
+
+    # CONSTRUCTORS:
+
+    t18() = default
+
+    t18(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+        const T11& _e11, const T12& _e12, const T13& _e13, const T14& _e14, const T15& _e15, const T16& _e16, const T17& _e17, const T18& _e18)
+
+    t18(const t18&) = default
+
+    # OPERATORS:
+
+    t18& operator=(const t18&) = default
+
+    bool operator==(const t18&) const
+
+    bool operator!=(const t18&) const
+
+    # FIELDS:
+
+    const T1& e1() const
+
+    const T2& e2() const
+
+    const T3& e3() const
+
+    const T4& e4() const
+
+    const T5& e5() const
+
+    const T6& e6() const
+
+    const T7& e7() const
+
+    const T8& e8() const
+
+    const T9& e9() const
+
+    const T10& e10() const
+
+    const T11& e11() const
+
+    const T12& e12() const
+
+    const T13& e13() const
+
+    const T14& e14() const
+
+    const T15& e15() const
+
+    const T16& e16() const
+
+    const T17& e17() const
+
+    const T18& e18() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> t19:
+
+    # CONSTRUCTORS:
+
+    t19() = default
+
+    t19(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+        const T11& _e11, const T12& _e12, const T13& _e13, const T14& _e14, const T15& _e15, const T16& _e16, const T17& _e17, const T18& _e18, const T19& _e19)
+
+    t19(const t19&) = default
+
+    # OPERATORS:
+
+    t19& operator=(const t19&) = default
+
+    bool operator==(const t19&) const
+
+    bool operator!=(const t19&) const
+
+    # FIELDS:
+
+    const T1& e1() const
+
+    const T2& e2() const
+
+    const T3& e3() const
+
+    const T4& e4() const
+
+    const T5& e5() const
+
+    const T6& e6() const
+
+    const T7& e7() const
+
+    const T8& e8() const
+
+    const T9& e9() const
+
+    const T10& e10() const
+
+    const T11& e11() const
+
+    const T12& e12() const
+
+    const T13& e13() const
+
+    const T14& e14() const
+
+    const T15& e15() const
+
+    const T16& e16() const
+
+    const T17& e17() const
+
+    const T18& e18() const
+
+    const T19& e19() const
+
+struct<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> t20:
+
+    # CONSTRUCTORS:
+
+    t20() = default
+
+    t20(const T1& _e1, const T2& _e2, const T3& _e3, const T4& _e4, const T5& _e5, const T6& _e6, const T7& _e7, const T8& _e8, const T9& _e9, const T10& e_10,
+        const T11& _e11, const T12& _e12, const T13& _e13, const T14& _e14, const T15& _e15, const T16& _e16, const T17& _e17, const T18& _e18, const T19& _e19, const T20& _e20)
+
+    t20(const t20&) = default
+
+    # OPERATORS:
+
+    t20& operator=(const t20&) = default
+
+    bool operator==(const t20&) const
+
+    bool operator!=(const t20&) const
+
+    # FIELDS:
+
+    const T1& e1() const
+
+    const T2& e2() const
+
+    const T3& e3() const
+
+    const T4& e4() const
+
+    const T5& e5() const
+
+    const T6& e6() const
+
+    const T7& e7() const
+
+    const T8& e8() const
+
+    const T9& e9() const
+
+    const T10& e10() const
+
+    const T11& e11() const
+
+    const T12& e12() const
+
+    const T13& e13() const
+
+    const T14& e14() const
+
+    const T15& e15() const
+
+    const T16& e16() const
+
+    const T17& e17() const
+
+    const T18& e18() const
+
+    const T19& e19() const
+
+    const T20& e20() const
 
 -----------------------------------------------------------------------------------------
 
