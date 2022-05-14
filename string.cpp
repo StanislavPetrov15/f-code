@@ -2897,7 +2897,12 @@ struct string
 
         for (int i = 0; i < CharacterCount; i++)
         {
-            if ((*this)[i] != _value)
+            if (i == CharacterCount - 1)
+            {
+                 *this = {};
+                 return *this;
+            }
+            else if ((*this)[i] != _value)
             {
                 *this = Subrange(i, CharacterCount - 1);
                 break;
@@ -2914,7 +2919,12 @@ struct string
 
         for (int i = CharacterCount - 1; i > - 1; i--)
         {
-            if ((*this)[i] != _value)
+            if (i == 0)
+            {
+                *this = {};
+                return *this;
+            }
+            else if ((*this)[i] != _value)
             {
                 *this = Subrange(0, i);
                 break;
@@ -4107,7 +4117,7 @@ struct string
     //the string does not contain composite characters ->
     const wchar_t* ToWide() const
     {
-        list<wchar_t> result; //as the number of the code units is not known (without calculation), t:list must be used instead of wchar_t*
+        list<wchar_t> result; //as the number of the code units is not known (without calculation) t:list must be used instead of wchar_t*
 
         result.ReleaseMode = ReleaseMode::FUTURE; //because &result->Elements is the return value
 
