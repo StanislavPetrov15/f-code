@@ -191,6 +191,6 @@ namespace byte_operations
 			(static_cast<unsigned long long>(low3) << 24) |
 			(static_cast<unsigned long long>(low2) << 16) |
 			(static_cast<unsigned long long>(low1) << 8) |
-                        static_cast<unsigned long long>(low0);
+            static_cast<unsigned long long>(low0);
 	}
 }
