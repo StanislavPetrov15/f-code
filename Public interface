@@ -3,17 +3,17 @@
 Index:
 
 array.cpp - line 20
-pair.cpp - line 171
-tuple.cpp - line 199
-range.cpp - line 1064
-list.cpp - line 1169
-string.cpp - line 1604
-numeric.cpp - line 2251
-bit_operations.cpp - line 2386
-byte_operations.cpp - line 2490
-unicode.cpp - line 2530
-time.cpp - line 2668
-filesystem.cpp - line 2750
+pair.cpp - line 172
+tuple.cpp - line 200
+range.cpp - line 1065
+list.cpp - line 1170
+string.cpp - line 1611
+numeric.cpp - line 2264
+bit_operations.cpp - line 2399
+byte_operations.cpp - line 2548
+unicode.cpp - line 2588
+time.cpp - line 2726
+filesystem.cpp - line 2808
 
 -----------------------------------------------------------------------------------------
 
@@ -95,6 +95,7 @@ template<typename T> range rangeOf(const T* const _array, int _length, const T* 
 # split([56, 7, 7, 18, 5, 19, 76, 15, 9], 9, 7) => [[56], [18, 5, 19, 76, 15, 9]]
 # split([7, 41, 56, 7, 18, 76, 15, 9, 7], 9,7 ) => [[41, 56], [18, 76, 15, 9]]
 # split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7) => [[41, 56], [], [], [18, 5, 15]]
+# split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7, true) => [[41, 56], [18, 5, 15]]
 template<typename T> T** split(T* const _array, int _length, T _separator, bool _ignoreEmptyValues = false)
 
 # _length specifies the length of _array
@@ -1379,6 +1380,9 @@ struct list<T>:
   # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
   list<T>& Set(int _begin, int _end, const T& _value)
 
+  # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
+  list<T>& Set(int _begin, const list<bool>& _value)
+
   list<T>& Swap(int _index1, int _index2)
 
   # _element1 and _element2 are pointers to elements of the list ->
@@ -1558,6 +1562,7 @@ struct list<T>:
   # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7, true) => [[56], [18, 5, 19, 76, 15, 9]]
   # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split(7) => [[41, 56], [18, 76, 15, 9]]
   # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7) => [[41, 56], [], [], [18, 5, 15]]
+  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7, true) => [[41, 56], [18, 5, 15]]
   list<list<T>> Split(const T& _separator, bool _ignoreEmptyValues = false) const
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
@@ -1570,6 +1575,7 @@ struct list<T>:
   # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7], true) => [[41, 56], [18, 5, 19, 76, 15, 9, 20, 3]]
   # [9, 7, 41, 56, 9, 9, 7, 18, 76, 15, 9, 20, 3, 9, 7].Split([9, 7]) => [[41, 56, 9], [18, 76, 15, 9, 20, 3]]
   # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7]) => [[41, 56], [], [], [18]]
+  # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7], true) => [[41, 56], [18]]
   list<list<T>> Split(const list<T>& _separator, bool _ignoreEmptyValues = false) const
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
@@ -1582,6 +1588,7 @@ struct list<T>:
   # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }, true) => [[56], [18, 5, 19, 76, 15, 9]]
   # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split([](int x) { return x == 7; }) => [[41, 56], [18, 76, 15, 9]]
   # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }) => [[41, 56], [], [], [18, 5, 15]]
+  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }, true) => [[41, 56], [18, 5, 15]]
   list<list<T>> Split(const std::function<bool(const T&)>& _predicate, bool _ignoreEmptyValues = false) const
 
   # _length = 0 => [_begin..]
@@ -2025,6 +2032,9 @@ struct String:
   # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
   string& Set(int _begin, int _end, CodePoint _value)
 
+  # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
+  string& Set(int _begin, const list<bool>& _value)
+
   string& Swap(int _index1, int _index2)
 
   # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].Trim(2) => [5, 9, 0, 6]
@@ -2160,6 +2170,7 @@ struct String:
   # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7, true) => [[56], [18, 5, 19, 76, 15, 9]]
   # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split(7) => [[41, 56], [18, 76, 15, 9]]
   # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7) => [[41, 56], [], [], [18, 5, 15]]
+  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7, true) => [[41, 56], [18, 5, 15]]
   list<string> Split(CodePoint _separator, bool _ignoreEmptyValues = false) const
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
@@ -2172,6 +2183,7 @@ struct String:
   # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7], true) => [[41, 56], [18, 5, 19, 76, 15, 9, 20, 3]]
   # [9, 7, 41, 56, 9, 9, 7, 18, 76, 15, 9, 20, 3, 9, 7].Split([9, 7]) => [[41, 56, 9], [18, 76, 15, 9, 20, 3]]
   # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7]) => [[41, 56], [], [], [18]]
+  # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7], true) => [[41, 56], [18]]
   list<string> Split(const string& _separator, bool _ignoreEmptyValues = false) const
 
   # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
@@ -2184,6 +2196,7 @@ struct String:
   # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }, true) => [[56], [18, 5, 19, 76, 15, 9]]
   # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split([](int x) { return x == 7; }) => [[41, 56], [18, 76, 15, 9]]
   # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }) => [[41, 56], [], [], [18, 5, 15]]
+  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }, true) => [[41, 56], [18, 5, 15]]
   list<string> Split(const std::function<bool(CodePoint)>& _predicate, bool _ignoreEmptyValues = false) const
 
   # _length = 0 => [_begin..]
@@ -2409,14 +2422,15 @@ struct BitSet:
 
    unsigned char* byteSequence() const
 
-   void AppendBit(bool _value)
-
    void SetBit(int _index, bool _value)
 
    bool GetBit(int _index) const
 
-   # (11000000001).SetBits((11011), 3) -> 11011011001
-   int SetBits(const list<bool>& _bits, int _targetBegin)
+   # (0000000000).SetBits((11001), 3) => 0010011000
+   void SetBits(const list<bool>& _bits, int _targetBegin)
+
+   # (0000000000).SetBits((11001), 3) => 0010011000
+   void SetBitsR(const list<bool>& _bits, int _targetBegin)
 
 # reverse<unsigned char>(01001010) => 01010010
 # reverse<unsigned short>(0000000001001010) => 0101001000000000
@@ -2471,19 +2485,63 @@ void SetBits(unsigned int& _number, bool _value, int _begin, int _end)
 void SetBits(unsigned long long& _number, bool _value, int _begin, int _end)
 
 # returns all bits of _value; the first bit in the list is LSB
+# (194) => [01000011]
 list<bool> BitsOf(unsigned char _value)
 
 # returns all bits of _value; the first bit in the list is LSB
+# (41092) => [0010000100000101]
 list<bool> BitsOf(unsigned short _value)
 
 # returns all bits of _value; the first bit in the list is LSB
+# (41092) => [00100001000001010000000000000000]
 list<bool> BitsOf(unsigned int _value)
 
 # returns all bits of _value; the first bit in the list is LSB
+# (41092) => [0010000100000101000000000000000000000000000000000000000000000000]
 list<bool> BitsOf(unsigned long long _value)
+
+# returns all bits of _value; the first bit in the list is LSB
+# (194) => [11000010]
+list<bool> BitsOfR(unsigned char _value)
+
+# return all bits of _value; the first bit in the list is MSB
+# (41092) => [1010000010000100]
+list<bool> BitsOfR(unsigned short _value)
+
+# return all bits of _value; the first bit in the list is МSB
+# (41092) => [00000000000000001010000010000100]
+list<bool> BitsOfR(unsigned int _value)
+
+# return all bits of _value; the first bit in the list is MSB
+# (41092) => [0000000000000000000000000000000000000000000000001010000010000100]
+list<bool> BitsOfR(unsigned long long _value)
 
 # returns the number of bits needed for the binary representation of (the absolute value of _number)
 int BitLengthOf(unsigned int _number)
+
+# the first bit in the list is LSB
+list<bool> SignificantBitsOf(unsigned char _value)
+
+# the first bit in the list is LSB
+list<bool> SignificantBitsOf(unsigned short _value)
+
+# the first bit in the list is LSB
+list<bool> SignificantBitsOf(unsigned int _value)
+
+# the first bit in the list is LSB
+list<bool> SignificantBitsOf(unsigned long long _value)
+
+# the first bit in the list is MSB
+list<bool> SignificantBitsOfR(unsigned char _value)
+
+# the first bit in the list is MSB
+list<bool> SignificantBitsOfR(unsigned short _value)
+
+# the first bit in the list is MSB
+list<bool> SignificantBitsOfR(unsigned int _value)
+
+# the first bit in the list is MSB
+list<bool> SignificantBitsOfR(unsigned long long _value)
 
 -----------------------------------------------------------------------------------------
 
