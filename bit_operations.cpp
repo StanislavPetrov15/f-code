@@ -13,7 +13,7 @@ namespace bit_operations
 	private:
 
 		int BitCount = 0;
-		unsigned char *Bytes = nullptr;
+		unsigned char* Bytes = nullptr;
 
 	public:
 
@@ -23,7 +23,16 @@ namespace bit_operations
 		{
 			BitCount = _bitCount;
 
-			int byteSize = (BitCount / 8) + 1;
+            int byteSize;
+
+            if (BitCount % 8 == 0)
+            {
+                byteSize = BitCount / 8;
+            }
+            else
+            {
+                byteSize = (BitCount / 8) + 1;
+            }
 
 			Bytes = new unsigned char[byteSize];
 
@@ -39,7 +48,16 @@ namespace bit_operations
 
 			BitCount = bits.count();
 
-			int byteSize = (BitCount / 8) + 1;
+            int byteSize;
+
+            if (BitCount % 8 == 0)
+            {
+                byteSize = BitCount / 8;
+            }
+            else
+            {
+                byteSize = (BitCount / 8) + 1;
+            }
 
 			Bytes = new unsigned char[byteSize];
 
@@ -89,7 +107,7 @@ namespace bit_operations
 
 		~BitSet()
 		{
-			delete[] Bytes;
+			delete [] Bytes;
 		}
 
 		int bitCount() const
@@ -107,13 +125,6 @@ namespace bit_operations
 			return Bytes;
 		}
 
-		void AppendBit(bool _value)
-		{
-			SetBit(BitCount, _value);
-
-			BitCount++;
-		}
-
 		void SetBit(int _index, bool _value)
 		{
 			div_t result = std::div(_index, 8);
@@ -121,23 +132,42 @@ namespace bit_operations
 			bit_operations::SetBit(Bytes[result.quot], result.rem, _value);
 		}
 
-		bool GetBit(int _index) const
+        bool GetBit(int _index) const
 		{
 			div_t result = std::div(_index, 8);
 
 			return bit_operations::GetBit(Bytes[result.quot], result.rem);
 		}
 
-		//(11000000001).SetBits((11011), 3) -> 11011011001
-		int SetBits(const list<bool>& _bits, int _targetBegin)
-		{
-			for (int i = 0; i < _bits.count(); i++)
-			{
-				SetBit(_targetBegin + i, _bits[i]);
-			}
+        list<bool> GetBits(int _begin, int _end)
+        {
+            list<bool> result;
 
-			return 0;
+            for (int i = _begin; i <= _end; i++)
+            {
+                result.Append(GetBit(i));
+            }
+
+            return result;
+        }
+
+		//(0000000000).SetBits((11001), 3) => 0011001000
+		void SetBits(const list<bool>& _bits, int _targetBegin)
+		{
+            for (int i = 0; i < _bits.count(); i++)
+            {
+                SetBit(_targetBegin + i, _bits[_bits.count() - (i + 1)]);
+            }
 		}
+
+        //(0000000000).SetBits((11001), 3) => 0010011000
+        void SetBitsR(const list<bool>& _bits, int _targetBegin)
+        {
+            for (int i = 0; i < _bits.count(); i++)
+            {
+                SetBit(_targetBegin + i, _bits[i]);
+            }
+        }
 	};
 
 	//reverse<unsigned char>(01001010) => 01010010
@@ -239,6 +269,21 @@ namespace bit_operations
 		}
 	}
 
+    //_index >= 0 || _index <= 7 ->
+    unsigned char SetBit(unsigned char _number, int _index, bool _value)
+    {
+        if (_value)
+        {
+            _number |= (1 << _index);
+            return _number;
+        }
+        else
+        {
+            _number &= ~(1 << _index);
+            return _number;
+        }
+    }
+
 	//_index >= 0 || _index <= 15 ->
 	void SetBit(unsigned short& _number, int _index, bool _value)
 	{
@@ -339,6 +384,7 @@ namespace bit_operations
 	}
 
 	//returns all bits of _value; the first bit in the list is LSB
+	//(194) => [01000011]
 	list<bool> BitsOf(unsigned char _value)
 	{
 		list<bool> bits;
@@ -352,6 +398,7 @@ namespace bit_operations
 	}
 
 	//return all bits of _value; the first bit in the list is LSB
+	//(41092) => [0010000100000101]
 	list<bool> BitsOf(unsigned short _value)
 	{
 		list<bool> bits;
@@ -365,6 +412,7 @@ namespace bit_operations
 	}
 
 	//return all bits of _value; the first bit in the list is LSB
+    //(41092) => [00100001000001010000000000000000]
 	list<bool> BitsOf(unsigned int _value)
 	{
 		list<bool> bits;
@@ -378,6 +426,7 @@ namespace bit_operations
 	}
 
 	//return all bits of _value; the first bit in the list is LSB
+    //(41092) => [0010000100000101000000000000000000000000000000000000000000000000]
 	list<bool> BitsOf(unsigned long long _value)
 	{
 		list<bool> bits;
@@ -389,6 +438,110 @@ namespace bit_operations
 
 		return bits;
 	}
+
+    //returns all bits of _value; the first bit in the list is LSB
+    //(194) => [11000010]
+    list<bool> BitsOfR(unsigned char _value)
+    {
+        list<bool> bits;
+
+        for (int i = 7; i > -1; i--)
+        {
+            bits.Append(GetBit(static_cast<unsigned char>(_value), i));
+        }
+
+        return bits;
+    }
+
+    //return all bits of _value; the first bit in the list is MSB
+    //(41092) => [1010000010000100]
+    list<bool> BitsOfR(unsigned short _value)
+    {
+        list<bool> bits;
+
+        for (int i = 15; i > -1; i--)
+        {
+            bits.Append(GetBit(_value, i));
+        }
+
+        return bits;
+    }
+
+    //return all bits of _value; the first bit in the list is МSB
+    //(41092) => [00000000000000001010000010000100]
+    list<bool> BitsOfR(unsigned int _value)
+    {
+        list<bool> bits;
+
+        for (int i = 31; i > -1; i--)
+        {
+            bits.Append(GetBit(_value, i));
+        }
+
+        return bits;
+    }
+
+    //return all bits of _value; the first bit in the list is MSB
+    //(41092) => [0000000000000000000000000000000000000000000000001010000010000100]
+    list<bool> BitsOfR(unsigned long long _value)
+    {
+        list<bool> bits;
+
+        for (int i = 63; i > -1; i--)
+        {
+            bits.Append(GetBit(_value, i));
+        }
+
+        return bits;
+    }
+
+    //the first bit in the list is LSB
+    list<bool> SignificantBitsOf(unsigned char _value)
+    {
+        return bit_operations::BitsOf(_value).TrimBegin(0);
+    }
+
+    //the first bit in the list is LSB
+    list<bool> SignificantBitsOf(unsigned short _value)
+    {
+        return bit_operations::BitsOf(_value).TrimBegin(0);
+    }
+
+    //the first bit in the list is LSB
+    list<bool> SignificantBitsOf(unsigned int _value)
+    {
+        return bit_operations::BitsOf(_value).TrimBegin(0);
+    }
+
+    //the first bit in the list is LSB
+    list<bool> SignificantBitsOf(unsigned long long _value)
+    {
+        return bit_operations::BitsOf(_value).TrimBegin(0);
+    }
+
+    //the first bit in the list is MSB
+    list<bool> SignificantBitsOfR(unsigned char _value)
+    {
+        return bit_operations::BitsOfR(_value).TrimBegin(0);
+    }
+
+    //the first bit in the list is MSB
+    list<bool> SignificantBitsOfR(unsigned short _value)
+    {
+        return bit_operations::BitsOfR(_value).TrimBegin(0);
+    }
+
+    //the first bit in the list is MSB
+    list<bool> SignificantBitsOfR(unsigned int _value)
+    {
+        return bit_operations::BitsOfR(_value).TrimBegin(0);
+    }
+
+    //the first bit in the list is MSB
+    list<bool> SignificantBitsOfR(unsigned long long _value)
+    {
+        return bit_operations::BitsOfR(_value).TrimBegin(0);
+    }
 
 	//returns the number of bits needed for the binary representation of _number
 	int BitLengthOf(unsigned int _number)
