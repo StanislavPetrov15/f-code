@@ -2788,6 +2788,7 @@ struct string
         return *this;
     }
 
+
     string& Set(int _index, CodePoint _value)
     {
         if (IsSegment()) return *this;
@@ -2823,6 +2824,21 @@ struct string
         Elements = array;
 
         ByteCount = newByteCount;
+
+        return *this;
+    }
+
+    //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
+    string& Set(int _begin, const string& _value)
+    {
+        if (IsSegment()) return *this;
+        else if (!InRange(_begin)) return *this;
+        else if (!InRange(_begin + (_value.count()) - 1)) return *this;
+
+        for (int i = 0; i < _value.count(); i++)
+        {
+            Set(_begin + i, _value[i]);
+        }
 
         return *this;
     }
@@ -3535,6 +3551,7 @@ struct string
     //[56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7, true) => [[56], [18, 5, 19, 76, 15, 9]]
     //[7, 41, 56, 7, 18, 76, 15, 9, 7].Split(7) => [[41, 56], [18, 76, 15, 9]]
     //[7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7) => [[41, 56], [], [], [18, 5, 15]]
+    //[7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7, true) => [[41, 56], [18, 5, 15]]
     list<string> Split(CodePoint _separator, bool _ignoreEmptyValues = false) const
     {
         list<string> accumulator;
@@ -3581,6 +3598,7 @@ struct string
     //[41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7], true) => [[41, 56], [18, 5, 19, 76, 15, 9, 20, 3]]
     //[9, 7, 41, 56, 9, 9, 7, 18, 76, 15, 9, 20, 3, 9, 7].Split([9, 7]) => [[41, 56, 9], [18, 76, 15, 9, 20, 3]]
     //[9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7]) => [[41, 56], [], [], [18]]
+    //[9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7], true) => [[41, 56], [18]]
     list<string> Split(const string& _separator, bool _ignoreEmptyValues = false) const
     {
         list<string> accumulator;
@@ -3643,6 +3661,7 @@ struct string
     //[56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }, true) => [[56], [18, 5, 19, 76, 15, 9]]
     //[7, 41, 56, 7, 18, 76, 15, 9, 7].Split([](int x) { return x == 7; }) => [[41, 56], [18, 76, 15, 9]]
     //[7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }) => [[41, 56], [], [], [18, 5, 15]]
+    //[7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }, true) => [[41, 56], [18, 5, 15]]
     list<string> Split(const std::function<bool(CodePoint)>& _predicate, bool _ignoreEmptyValues = false) const
     {
         list<string> accumulator;
