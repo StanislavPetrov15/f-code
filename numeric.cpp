@@ -457,7 +457,6 @@ namespace numeric
                 multiplier *= 2;
             }
 
-
         return result;
     }
 }
