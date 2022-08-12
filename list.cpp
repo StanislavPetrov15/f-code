@@ -89,7 +89,7 @@ template<typename T> struct list
 
         Elements = &(_source[_begin]);
         Count = (_end - _begin) + 1;
-        Size = Size;
+        Size = Count;
         SpatialKind = SpatialKind::SEGMENT;
     }
 
@@ -113,7 +113,7 @@ template<typename T> struct list
 
         Elements = const_cast<T*>(&(_source[_begin]));
         Count = (_end - _begin) + 1;
-        Size = Size;
+        Size = Count;
         SpatialKind = SpatialKind::SEGMENT;
     }
 
@@ -213,7 +213,7 @@ template<typename T> struct list
     {
         for (const list<T>& __list : _values)
         {
-            if ((*this) == _list)
+            if ((*this) == __list)
             {
                 return true;
             }
@@ -228,7 +228,7 @@ template<typename T> struct list
     {
         for (const list<T>& __list : _values)
         {
-            if ((*this) == _list)
+            if ((*this) == __list)
             {
                 return false;
             }
@@ -240,6 +240,7 @@ template<typename T> struct list
     list<T>& operator=(const list<T>& _value)
     {
         if (IsSegment()) return *this;
+        if (this == &_value) return *this;
 
         Clear();
         resize(_value.count());
@@ -920,10 +921,11 @@ template<typename T> struct list
         return _ascending ? *this : Reverse();
     }
 
+    //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
     list<T>& Set(int _begin, int _end, const T& _value)
     {
 		    if (IsSegment()) return *this;
-            else if (!InRange(_index1) || !InRange(_index2)) return *this;
+            else if (!InRange(_begin) || !InRange(_end)) return *this;
 
 		    for (int i = _begin; i <= _end; i++)
             {
@@ -931,6 +933,21 @@ template<typename T> struct list
             }
 
 		    return *this;
+    }
+
+    //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
+    list<T>& Set(int _begin, const list<bool>& _value)
+    {
+        if (IsSegment()) return *this;
+        else if (!InRange(_begin)) return *this;
+        else if (!InRange(_begin + (_value.count()) - 1)) return *this;
+
+        for (int i = 0; i < _value.count(); i++)
+        {
+            Elements[_begin + i] = _value[i];
+        }
+
+        return *this;
     }
 
     list<T>& Swap(int _index1, int _index2)
@@ -1786,11 +1803,12 @@ template<typename T> struct list
     //_ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
     //[3, 7, 18, 5, 19, 76, 15].Split(353) => []
     //[18, 5, 19, 76, 15, 9, 20, 5].Split(9) => [[18, 5, 19, 76, 15], [20, 5]]
-    //[56, 3, 7, 18, 5, 19, 76, 7].Split(7) => [[56, 3], [18, 5, 19, 76]]
+    //[56, 3, 7, 18, 5, 19, 76, 7].Split(7) => [[56, 3], [18, 5, 19, 76], []]
     //[56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7) => [[56], [], [18, 5, 19, 76, 15, 9]]
     //[56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7, true) => [[56], [18, 5, 19, 76, 15, 9]]
     //[7, 41, 56, 7, 18, 76, 15, 9, 7].Split(7) => [[41, 56], [18, 76, 15, 9]]
     //[7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7) => [[41, 56], [], [], [18, 5, 15]]
+    //[7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7, true) => [[41, 56], [18, 5, 15]]
     list<list<T>> Split(const T& _separator, bool _ignoreEmptyValues = false) const
     {
         list<list<T>> accumulator;
@@ -1837,6 +1855,7 @@ template<typename T> struct list
     //[41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7], true) => [[41, 56], [18, 5, 19, 76, 15, 9, 20, 3]]
     //[9, 7, 41, 56, 9, 9, 7, 18, 76, 15, 9, 20, 3, 9, 7].Split([9, 7]) => [[41, 56, 9], [18, 76, 15, 9, 20, 3]]
     //[9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7]) => [[41, 56], [], [], [18]]
+    //[9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7], true) => [[41, 56], [18]]
     list<list<T>> Split(const list<T>& _separator, bool _ignoreEmptyValues = false) const
     {
         list<list<T>> accumulator;
@@ -1899,6 +1918,7 @@ template<typename T> struct list
     //[56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }, true) => [[56], [18, 5, 19, 76, 15, 9]]
     //[7, 41, 56, 7, 18, 76, 15, 9, 7].Split([](int x) { return x == 7; }) => [[41, 56], [18, 76, 15, 9]]
     //[7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }) => [[41, 56], [], [], [18, 5, 15]]
+    //[7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }, true) => [[41, 56], [18, 5, 15]]
     list<list<T>> Split(const std::function<bool(const T&)>& _predicate, bool _ignoreEmptyValues = false) const
     {
         list<list<T>> accumulator;
@@ -1943,7 +1963,7 @@ template<typename T> struct list
 
         list<T> accumulator;
 
-        int end = _length > 0 ? Count : _begin + _length;
+        int end = _length == 0 ? Count : _begin + _length;
         for (int i = _begin; i < end; i++)
         {
             accumulator.Append(Elements[i]);
