@@ -2301,7 +2301,7 @@ struct string
     {
         if (IsSegment()) return *this;
 
-        list<unsigned char> bytes = bytesOf(_value); //байтовете are in natural form
+        list<unsigned char> bytes = bytesOf(_value);
 
         if (ByteCount + bytes.count() > Size)
         {
@@ -2805,19 +2805,19 @@ struct string
         //copying (the bytes to the left of byteIndex)
         for (int i = 0; i < byteRange.begin(); i++)
         {
-            array[i] = Elements[i];
+            //array[i] = Elements[i];
         }
 
         //copying of &bytes
         for (int i = 0; i < bytes.count(); i++)
         {
-            array[byteRange.begin() + i] = bytes[i];
+            //array[byteRange.begin() + i] = bytes[i];
         }
 
         //copying (the bytes after (byteIndex + bytes.count()))
         for (int i = byteRange.begin() + bytes.count(), n = 1; i < newByteCount; i++, n++)
         {
-            array[i] = Elements[byteRange.end() + n];
+            //array[i] = Elements[byteRange.end() + n];
         }
 
         delete [] Elements;
