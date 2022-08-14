@@ -2405,7 +2405,7 @@ struct string
 
         list<unsigned char> bytes = bytesOf(_value);
 
-        unsigned char* array = new unsigned char[ByteCount + bytes.count()];
+        unsigned char* array = new unsigned char[Size + bytes.count()];
 
         int byteIndex = byteRangeOf(_index).begin();
 
@@ -2460,7 +2460,7 @@ struct string
             convertedString = string(_value.elements(), u32, _value.CharacterCount|c, StorageEncoding);
         }
 
-        unsigned char* array = new unsigned char[ByteCount + convertedString.ByteCount];
+        unsigned char* array = new unsigned char[Size + convertedString.ByteCount];
 
         int byteIndex = byteRangeOf(_index).begin();
 
@@ -2798,26 +2798,26 @@ struct string
 
         list<unsigned char> bytes = bytesOf(_value);
 
-        int newByteCount = (ByteCount - byteRange.length()) + bytes.count();
+        int newByteCount = (Size - byteRange.length()) + bytes.count();
 
         unsigned char* array = new unsigned char[newByteCount];
 
         //copying (the bytes to the left of byteIndex)
         for (int i = 0; i < byteRange.begin(); i++)
         {
-            //array[i] = Elements[i];
+            array[i] = Elements[i];
         }
 
         //copying of &bytes
         for (int i = 0; i < bytes.count(); i++)
         {
-            //array[byteRange.begin() + i] = bytes[i];
+            array[byteRange.begin() + i] = bytes[i];
         }
 
         //copying (the bytes after (byteIndex + bytes.count()))
         for (int i = byteRange.begin() + bytes.count(), n = 1; i < newByteCount; i++, n++)
         {
-            //array[i] = Elements[byteRange.end() + n];
+            array[i] = Elements[byteRange.end() + n];
         }
 
         delete [] Elements;
@@ -2853,7 +2853,7 @@ struct string
 
         list<unsigned char> bytes = bytesOf(_value).Repeat(_end - _begin);
 
-        int newByteCount = (ByteCount - byteRange.length()) + bytes.count();
+        int newByteCount = (Size - byteRange.length()) + bytes.count();
 
         unsigned char* array = new unsigned char[newByteCount];
 
