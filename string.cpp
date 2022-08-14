@@ -2798,9 +2798,11 @@ struct string
 
         list<unsigned char> bytes = bytesOf(_value);
 
-        int newByteCount = (Size - byteRange.length()) + bytes.count();
+        int newByteCount = (ByteCount - byteRange.length()) + bytes.count();
 
-        unsigned char* array = new unsigned char[newByteCount];
+        int newSize = (Size - byteRange.length()) + bytes.count();
+
+        unsigned char* array = new unsigned char[newSize];
 
         //copying (the bytes to the left of byteIndex)
         for (int i = 0; i < byteRange.begin(); i++)
@@ -2853,9 +2855,11 @@ struct string
 
         list<unsigned char> bytes = bytesOf(_value).Repeat(_end - _begin);
 
-        int newByteCount = (Size - byteRange.length()) + bytes.count();
+        int newByteCount = (ByteCount - byteRange.length()) + bytes.count();
 
-        unsigned char* array = new unsigned char[newByteCount];
+        int newSize = (Size - byteRange.length()) + bytes.count();
+
+        unsigned char* array = new unsigned char[newSize];
 
         //copying (the bytes to the left of byteIndex)
         for (int i = 0; i < byteRange.begin(); i ++)
