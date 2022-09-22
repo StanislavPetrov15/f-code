@@ -59,7 +59,6 @@ template<typename T> struct list
     explicit list(int _size)
     {
         resize(_size);
-		Count = _size;
     }
 
     list(const list<T>& _value)
