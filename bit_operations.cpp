@@ -269,21 +269,6 @@ namespace bit_operations
 		}
 	}
 
-    //_index >= 0 || _index <= 7 ->
-    unsigned char SetBit(unsigned char _number, int _index, bool _value)
-    {
-        if (_value)
-        {
-            _number |= (1 << _index);
-            return _number;
-        }
-        else
-        {
-            _number &= ~(1 << _index);
-            return _number;
-        }
-    }
-
 	//_index >= 0 || _index <= 15 ->
 	void SetBit(unsigned short& _number, int _index, bool _value)
 	{
