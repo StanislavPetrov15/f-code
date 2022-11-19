@@ -698,17 +698,17 @@ struct File
     bool Contains(const list<unsigned char>& _value) const
     {
         if (set_os(-1, -1, ReadOnly) != 0) return false;
-
-        int matches = 0;
-        for (int i = 0; i < Size; i++)
+        
+        for (int i = 0, matches = 0; i < Size - _value.count();)
         {
-            if ((*this)[i] == _value[matches])
+            if ((*this)[i + matches] == _value[matches])
             {
                 matches++;
             }
             else
             {
                 matches = 0;
+                i++;
             }
 
             if (matches == _value.count())
