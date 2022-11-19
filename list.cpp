@@ -1085,15 +1085,16 @@ template<typename T> struct list
     {
         int matches = 0;
 
-        for (const T& __element : *this)
+        for (int i = 0, matches = 0; i < Size - _value.count();)
         {
-            if (__element == _value[matches])
+            if ((*this)[i + matches] == _value[matches])
             {
                 matches++;
             }
             else
             {
                 matches = 0;
+                i++;
             }
 
             if (matches == _value.count())
