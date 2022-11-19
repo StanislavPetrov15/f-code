@@ -1083,8 +1083,6 @@ template<typename T> struct list
     //[1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
     bool Contains(const list<T>& _value) const
     {
-        int matches = 0;
-
         for (int i = 0, matches = 0; i < Size - _value.count();)
         {
             if ((*this)[i + matches] == _value[matches])
