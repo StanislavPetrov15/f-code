@@ -8,9 +8,9 @@ f-code
 
 (!) the file ['public interface'](https://github.com/StanislavPetrov15/f-code/blob/main/Public%20interface) describes the constants, types and function signatures in the library 
 
-(!) the library is intended to work on Windows 10 and 64-byte processor
+(!) the library is intended to work on Windows 11 and 64-byte processor
 
-(!) the library is tested on Windows 10 (Microsoft Visual C++ compiler, C++14)
+(!) the library is tested on Windows 11 (Microsoft Visual C++ compiler, C++14)
 
 (!) the library does not use third-party source code
 
