@@ -6,35 +6,51 @@ namespace filesystem
     using unicode::utf32;
 
     //Errors:
-    const char SUCCESSFUL_OPERATION = 0;
     const char E_UNSUCCESSFUL_OPERATION = -1;
     const char E_UNKNOWN_ERROR = -2;
+    //------------------------------------------
     const char E_FILE_DOES_NOT_EXIST = -3;
     const char E_DIRECTORY_DOES_NOT_EXIST = -4;
     const char E_SOURCE_DIRECTORY_DOES_NOT_EXIST = -5;
     const char E_DESTINATION_DIRECTORY_DOES_NOT_EXIST = -6;
     const char E_FILE_ALREADY_EXISTS = -7;
     const char E_DIRECTORY_ALREADY_EXISTS = -8;
+    //------------------------------------------
     const char E_INVALID_PATH = -9;
     const char E_INVALID_SOURCE_PATH = -10;
     const char E_INVALID_DESTINATION_PATH = -11;
-    const char E_NAME_CONTAINS_INVALID_CHARACTERS = -12;
-    const char E_NAME_HAS_INVALID_VALUE = -13;
+    //------------------------------------------
+    const char E_EMPTY_NAME = -12;
+    const char E_NAME_CONTAINS_INVALID_CHARACTERS = -13;
     const char E_NAME_ENDS_WITH_EMPTY_SPACE = -14;
-    const char E_EMPTY_NAME = -15;
+    const char E_NAME_HAS_FORBIDDEN_VALUE = -15;
+    //------------------------------------------
     const char E_FILENAME_CONTAINS_INVALID_CHARACTERS = -16;
     const char E_FILENAME_ENDS_WITH_EMPTY_SPACE = -17;
     const char E_EMPTY_FILENAME = -18;
-    const char E_FILE_EXTENSION_CONTAINS_INVALID_CHARACTERS = -19;
-    const char E_FILE_NOT_BOUND = -20;
-    const char E_READONLY_FILE = -21;
-    const char E_ACCESS_DENIED = -22;
-    const char E_SYSTEM_FILE_MANIPULATION_ATTEMPT = -23;
-    const char E_SYSTEM_DIRECTORY_MANIPULATION_ATTEMPT = -24;
-    const char E_INDEX_OUT_OF_RANGE = -25;
-    const char E_FIRST_INDEX_LARGER_THAN_SECOND_INDEX = -26;
+    const char E_MISSING_EXTENSION = -19;
+    const char E_FILE_EXTENSION_CONTAINS_INVALID_CHARACTERS = -20;
+    //------------------------------------------
+    const char E_INVALID_ROOT_ELEMENT = -21;
+    const char E_PATH_MISSING_FINAL_ELEMENT = -22;
+    const char E_EMPTY_PATH = -23;
+    const char E_EMPTY_PATH_ELEMENT = -24;
+    const char E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE = -25;
+    const char E_PATH_CONTAINS_INVALID_CHARACTERS = -26;
+    const char E_PATH_TOO_LONG = -27;
+    //------------------------------------------
+    const char E_FILE_NOT_BOUND = -28;
+    const char E_READONLY_FILE = -29;
+    const char E_ACCESS_DENIED = -30;
+    const char E_SYSTEM_FILE_MANIPULATION_ATTEMPT = -31;
+    const char E_SYSTEM_DIRECTORY_MANIPULATION_ATTEMPT = -32;
+    //------------------------------------------
+    const char E_INDEX_OUT_OF_RANGE = -33;
+    const char E_FIRST_INDEX_LARGER_THAN_SECOND_INDEX = -34;
 
     /* TERMINOLOGY:
+       - (directory path) (EXAMPLE) "E:\Compiler\parser"
+       - (filepath) (EXAMPLE) "E:\Compiler\parser.bca"
        - (name) (EXAMPLE) "E:\Compiler\parser.bca" => "parser"
                 (EXAMPLE) "E:\Compiler\Lexer" => "Lexer"
        - (filename) (EXAMPLE) "E:\Compiler\parser.bca" => "parser.cpp"
@@ -55,13 +71,18 @@ namespace filesystem
 
     const string TEMPORARY_FILE_NAME = "gxzjzrtkfrgtytsdgq4g(gbcjowna;ktlhklssvwh9eixmoqwjdw3b97vhjzgsr.";
 
-    //https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
+    //(REFERENCE) https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
     const list<CodePoint> INVALID_NAME_CHARACTERS{ 0, '.', ':', '/', '\\', '*', '?', '"', '<', '>', '|' };
 
-    //https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
+    //(REFERENCE) https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
     const list<string> INVALID_NAME_VALUES{ "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5",
         "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
 
+    //"" => E_EMPTY_NAME
+    //"ocea:n" => E_NAME_CONTAINS_INVALID_CHARACTERS
+    //"LPT3" => E_NAME_HAS_FORBIDDEN_VALUE
+    //"   " => E_NAME_ENDS_WITH_EMPTY_SPACE;
+    //"ocean " => E_NAME_ENDS_WITH_EMPTY_SPACE;
     //_name is a valid name => 0
     int IsValidName(const string& _name)
     {
@@ -75,9 +96,9 @@ namespace filesystem
         }
         else if(INVALID_NAME_VALUES.Contains(_name))
         {
-            return E_NAME_HAS_INVALID_VALUE;
+            return E_NAME_HAS_FORBIDDEN_VALUE;
         }
-        else if (_name.EndsWith(string(" ")))
+        else if (_name.EndsWith(' '))
         {
              return E_NAME_ENDS_WITH_EMPTY_SPACE;
         }
@@ -85,24 +106,33 @@ namespace filesystem
         return 0;
     }
 
+    //".jpeg" => E_EMPTY_NAME
+    //" .jpeg" => E_NAME_ENDS_WITH_EMPTY_SPACE
+    //"ocean" => E_MISSING_EXTENSION
+    //"ocea:n.jpeg" => E_FILENAME_CONTAINS_INVALID_CHARACTERS
+    //"ocean.jpeg " => E_FILENAME_ENDS_WITH_EMPTY_SPACE
+    //"ocean.jpeg" => 0
+    //"ocean." => 0
     //_filename is a valid filename => 0
     int IsValidFilename(const string& _filename)
     {
         int indexOfDot = _filename.IndexOf('.');
 
-        if (indexOfDot == -1) return -1;
+        if (indexOfDot == -1) return E_MISSING_EXTENSION;
 
         string name = _filename.Subrange(0, indexOfDot - 1);
 
-        if (name.count() == 0) return E_EMPTY_FILENAME;
+        if (name.count() == 0) return E_EMPTY_NAME;
 
-        int isValidName = IsValidName(name);
+        if (name[name.count() - 1] == ' ') return E_NAME_ENDS_WITH_EMPTY_SPACE;
 
-        if (isValidName != 0) return isValidName;
+        int result = IsValidName(name);
+
+        if (result != 0) return result;
 
         string extension = _filename.Sublist(indexOfDot + 1);
 
-        if (extension.EndsWith(string(" ")))
+        if (extension.EndsWith(string(' ')))
         {
             return E_FILENAME_ENDS_WITH_EMPTY_SPACE;
         }
@@ -114,52 +144,51 @@ namespace filesystem
         return 0;
     }
 
-//"Es\pictures\travels" => false (invalid root element)
-//"E:\pictures\travels \" => false (empty stem element)
-//"E:\pictures\travels \desert" => false (the second stem element ends with ' ')
-//"E:\pictures\travels\desert" => true
-bool IsValidDirectoryPath(const string& _path)
+//"" => E_EMPTY_PATH
+//"Es\pictures\travels" => E_INVALID_ROOT_ELEMENT
+//"E:\pictures\travels \" => E_MISSING_FINAL_ELEMENT
+//"E:\pictures\travels \desert" => E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE
+//"E:\pictures\fo:rest" => E_PATH_CONTAINS_INVALID_CHARACTERS
+//"E:\pictures\travels\desert" => 0
+//_path is a valid directory path => 0
+int IsValidDirectoryPath(const string& _path)
 {
-    string path = _path;
-
     //if the path is empty
-    if (path.size() == 0)
+    if (_path.count() == 0)
     {
-        return false;
+        return E_EMPTY_PATH;
     }
     //if the path length exceeds MAX_PATH
-    else if (path.count() > MAX_PATH - 1/*because of the string terminator*/)
+    else if (_path.count() > MAX_PATH - 1/*because of the string terminator*/)
     {
-        return false;
+        return E_PATH_TOO_LONG;
     }
-    //if the first character of the path is not a letter from the English alphabet
-    else if (!Range<int>(65, 90).Contains(path[0]))
+    //if the first character is not a letter from the English alphabet
+    else if (_path[0] < 65 && _path[0] > 90)
     {
-        return false;
+        return E_INVALID_ROOT_ELEMENT;
     }
     //if the second character is not ':'
-    else if (path.count() >= 2 && path[1] != ':')
+    else if (_path.count() >= 2 && _path[1] != ':')
     {
-        return false;
+        return E_INVALID_ROOT_ELEMENT;
     }
     //if the third character is not '\'
-    else if (path.count() >= 3 && _path[2] != '\\')
+    else if (_path.count() >= 3 && _path[2] != '\\')
     {
-        return false;
+        return E_INVALID_ROOT_ELEMENT;
     }
     //if the path ends with '\'
-    else if (_path.EndsWith("\\"))
+    else if (_path.EndsWith('\\'))
     {
-        return false;
+        return E_PATH_MISSING_FINAL_ELEMENT;
     }
 
     //(STATE) _path begins with "<A-Z>:\\"
 
     //validation of the stem elements
 
-    path.ReduceLeft(3);
-
-    list<string> stemElements = path.Split('\\');
+    list<string> stemElements = _path.Clone().ReduceLeft(3).Split('\\');
 
     for (int i = 0; i < stemElements.count(); i++)
     {
@@ -168,71 +197,67 @@ bool IsValidDirectoryPath(const string& _path)
         //if the element is empty
         if (stemElement.count() == 0)
         {
-            return false;
+            return E_EMPTY_PATH_ELEMENT;
         }
         //if the elementy ends with ' '
         else if (stemElement[stemElement.count() - 1] == ' ')
         {
-            return false;
+            return E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE;
         }
         //if the element is not the root element and it contains invalid characters
         else if (i > 0 && stemElement.ContainsAny(INVALID_NAME_CHARACTERS))
         {
-            return false;
+            return E_PATH_CONTAINS_INVALID_CHARACTERS;
         }
     }
 
-    return true;
+    return 0;
 }
 
-//"Es\pictures\travels \291.jpg" => false (invalid root element)
-//"E:\pictures\travels \" => false (empty stem element)
-//"E:\pictures\travels \291.jpg" => false (the second stem element ends with ' ')
-//"E:\pictures\travels\291.jpg" => true
-bool IsValidFilePath(const string& _path)
+//"" => E_EMPTY_PATH
+//"Es\pictures\travels \291.jpg" => E_INVALID_ROOT_ELEMENT
+//"E:\pictures\travels \" => E_MISSING_FINAL_ELEMENT
+//"E:\pictures\travels \291.jpg" => E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE
+//"E:\pictures\travels\291.jpg" => 0
+//_path is a valid file path => 0
+int IsValidFilePath(const string& _path)
 {
-    string path = _path;
-
-    //(E) path = "E:\\pictures\\travels\\291.jpg"
-
     //if the path is empty
-    if (path.size() == 0)
+    if (_path.size() == 0)
     {
-        return false;
+        return E_EMPTY_PATH;
     }
     //if the path length exceeds MAX_PATH
-    else if (path.count() > MAX_PATH - 1/*because of the string terminator*/)
+    else if (_path.count() > MAX_PATH - 1/*because of the string terminator*/)
     {
-        return false;
+        return E_PATH_TOO_LONG;
     }
     //if the first character of the path is not a letter from the English alphabet
-    else if (!Range<int>(65, 90).Contains(path[0]))
+    else if (_path[0] < 65 && _path[0] > 90)
     {
-        return false;
+        return E_INVALID_ROOT_ELEMENT;
     }
     //if the second character is not ':'
-    else if (path[1] != ':')
+    else if (_path[1] != ':')
     {
-        return false;
+        return E_INVALID_ROOT_ELEMENT;
     }
     //if the third character is not '\'
     else if (_path[2] != '\\')
     {
-        return false;
+        return E_INVALID_ROOT_ELEMENT;
     }
     //if the path ends with '\'
-    else if (_path.EndsWith("\\"))
+    else if (_path.EndsWith('\\'))
     {
-        return false;
+        return E_PATH_MISSING_FINAL_ELEMENT;
     }
 
     //(STATE) _path begins with "<A-Z>:\\"
 
     //validation of the stem elements
 
-    path.ReduceLeft(3);
-
-    list<string> stemElements = path.Split('\\');
+    list<string> stemElements = _path.Clone().ReduceLeft(3).Split('\\');
 
     for (int i = 0; i < stemElements.count(); i++)
     {
@@ -241,26 +266,28 @@ bool IsValidFilePath(const string& _path)
         //if the element is empty
         if (stemElement.count() == 0)
         {
-            return false;
+            return E_EMPTY_PATH_ELEMENT;
         }
         //if the elementy ends with ' '
         else if (stemElement[stemElement.count() - 1] == ' ')
         {
-            return false;
+            return E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE;
         }
         //if the element contains invalid characters
         else if (i < stemElements.count() - 1 && stemElement.ContainsAny(INVALID_NAME_CHARACTERS))
         {
-            return false;
+            return E_PATH_CONTAINS_INVALID_CHARACTERS;
         }
-        //if the element is a filename and it is invalid
-        else if (i == stemElements.count() - 1 && IsValidFilename(stemElement) != 0)
+        //if the element is the filename
+        else if (i == stemElements.count() - 1)
         {
-            return false;
+            bool result = IsValidFilename(stemElement);
+
+            return result != 0 ? result : 0;
         }
     }
 
-    return true;
+    return 0;
 }
 
 //_path is syntactically valid path ->
@@ -698,7 +725,7 @@ struct File
     bool Contains(const list<unsigned char>& _value) const
     {
         if (set_os(-1, -1, ReadOnly) != 0) return false;
-        
+
         for (int i = 0, matches = 0; i < Size - _value.count();)
         {
             if ((*this)[i + matches] == _value[matches])
@@ -1191,7 +1218,7 @@ struct Directory
 };
 
 //(!) shows the hidden directories as well
-//the specified directory is existing and can be accessed ->
+//the specified directory exists and can be accessed ->
 list<string> DirectoriesOf(const string& _directoryPath)
 {
     list<string> subdirectories;
@@ -1232,7 +1259,7 @@ list<string> DirectoriesOf(const string& _directoryPath)
 }
 
 //(!) shows the hidden files as well
-//the specified directory is existing and can be accessed ->
+//the specified directory exists and can be accessed ->
 list<string> FilesOf(const string& _directoryPath)
 {
     list<string> filepaths;
@@ -1270,29 +1297,30 @@ list<string> FilesOf(const string& _directoryPath)
     return filepaths;
 }
 
-//(!) returns false if _path specify a system file
 bool FileExists(const string& _path)
 {
     const wchar_t* const path = _path.ToWide();
-    FILE *file = _wfopen(path, L"r");
+    GetFileAttributesW(path);
     delete[] path;
 
-    if (file != nullptr)
-    {
-        fclose(file);
-        return true;
-    }
+    DWORD lastError = GetLastError();
 
-    return false;
+    SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+
+    return lastError != ERROR_FILE_NOT_FOUND && lastError != ERROR_PATH_NOT_FOUND && lastError != ERROR_INVALID_NAME;
 }
 
 bool DirectoryExists(const string& _path)
 {
     const wchar_t* const path = _path.ToWide();
-    DWORD attributes = GetFileAttributesW(path);
+    GetFileAttributesW(path);
     delete[] path;
 
-    return attributes != INVALID_FILE_ATTRIBUTES;
+    DWORD lastError = GetLastError();
+
+    SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+
+    return lastError != ERROR_FILE_NOT_FOUND && lastError != ERROR_PATH_NOT_FOUND && lastError != ERROR_INVALID_NAME;
 }
 
 //the specified file exists ->
@@ -1362,7 +1390,7 @@ time_::DateTime GetCreationTime(const string& _path)
 {
     using namespace time_;
 
-    HANDLE file = CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE file = ::CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     FILETIME filetime;
 
     GetFileTime(file, &filetime, NULL, NULL);
@@ -1428,7 +1456,7 @@ time_::DateTime GetLastAccessTime(const string& _path)
 {
     using namespace time_;
 
-    HANDLE file = CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE file = ::CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     FILETIME filetime;
 
     GetFileTime(file, NULL, &filetime, NULL);
@@ -1495,7 +1523,7 @@ time_::DateTime GetLastMutationTime(const string& _path)
 {
     using namespace time_;
 
-    HANDLE file = CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE file = ::CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     FILETIME filetime;
 
     GetFileTime(file, NULL, NULL, &filetime);
@@ -1581,7 +1609,7 @@ int CreateFile(const string& _path)
 
     fclose(file);
 
-    return SUCCESSFUL_OPERATION;
+    return 0;
 }
 
 //returns 0 on successful execution
@@ -1600,7 +1628,7 @@ int CreateDirectory(const string& _path)
     bool result = ::CreateDirectoryW(path, NULL);
     delete [] path;
 
-    return result ? SUCCESSFUL_OPERATION : E_UNKNOWN_ERROR;
+    return result ? 0 : E_UNKNOWN_ERROR;
 }
 
 int CopyDirectory(const string &, const string &);
@@ -1659,19 +1687,19 @@ int RenameFile(const string& _filepath, const string& _newFilename)
 
     filesystem::DeleteFile(_filepath);
 
-    return SUCCESSFUL_OPERATION;
+    return 0;
 }
 
 //returns 0 on successful execution
 int RenameDirectory(const string& _path, const string& _newName)
 {
+    int result = IsValidName(_newName);
+
+    if (result != 0) return result;
+
     if (!IsValidDirectoryPath(_path))
     {
         return E_INVALID_PATH;
-    }
-    else if (IsValidName(_newName) != 0)
-    {
-        return E_NAME_CONTAINS_INVALID_CHARACTERS;
     }
     else if (!DirectoryExists(_path))
     {
@@ -1686,7 +1714,7 @@ int RenameDirectory(const string& _path, const string& _newName)
 
     DeleteDirectory(_path);
 
-    return SUCCESSFUL_OPERATION;
+    return 0;
 }
 
 //returns 0 on successful execution
@@ -1749,7 +1777,7 @@ int CopyFile(const string& _sourcePath, const string& _destinationPath)
     fclose(sourceFile);
     fclose(destinationFile);
 
-    return SUCCESSFUL_OPERATION;
+    return 0;
 }
 
 //returns 0 on successful execution
@@ -1790,7 +1818,7 @@ int CopyDirectory(const string& _sourcePath, const string& _destinationPath)
         CopyDirectory(__subdirectoryPath, destinationPath);
     }
 
-    return SUCCESSFUL_OPERATION;
+    return 0;
 }
 
 //returns 0 on successful execution
@@ -1822,7 +1850,7 @@ int DeleteFile(const string& _path)
 
     delete[] path;
 
-    return result == 0 ? SUCCESSFUL_OPERATION : E_UNKNOWN_ERROR;
+    return result == 0 ? 0 : E_UNKNOWN_ERROR;
 }
 
 //returns 0 on successful execution
@@ -1865,7 +1893,7 @@ int DeleteDirectory(const string& _path)
 
     delete [] path;
 
-    return result ? SUCCESSFUL_OPERATION : E_UNKNOWN_ERROR;
+    return result ? 0 : E_UNKNOWN_ERROR;
 }
 
 //error => ""
