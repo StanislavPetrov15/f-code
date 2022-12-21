@@ -3,19 +3,21 @@
 Index:
 
 array.cpp - line 20
-pair.cpp - line 172
-tuple.cpp - line 200
-range.cpp - line 1065
-list.cpp - line 1170
-string.cpp - line 1611
-numeric.cpp - line 2264
-bit_operations.cpp - line 2399
-byte_operations.cpp - line 2548
-unicode.cpp - line 2588
-time.cpp - line 2726
-filesystem.cpp - line 2808
+pair.cpp - line 177
+tuple.cpp - line 205
+range.cpp - line 1070
+list.cpp - line 1175
+string.cpp - line 1616
+numeric.cpp - line 2269
+bit_operations.cpp - line 2404
+byte_operations.cpp - line 2553
+unicode.cpp - line 2593
+time.cpp - line 2731
+filesystem.cpp - line 2813
 
 -----------------------------------------------------------------------------------------
+
+array.cpp:
 
 struct array:
   # FIELDS:
@@ -26,8 +28,6 @@ struct range:
   # FIELDS:
   int begin
   int end
-
-array.cpp:
 
 # NON-MUTATING FUNCTIONS:
 
@@ -54,6 +54,11 @@ template<typename T> bool equality(const T* const _array1, const T* const _array
 # _length specifies the length of _array
 # the specified value does not exist => -1
 template<typename T> int indexOf(const T* const _array, int _length, T _value)
+
+# _length1 specifies the length of _array1
+# _length2 specifies the length of _array2
+# _value2 does not exist in _value1 or _begin is outside the range of list => -1
+template<typename T> int indexOf(const T* _array1, const T* _array2, int _length1, int _length2, int _begin)
 
 # _length specifies the length of _array
 # indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 9) => 3
@@ -149,11 +154,11 @@ template<typename T> void reverse(T*& _array, int _length)
 
 # _length specifies the length of _array
 # rotateLeft([1, 2, 3, 4, 5], 5, 5) >> [4, 5, 1, 2, 3]
-void rotateLeft(T*& _array, int _length, int _positions = 1)
+void rotateLeft(T*& _array, int _length, int _positions)
 
 # _length specifies the length of _array
 # rotateRight([1, 2, 3, 4, 5], 5, 4) >> [5, 1, 2, 3, 4]
-template<typename T> void rotateRight(T*& _array, int _length, int _positions = 1)
+template<typename T> void rotateRight(T*& _array, int _length, int _positions)
 
 # _length specifies the length of _array
 template<typename T> void set(T*& _array, int _length, int _begin, int _end, T _value)
@@ -2809,8 +2814,7 @@ filesystem.cpp:
 
 (!) the functionality in this file is located in namespace 'filesystem'
 
-# status codes:
-const char SUCCESSFUL_OPERATION = 0
+# Errors:
 const char E_UNSUCCESSFUL_OPERATION = -1
 const char E_UNKNOWN_ERROR = -2
 const char E_FILE_DOES_NOT_EXIST = -3
@@ -2843,23 +2847,40 @@ const list<CodePoint> INVALID_NAME_CHARACTERS = [0, '.', ':', '/', '\\', '*', '?
 const list<string> INVALID_NAME_VALUES = ["CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5",
             "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"]
 
+# "" => E_EMPTY_NAME
+# "ocea:n" => E_NAME_CONTAINS_INVALID_CHARACTERS
+# "LPT3" => E_NAME_HAS_FORBIDDEN_VALUE
+# "   " => E_NAME_ENDS_WITH_EMPTY_SPACE;
+# "ocean " => E_NAME_ENDS_WITH_EMPTY_SPACE;
 # _name is a valid name => 0
 int IsValidName(const string& _name)
 
+# ".jpeg" => E_EMPTY_NAME
+# " .jpeg" => E_NAME_ENDS_WITH_EMPTY_SPACE
+# "ocean" => E_MISSING_EXTENSION
+# "ocea:n.jpeg" => E_FILENAME_CONTAINS_INVALID_CHARACTERS
+# "ocean.jpeg " => E_FILENAME_ENDS_WITH_EMPTY_SPACE
+# "ocean.jpeg" => 0
+# "ocean." => 0
 # _filename is a valid filename => 0
 int IsValidFilename(const string& _filename)
 
-# "Es\\pictures\\travels" => false (invalid root element)
-# "E:\\pictures\\travels \\" => false (empty stem element)
-# "E:\\pictures\\travels \\desert" => false (the second stem element ends with ' ')
-# "E:\\pictures\\travels\\desert" => true
-bool IsValidDirectoryPath(const string& _path)
+# "" => E_EMPTY_PATH
+# "Es\pictures\travels" => E_INVALID_ROOT_ELEMENT
+# "E:\pictures\travels \" => E_MISSING_FINAL_ELEMENT
+# "E:\pictures\travels \desert" => E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE
+# "E:\pictures\fo:rest" => E_PATH_CONTAINS_INVALID_CHARACTERS
+# "E:\pictures\travels\desert" => 0
+# _path is a valid directory path => 0
+int IsValidDirectoryPath(const string& _path)
 
-# "Es\\pictures\\travels \\291.jpg" => false (invalid root element)
-# "E:\\pictures\\travels \\" => false (empty stem element)
-# "E:\\pictures\\travels \\291.jpg" => false (the second stem element ends with ' ')
-# "E:\\pictures\\travels\\291.jpg" => true
-bool IsValidFilePath(const string& _path)
+# "" => E_EMPTY_PATH
+# "Es\pictures\travels \291.jpg" => E_INVALID_ROOT_ELEMENT
+# "E:\pictures\travels \" => E_MISSING_FINAL_ELEMENT
+# "E:\pictures\travels \291.jpg" => E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE
+# "E:\pictures\travels\291.jpg" => 0
+# _path is a valid file path => 0
+int IsValidFilePath(const string& _path)
 
 # _path is syntactically valid path ->
 bool IsFilePath(const string& _path)
