@@ -4,13 +4,13 @@ f-code
 
 **OVERVIEW** 
 
-(!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation, networking, time functions, regular expressions, 2D graphics rendering and few other things; this is a very early version - at this stage the library contains only a small portion of the planned features and it also may contain some bugs 
+(!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation, networking, time functions, regular expressions, 2D graphics rendering and few other things; this is a very early version - at this stage the library contains only a small portion of the planned features and it also may contain some bugs
 
-(!) the file ['public interface'](https://github.com/StanislavPetrov15/f-code/blob/main/Public%20interface) describes the constants, types and function signatures in the library 
+(!) the file ['public interface'](https://github.com/StanislavPetrov15/f-code/blob/main/Public%20interface) describes the constants, types and functions in the library 
 
-(!) the library is intended to work on Windows 11 and 64-byte processor
+(!) the library is intended to work on (Windows 10 / Windows 11) and 64-byte processor
 
-(!) the library is tested on Windows 11 (Microsoft Visual C++ compiler, C++14)
+(!) the library is tested on (Windows 10 and Windows 11) (C++14)
 
 (!) the library does not use third-party source code
 
