@@ -41,6 +41,7 @@ f-code
 
 (!) all of the functionality in the library can be used in a program by including the following files (in that exact order):
 - #include <Windows.h>
+- #include <Wsd.h>
 - #include <iostream>
 - #include <functional>
 - #include <ctime>
