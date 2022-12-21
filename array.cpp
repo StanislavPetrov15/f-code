@@ -148,6 +148,32 @@ template<typename T> int indexOf(const T* const _array, int _length, T _value)
     return -1;
 }
 
+//_length1 specifies the length of _array1
+//_length2 specifies the length of _array2
+//_value2 does not exist in _value1 => -1
+template<typename T> int indexOf(const T* _array1, const T* _array2, int _length1, int _length2, int _begin)
+{
+    for (int i = _begin, matches = 0; i < _length1 && matches < _length2; i++)
+    {
+        if (_array1[i] == _array2[matches])
+        {
+            matches++;
+        }
+        else
+        {
+            i -= matches;
+            matches = 0;
+        }
+
+        if (matches == _length2)
+        {
+            return (i - _length2) + 1;
+        }
+    }
+
+    return -1;
+}
+
 //_length specifies the length of _array
 //indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 9) => 3
 //indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 4) => 0
@@ -253,6 +279,7 @@ template<typename T> range rangeOf(const T* const _array, int _length, const T* 
 //split([56, 7, 7, 18, 5, 19, 76, 15, 9], 9, 7) => [[56], [18, 5, 19, 76, 15, 9]]
 //split([7, 41, 56, 7, 18, 76, 15, 9, 7], 9,7 ) => [[41, 56], [18, 76, 15, 9]]
 //split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7) => [[41, 56], [], [], [18, 5, 15]]
+//split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7, true) => [[41, 56], [18, 5, 15]]
 template<typename T> T** split(T* const _array, int _length, T _separator, bool _ignoreEmptyValues = false)
 {
     T** accumulator = new T*[5];
@@ -560,7 +587,7 @@ template<typename T> void reverse(T*& _array, int _length)
 
 //_length specifies the length of _array
 //rotateLeft([1, 2, 3, 4, 5], 5, 5) >> [4, 5, 1, 2, 3]
-template<typename T> void rotateLeft(T*& _array, int _length, int _positions = 1)
+template<typename T> void rotateLeft(T*& _array, int _length, int _positions)
 {
     if (_positions > _length)
     {
@@ -587,7 +614,7 @@ template<typename T> void rotateLeft(T*& _array, int _length, int _positions = 1
 
 //_length specifies the length of _array
 //rotateRight([1, 2, 3, 4, 5], 5, 4) >> [5, 1, 2, 3, 4]
-template<typename T> void rotateRight(T*& _array, int _length, int _positions = 1)
+template<typename T> void rotateRight(T*& _array, int _length, int _positions)
 {
     if (_positions > _length)
     {
