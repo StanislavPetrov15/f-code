@@ -44,7 +44,7 @@ f-code
 - #include \<iostream\>
 - #include \<functional\> 
 - #include \<ctime\>
-- (!) the following include directives must be in this exact order
+- the following include directives must be in this exact order:
 - #include "array.cpp"
 - #include "range.cpp"
 - #include "tuple.cpp"
