@@ -39,12 +39,11 @@ f-code
 - time.cpp
 - filesystem.cpp
 
-(!) all of the functionality in the library can be used in a program by including the following files:
+(!) all of the functionality in the library can be used in a program by including the following files (in that exact order):
 - #include <Windows.h>
 - #include <iostream>
 - #include <functional>
 - #include <ctime>
-(!) here the order of includes is important
 - #include "array.cpp"
 - #include "range.cpp"
 - #include "tuple.cpp"
