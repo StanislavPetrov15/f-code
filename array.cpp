@@ -643,10 +643,19 @@ template<typename T> void rotateRight(T*& _array, int _length, int _positions)
 //_length specifies the length of _array
 template<typename T> void set(T*& _array, int _length, int _begin, int _end, T _value)
 {
-    for (int i = _begin; i < _end + 1; i ++)
+    for (int i = _begin; i < _end + 1; i++)
     {
         _array[i] = _value;
     }
+}
+
+//_length specifies the length of the source array
+template<typename T> void set(T*& _destination, const T* _source, int _length)
+{
+      for (int i = 0; i < _length; i++)
+      {
+            _destination[i] = _source[i];
+      }
 }
 
 //_length specifies the length of _array
