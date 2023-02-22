@@ -468,7 +468,9 @@ struct File
         else
         {
             Mode = ReadWrite;
-            Stream = _wfopen(path, L"r+b");
+            Stream = _wfopen(path, L"r");
+            auto sd = errno;
+            bool d = true;
         }
 
         delete[] path;
@@ -941,8 +943,8 @@ struct File
 
         Position = Size;
 
-        fputc(_value, Stream);
-
+        int f = fputc(_value, Stream);
+auto d = errno;
         Size++;
 
         return *this;
@@ -1587,7 +1589,7 @@ time_::DateTime GetLastMutationTime(const string& _path)
 //returns 0 on successful execution
 int CreateFile(const string& _path)
 {
-    if (!IsValidFilePath(_path))
+    if (IsValidFilePath(_path) != 0)
     {
         return E_INVALID_PATH;
     }
@@ -1615,7 +1617,7 @@ int CreateFile(const string& _path)
 //returns 0 on successful execution
 int CreateDirectory(const string& _path)
 {
-    if (!IsValidDirectoryPath(_path))
+    if (IsValidDirectoryPath(_path) != 0)
     {
         return E_INVALID_PATH;
     }
