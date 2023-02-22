@@ -3,21 +3,22 @@
 Index:
 
 array.cpp - line 20
-pair.cpp - line 177
-tuple.cpp - line 205
-range.cpp - line 1070
-list.cpp - line 1175
-string.cpp - line 1616
-numeric.cpp - line 2269
-bit_operations.cpp - line 2404
-byte_operations.cpp - line 2553
-unicode.cpp - line 2593
-time.cpp - line 2731
-filesystem.cpp - line 2813
+pair.cpp - line 183
+tuple.cpp - line 211
+range.cpp - line 1076
+list.cpp - line 1181
+string.cpp - line 1625
+numeric.cpp - line 2278
+bit_operations.cpp - line 2413
+byte_operations.cpp - line 2562
+unicode.cpp - line 2602
+time.cpp - line 2740
+filesystem.cpp - line 2822
+event.cpp - line 3159
+timer.cpp - line 3183
+chronometer.cpp - line 3220
 
 -----------------------------------------------------------------------------------------
-
-array.cpp:
 
 struct array:
   # FIELDS:
@@ -28,6 +29,8 @@ struct range:
   # FIELDS:
   int begin
   int end
+
+array.cpp:
 
 # NON-MUTATING FUNCTIONS:
 
@@ -163,6 +166,9 @@ template<typename T> void rotateRight(T*& _array, int _length, int _positions)
 # _length specifies the length of _array
 template<typename T> void set(T*& _array, int _length, int _begin, int _end, T _value)
 
+# _length specifies the length of the source array
+template<typename T> void set(T*& _destination, const T* _source, int _length)
+
 # _length specifies the length of _array
 template<typename T> void swap(T*& _array, int _length, int _i1, int _i2)
 
@@ -182,7 +188,7 @@ struct<K, V> pair:
 
   pair() = default
 
-  pair(const K& _key, const V& _value) : Key(_key), Value(_value)
+  pair(const K& _key, const V& _value)
 
   pair(const pair<K, V>&) = default
 
@@ -2053,6 +2059,9 @@ struct String:
 
   # NON-MUTATING FUNCTIONS:
 
+  # T is a pointer type ->
+  template<typename T> list<T*> As() const
+
   bool BeginsWith(const string& _value) const
 
   # returns 'true' if &this begins with atleast one of the sequences in _value
@@ -2734,7 +2743,7 @@ time.cpp:
 
 # TYPES:
 
-TimeUnit = MILLISECOND | SECOND
+TimeUnit = MILLISECONDS | SECOND
 
 struct DateTime:
 
@@ -2916,7 +2925,7 @@ struct File:
 
   # CONSTRUCTORS:
 
-  File() = default;
+  File() = default
 
   # if the file is successfully opened then &Path and &Name will have a set value
   # _path is ASCII value ->
@@ -3059,13 +3068,13 @@ struct Directory:
 
   # CONSTRUCTORS:
 
-  Directory() = default;
+  Directory() = default
 
   explicit Directory(const string& _path)
 
-  Directory(const Directory&) = delete;
+  Directory(const Directory&) = delete
 
-  Directory& operator=(const Directory&) = default;
+  Directory& operator=(const Directory&) = default
 
   # OPERATORS:
 
@@ -3145,5 +3154,95 @@ int DeleteDirectory(const string& _path)
 # error => ""
 string GetApplicationDirectory()
 
+-----------------------------------------------------------------------------------------
 
+event.cpp:
 
+template<typename... args> struct event:
+
+  # CONSTRUCTORS:
+
+  event() = default
+
+  # OPERATORS:
+
+  event& operator=(const event&) = default
+
+  # adds a subscriber to the list of subscribers
+  void operator+= (void(*_subscriber)(args...))
+
+  # notifies each subscriber when the event occurs
+  void operator()(args... _parameters) const
+
+  # FIELDS:
+
+  const list<void(*)(args...)>& subscribers() const
+
+-----------------------------------------------------------------------------------------
+
+timer.cpp:
+
+# the timer has relatively high precision - the error is less than 1 second per 1 hour period
+struct Timer:s
+
+  # CONSTRUCTORS:
+
+  Timer() = default
+
+  # the interval is set in microseconds
+  # _repeat specifies whether the period is repeated after the previous one ends
+  Timer(int _interval, bool _repeat = true)
+
+  Timer(const Timer&) = delete
+
+  # OPERATORS:
+
+  Timer& operator=(const Timer&) = delete
+
+  # FIELDS:
+
+  bool Repeat = false
+
+  event<Timer*> OnTick;
+
+  int interval()
+
+  # FUNCTIONS:
+
+  bool IsRunning()
+
+  void Start()
+
+  void Stop()
+
+-----------------------------------------------------------------------------------------
+
+chronometer.cpp:
+
+# Chronometer c -> [computations -> c.Elapsed() | c.Reset()]
+# c.Running -> Elapsed() => > -1
+# !c.Running -> Elapsed() => -1
+struct Chronometer
+
+  # CONSTRUCTORS:
+
+  Chronometer() = default
+
+  Chronometer(const Chronometer&) = delete
+
+  # OPERATORS:
+
+  Chronometer& operator=(const Chronometer&) = delete
+
+  # FIELDS:
+
+  # FUNCTIONS:
+
+  //in microseconds
+  int Elapsed() const
+
+  bool IsRunning() const
+
+  void Start()
+
+  void Reset()
