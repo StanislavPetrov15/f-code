@@ -2958,6 +2958,8 @@ struct string
 
     bool BeginsWith(const string& _value) const
     {
+        if (CharacterCount < _value.CharacterCount) return false;
+
         int counter = 0;
 
         for (int i = 0; i < _value.CharacterCount; i++)
@@ -3191,6 +3193,8 @@ struct string
 
     bool EndsWith(const string& _value) const
     {
+        if (CharacterCount < _value.CharacterCount) return false;
+
         int counter = 0;
         for (int i = CharacterCount - 1, n = _value.CharacterCount - 1; (i > - 1) && (n > - 1); i--, n--)
         {
@@ -3818,7 +3822,7 @@ struct string
 
         for (int i = CharacterCount - 1; i > (isPositive ? - 1 : 0); i--)
         {
-            int digit = (*this)[i] - '0';
+            int digit = (*this)[i] /*- '0'*/;
             result += digit * multiplier;
             multiplier *= 10;
         }
@@ -3835,7 +3839,7 @@ struct string
 
         for (int i = CharacterCount - 1; i > - 1; i--)
         {
-            int digit = (*this)[i] - '0';
+            int digit = (*this)[i] /*- '0'*/;
             result += digit * multiplier;
             multiplier *= 10;
         }
