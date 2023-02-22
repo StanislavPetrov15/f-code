@@ -3238,7 +3238,7 @@ struct Chronometer
 
   # FUNCTIONS:
 
-  //in microseconds
+  # in microseconds
   int Elapsed() const
 
   bool IsRunning() const
