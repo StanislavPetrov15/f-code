@@ -1,4 +1,3 @@
-//the timer has relatively high precision - the error is less than 1 second per 1 hour period
 struct Timer
 {
 private:
