@@ -468,9 +468,7 @@ struct File
         else
         {
             Mode = ReadWrite;
-            Stream = _wfopen(path, L"r");
-            auto sd = errno;
-            bool d = true;
+            Stream = _wfopen(path, L"r+");
         }
 
         delete[] path;
@@ -943,8 +941,8 @@ struct File
 
         Position = Size;
 
-        int f = fputc(_value, Stream);
-auto d = errno;
+        fputc(_value, Stream);
+
         Size++;
 
         return *this;
