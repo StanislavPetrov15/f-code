@@ -463,12 +463,12 @@ struct File
         if (attributes & FILE_ATTRIBUTE_READONLY)
         {
             Mode = ReadOnly;
-            Stream = _wfopen(path, L"r");
+            Stream = _wfopen(path, L"rb");
         }
         else
         {
             Mode = ReadWrite;
-            Stream = _wfopen(path, L"r+");
+            Stream = _wfopen(path, L"r+b");
         }
 
         delete[] path;
