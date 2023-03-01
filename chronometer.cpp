@@ -24,8 +24,7 @@ public:
     void Start()
     {
         Running = true;
-        using namespace std::chrono;
-        InitialTime = duration_cast<microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+        InitialTime = duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
     }
 
     //in microseconds
@@ -33,12 +32,8 @@ public:
     {
         if (Running)
         {
-            using namespace std::chrono;
-            clock_t currentClock = duration_cast<microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-            return currentClock - InitialTime;
+            return duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - InitialTime;
         }
-
-        return -1;
     }
 
     void Reset()
