@@ -16,7 +16,7 @@ time.cpp - line 2740
 filesystem.cpp - line 2822
 event.cpp - line 3159
 timer.cpp - line 3183
-chronometer.cpp - line 3220
+chronometer.cpp - line 3219
 
 -----------------------------------------------------------------------------------------
 
@@ -3182,7 +3182,6 @@ template<typename... args> struct event:
 
 timer.cpp:
 
-# the timer has relatively high precision - the error is less than 1 second per 1 hour period
 struct Timer:s
 
   # CONSTRUCTORS:
