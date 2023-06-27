@@ -48,7 +48,7 @@ f-code
 - range.cpp - do not depend on other files
 - tuple.cpp - do not depend on other files
 - pair.cpp - do not depend on other files
-- list.cpp - depends on <functional> and range.cpp
+- list.cpp - depends on \<functional\> and range.cpp
 - bit_operations.cpp - depends on list.cpp
 - byte_operations.cpp - depends on list.cpp
 - unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
