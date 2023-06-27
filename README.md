@@ -42,28 +42,6 @@ f-code
 - timer.cpp
 - chronometer.cpp
 
-(!) all of the functionality in the library can be used in a program by including the following files:
-- #include \<Windows.h\>
-- #include \<iostream\>
-- #include \<functional\> 
-- #include \<ctime\>
-- the following include directives must be in this exact order:
-- #include "array.cpp"
-- #include "range.cpp"
-- #include "tuple.cpp"
-- #include "pair.cpp"
-- #include "list.cpp"
-- #include "bit_operations.cpp"
-- #include "byte_operations.cpp"
-- #include "numeric.cpp"
-- #include "unicode.cpp"
-- #include "string.cpp"
-- #include "time.cpp"
-- #include "filesystem.cpp"
-- #include "event.cpp"
-- #include "timer.cpp"
-- #include "chronometer.cpp"
-
 (!) file dependencies:
 - numeric.cpp - does not have dependencies
 - array.cpp - depends on <Windows.h>
@@ -78,7 +56,7 @@ f-code
 - time.cpp - depends on <ctime> and numeric.cpp
 - filesystem.cpp - depends on string.cpp and time.cpp
 - event.cpp - depends on list.cpp
-- timer.cpp - depends on <chrono> and <thread>
+- timer.cpp - depends on <chromo>, <thread> and event.cpp
 - chronometer.cpp - depends on <chrono> 
 - (example) as numeric.cpp depends on list.cpp we must first include the files on which list.cpp depends, i.e. <functional> and range.cpp;  therefore numeric.cpp can be used in the program by including the following code:
   - #include \<functional\>
