@@ -43,7 +43,7 @@ f-code
 - chronometer.cpp
 
 (!) file dependencies:
-- numeric.cpp - does not have dependencies
+- numeric.cpp - do not depend on other files
 - array.cpp - depends on <Windows.h>
 - range.cpp - do not depend on other files
 - tuple.cpp - do not depend on other files
