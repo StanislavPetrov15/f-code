@@ -52,12 +52,12 @@ f-code
 - bit_operations.cpp - depends on list.cpp
 - byte_operations.cpp - depends on list.cpp
 - unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
-- string.cpp - depends on <iostream>, byte_operations.cpp, numeric.cpp and unicode.cpp
-- time.cpp - depends on <ctime> and numeric.cpp
+- string.cpp - depends on \<iostream\>, byte_operations.cpp, numeric.cpp and unicode.cpp
+- time.cpp - depends on \<ctime\> and numeric.cpp
 - filesystem.cpp - depends on string.cpp and time.cpp
 - event.cpp - depends on list.cpp
-- timer.cpp - depends on <chromo>, <thread> and event.cpp
-- chronometer.cpp - depends on <chrono> 
+- timer.cpp - depends on \<chromo\>, \<thread\> and event.cpp
+- chronometer.cpp - depends on \<chrono\> 
 - (example) as numeric.cpp depends on list.cpp we must first include the files on which list.cpp depends, i.e. <functional> and range.cpp;  therefore numeric.cpp can be used in the program by including the following code:
   - #include \<functional\>
   - #include "range.cpp"
