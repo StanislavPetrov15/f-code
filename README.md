@@ -65,6 +65,7 @@ f-code
 - #include "chronometer.cpp"
 
 (!) file dependencies:
+- numeric.cpp - does not have dependencies
 - array.cpp - depends on <Windows.h>
 - range.cpp - do not depend on other files
 - tuple.cpp - do not depend on other files
@@ -72,7 +73,6 @@ f-code
 - list.cpp - depends on <functional> and range.cpp
 - bit_operations.cpp - depends on list.cpp
 - byte_operations.cpp - depends on list.cpp
-- numeric.cpp - depends on list.cpp
 - unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
 - string.cpp - depends on <iostream>, byte_operations.cpp, numeric.cpp and unicode.cpp
 - time.cpp - depends on <ctime> and numeric.cpp
