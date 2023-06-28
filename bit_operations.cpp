@@ -152,20 +152,20 @@ namespace bit_operations
         }
 
 		//(0000000000).SetBits((11001), 3) => 0011001000
-		void SetBits(const list<bool>& _bits, int _targetBegin)
+		void SetBits(const list<bool>& _bits, int _begin)
 		{
             for (int i = 0; i < _bits.count(); i++)
             {
-                SetBit(_targetBegin + i, _bits[_bits.count() - (i + 1)]);
+                SetBit(_begin + i, _bits[_bits.count() - (i + 1)]);
             }
 		}
 
         //(0000000000).SetBits((11001), 3) => 0010011000
-        void SetBitsR(const list<bool>& _bits, int _targetBegin)
+        void SetBitsR(const list<bool>& _bits, int _begin)
         {
             for (int i = 0; i < _bits.count(); i++)
             {
-                SetBit(_targetBegin + i, _bits[i]);
+                SetBit(_begin + i, _bits[i]);
             }
         }
 	};
@@ -309,7 +309,7 @@ namespace bit_operations
 	}
 
 	//_begin >= 0 || _end <= 7, _begin < _end ->
-	void SetBits(unsigned char& _number, bool _value, int _begin, int _end)
+	void SetBits(unsigned char& _number, int _begin, int _end, bool _value)
 	{
 		unsigned char mask = (static_cast<unsigned char>(UCHAR_MAX << (7 - _end)) >> ((7 - _end) + _begin)) << _begin;
 
@@ -324,7 +324,7 @@ namespace bit_operations
 	}
 
 	//_begin >= 0 || _end <= 15, _begin < _end ->
-	void SetBits(unsigned short& _number, bool _value, int _begin, int _end)
+	void SetBits(unsigned short& _number, int _begin, int _end, bool _value)
 	{
 		unsigned short mask = (static_cast<unsigned short>(USHRT_MAX << (15 - _end)) >> ((15 - _end) + _begin)) << _begin;
 
@@ -339,7 +339,7 @@ namespace bit_operations
 	}
 
 	//_begin >= 0 || _end <= 31, _begin < _end ->
-	void SetBits(unsigned int& _number, bool _value, int _begin, int _end)
+	void SetBits(unsigned int& _number, int _begin, int _end, bool _value)
 	{
 		unsigned int mask = (static_cast<unsigned int>(UINT_MAX << (31 - _end)) >> ((31 - _end) + _begin)) << _begin;
 
@@ -354,7 +354,7 @@ namespace bit_operations
 	}
 
 	//_begin >= 0 || _end <= 63, _begin < _end ->
-	void SetBits(unsigned long long& _number, bool _value, int _begin, int _end)
+	void SetBits(unsigned long long& _number, int _begin, int _end, bool _value)
 	{
 		unsigned long long mask = (static_cast<unsigned long long>(ULLONG_MAX << (63 - _end)) >> ((63 - _end) + _begin)) << _begin;
 
