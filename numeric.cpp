@@ -4,7 +4,7 @@ namespace numeric
 
     enum class MagnitudeDirection { SMALLER, LARGER };
 
-    const list<char> HEX_DIGITS { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+    const char HEX_DIGITS[16] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     ///FUNCTIONS
 
@@ -270,6 +270,18 @@ namespace numeric
         return (LargerOf(N1, N2) - SmallerOf(N1, N2));
     }
 
+    //(3.2, 5.1) => 1.9
+    //(5.1, 3.2) => 1.9
+    //(511.0, 96.0) => 415
+    //(96.0, 511.0) => 415
+    //(-4.0, 5.2) => 9.2
+    //(5.2, -4.0) => 9.2
+    //N == N => 0.0
+    double DistanceOf(double N1, double N2)
+    {
+        return (LargerOf(N1, N2) - SmallerOf(N1, N2));
+    }
+
     //_rangeBegin >= _rangeEnd => -1
     //_currentValue < _rangeBegin || _value > _rangeEnd => -2
     //_addition < 1 => -3
@@ -370,11 +382,12 @@ namespace numeric
 		return length;
 	}
 
-    unsigned long long ToDecimal(const list<char>& _hex)
+    //_size is the size of _hex
+    unsigned long long ToDecimal(const char* _hex, int _size)
     {
         unsigned long long result = 0;
 
-        for (int i = _hex.count() - 1, n = 0; i > -1; i--, n++)
+        for (int i = _size - 1, n = 0; i > -1; i--, n++)
         {
             char symbol = _hex[i];
 
@@ -439,23 +452,6 @@ namespace numeric
                 result += 15 * Pow(16, n);
             }
         }
-
-        return result;
-    }
-
-    //activation atom
-    enum BINARY_ { BINARY_A };
-    //the bits in _bits represents unsigned integral value ->
-    unsigned long long ToDecimal(const list<bool>& _bits, BINARY_)
-    {
-        unsigned long long result = 0;
-        unsigned long long multiplier = 1;
-
-            for (int i = _bits.count() - 1; i > -1; i--)
-            {
-                result += _bits[i] * multiplier;
-                multiplier *= 2;
-            }
 
         return result;
     }
