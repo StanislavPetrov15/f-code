@@ -1,28 +1,34 @@
+/* (USAGE-EXAMPLE)
+   void timer_Tick(Timer* _timer, void* _data) { ... }
+   Timer timer(2500, true);
+   timer.OnTick += timer_Tick;
+   timer.Stop(); */
 struct Timer
 {
 private:
 
     bool Running = false;
     int Interval; //in microseconds
+    long long InitialTime = -1; //(INTERNAL-VARIABLE)
+    void* Data; //optional data
 
 public:
 
     bool Repeat = false;
-    event<Timer*> OnTick;
+    event<Timer*, void*> OnTick;
 
     Timer() = default;
 
     //the interval is set in microseconds
     //_repeat specifies whether the period is repeated after the previous one ends
-    Timer(int _interval, bool _repeat = true)
+    Timer(int _interval, bool _repeat, void* _data)
     {
         Interval = _interval;
         Repeat = _repeat;
+        Data = _data;
     }
 
     Timer(const Timer&) = delete;
-
-    Timer& operator=(const Timer&) = delete;
 
     bool IsRunning()
     {
@@ -42,23 +48,28 @@ public:
               {
                   using namespace std::chrono;
 
-                  long long initialTime = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
+                  InitialTime = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
 
                   while (true)
                   {
+                      if (!Running)
+                      {
+                          break;
+                      }
+
                       long long currentTime = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
 
                       //if the period is reached
-                      if (currentTime - initialTime > Interval)
+                      if (currentTime - InitialTime > Interval)
                       {
                           Running = Repeat; //->
-                          OnTick(this); //->
-                          if (Repeat) initialTime = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
-                      }
 
-                      if (!Running)
-                      {
-                          return;
+                          OnTick(this, Data); //->
+
+                          if (Repeat)
+                          {
+                              InitialTime = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
+                          }
                       }
                   }
               });
@@ -69,5 +80,10 @@ public:
     void Stop()
     {
         Running = false;
+    }
+
+    void Restart()
+    {
+        InitialTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
     }
 };
