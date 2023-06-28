@@ -1,7 +1,5 @@
 namespace byte_operations
 {
-	//(!) byte index '0' specifies the least significant byte
-
 	enum Endianity { LE, BE };
 
 	//_index = 0..1 ->
