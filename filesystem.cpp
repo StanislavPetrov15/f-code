@@ -86,7 +86,7 @@ namespace filesystem
     //_name is a valid name => 0
     int IsValidName(const string& _name)
     {
-        if (_name.count() == 0)
+        if (_name.characterCount() == 0)
         {
             return E_EMPTY_NAME;
         }
@@ -122,9 +122,9 @@ namespace filesystem
 
         string name = _filename.Subrange(0, indexOfDot - 1);
 
-        if (name.count() == 0) return E_EMPTY_NAME;
+        if (name.characterCount() == 0) return E_EMPTY_NAME;
 
-        if (name[name.count() - 1] == ' ') return E_NAME_ENDS_WITH_EMPTY_SPACE;
+        if (name[name.characterCount() - 1] == ' ') return E_NAME_ENDS_WITH_EMPTY_SPACE;
 
         int result = IsValidName(name);
 
@@ -154,12 +154,12 @@ namespace filesystem
 int IsValidDirectoryPath(const string& _path)
 {
     //if the path is empty
-    if (_path.count() == 0)
+    if (_path.characterCount() == 0)
     {
         return E_EMPTY_PATH;
     }
     //if the path length exceeds MAX_PATH
-    else if (_path.count() > MAX_PATH - 1/*because of the string terminator*/)
+    else if (_path.characterCount() > MAX_PATH - 1/*because of the string terminator*/)
     {
         return E_PATH_TOO_LONG;
     }
@@ -169,12 +169,12 @@ int IsValidDirectoryPath(const string& _path)
         return E_INVALID_ROOT_ELEMENT;
     }
     //if the second character is not ':'
-    else if (_path.count() >= 2 && _path[1] != ':')
+    else if (_path.characterCount() >= 2 && _path[1] != ':')
     {
         return E_INVALID_ROOT_ELEMENT;
     }
     //if the third character is not '\'
-    else if (_path.count() >= 3 && _path[2] != '\\')
+    else if (_path.characterCount() >= 3 && _path[2] != '\\')
     {
         return E_INVALID_ROOT_ELEMENT;
     }
@@ -195,12 +195,12 @@ int IsValidDirectoryPath(const string& _path)
         string& stemElement = stemElements[i];
 
         //if the element is empty
-        if (stemElement.count() == 0)
+        if (stemElement.characterCount() == 0)
         {
             return E_EMPTY_PATH_ELEMENT;
         }
         //if the elementy ends with ' '
-        else if (stemElement[stemElement.count() - 1] == ' ')
+        else if (stemElement[stemElement.characterCount() - 1] == ' ')
         {
             return E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE;
         }
@@ -228,7 +228,7 @@ int IsValidFilePath(const string& _path)
         return E_EMPTY_PATH;
     }
     //if the path length exceeds MAX_PATH
-    else if (_path.count() > MAX_PATH - 1/*because of the string terminator*/)
+    else if (_path.characterCount() > MAX_PATH - 1/*because of the string terminator*/)
     {
         return E_PATH_TOO_LONG;
     }
@@ -259,17 +259,27 @@ int IsValidFilePath(const string& _path)
 
     list<string> stemElements = _path.Clone().ReduceLeft(3).Split('\\');
 
-    for (int i = 0; i < stemElements.count(); i++)
+    //if the path does not contain stem elements
+    if (stemElements.count() == 0)
+    {
+        int result = IsValidFilename(_path.Clone().ReduceLeft(3));
+
+        return result != 0 ? result : 0;
+    }
+
+    //(STATE) the path contain stem elements
+
+        for (int i = 0; i < stemElements.count(); i++)
     {
         string& stemElement = stemElements[i];
 
         //if the element is empty
-        if (stemElement.count() == 0)
+        if (stemElement.characterCount() == 0)
         {
             return E_EMPTY_PATH_ELEMENT;
         }
         //if the elementy ends with ' '
-        else if (stemElement[stemElement.count() - 1] == ' ')
+        else if (stemElement[stemElement.characterCount() - 1] == ' ')
         {
             return E_PATH_ELEMENT_ENDS_WITH_EMPTY_SPACE;
         }
@@ -281,7 +291,7 @@ int IsValidFilePath(const string& _path)
         //if the element is the filename
         else if (i == stemElements.count() - 1)
         {
-            bool result = IsValidFilename(stemElement);
+            int result = IsValidFilename(stemElement);
 
             return result != 0 ? result : 0;
         }
@@ -316,6 +326,7 @@ bool IsDirectoryPath(const string& _path)
     }
 }
 
+//"D:\\images\\forest.bmp" => "forest.bmp"
 //_path is syntactically valid path ->
 string FilenameOf(const string& _path)
 {
@@ -333,6 +344,7 @@ string FilenameOf(const string& _path)
     }
 }
 
+//"D:\\images\\forest.bmp" => "forest"
 //_path is syntactically valid path ->
 string NameOf(const string& _path)
 {
@@ -457,18 +469,18 @@ struct File
     //_path is ASCII value ->
     explicit File(const string& _path)
     {
-        const wchar_t* const path = _path.ToWide();
+        const wchar_t* path = _path.ToWide();
         DWORD attributes = GetFileAttributesW(path);
 
         if (attributes & FILE_ATTRIBUTE_READONLY)
         {
             Mode = ReadOnly;
-            Stream = _wfopen(path, L"rb");
+            Stream = _wfopen(path, L"rb"); //"rb" :: binary file in read mode
         }
         else
         {
             Mode = ReadWrite;
-            Stream = _wfopen(path, L"r+b");
+            Stream = _wfopen(path, L"rb+"); //"rb+" :: binary file in write/read mode
         }
 
         delete[] path;
@@ -476,12 +488,18 @@ struct File
         if (Stream != nullptr)
         {
             Path = _path;
-            Extension = Path.Subrange(Path.LastIndexOf('.') + 1, Path.count() - 1);
-            Name = Path.Subrange(Path.LastIndexOf('\\') + 1, (Path.count() - (Extension.count()) - 2));
+            Extension = Path.Subrange(Path.LastIndexOf('.') + 1, Path.characterCount() - 1);
+            Name = Path.Subrange(Path.LastIndexOf('\\') + 1, (Path.characterCount() - (Extension.characterCount()) - 2));
 
             //determining the filesize
             fseek(Stream, 0, SEEK_END);
             Size = ftell(Stream);
+            fseek(Stream, 0, SEEK_SET);
+        }
+
+        if (GetLastError() != 0)
+        {
+            SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
         }
     }
 
@@ -595,35 +613,35 @@ struct File
         return position() < Size - 1;
     }
 
-    //position() > 0 >> position() = position() - 1
-    //traversalMode() == BOUNDED && position() == 0 >> position() = position()
-    //traversalMode() == CIRCULAR && position() == 0 >> position() = count() - 1
-    File& back()
+    //traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+    //traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+    //traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 19, position() = 4, back(9) >> position() = 14
+    File& back(int _value)
     {
-        if (Position > 0)
+        if (TraversalMode == TraversalMode::BOUNDED && Position - _value >= 0)
         {
-            Position--;
+            Position -= _value;
         }
-        else if (TraversalMode == TraversalMode::CIRCULAR && Position == 0)
+        else if (TraversalMode == TraversalMode::CIRCULAR && Size > 0)
         {
-            Position = Size - 1;
+            Position = numeric::CircularSubtraction(0, Size - 1, Position, _value);
         }
 
         return *this;
     }
 
-    //position() < count() - 1 >> position() = position() + 1
-    //traversalMode() == BOUNDED && position() == count() - 1 >> position() = position()
-    //traversalMode() == CIRCULAR && position() == count() - 1 >> position() = 0
-    File& advance()
+    //traversalMode() == BOUNDED && position() + _value >= size() >> position() = position()
+    //traversalMode() == BOUNDED && position() + _value < size() - 1 >> position() = position() + _value
+    //traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 21, position() = 16, advance(10) >> position() = 5
+    File& advance(int _value)
     {
-        if (Position < Size - 1)
+        if (TraversalMode == TraversalMode::BOUNDED && Position + _value < Size)
         {
-            Position++;
+            Position += _value;
         }
-        else if (TraversalMode == TraversalMode::CIRCULAR && Position == Size - 1)
+        else if (TraversalMode == TraversalMode::CIRCULAR && Size > 0)
         {
-            Position = 0;
+            Position = numeric::CircularAddition(0, Size - 1, Position, _value);
         }
 
         return *this;
@@ -631,7 +649,7 @@ struct File
 
     //position() > 0 => [position() - 1]
     //traversalMode() == BOUNDED && position() == 0 => [0]
-    //traversalMode() == CIRCULAR && position() == 0 => [count() - 1]
+    //traversalMode() == CIRCULAR && position() == 0 => [size() - 1]
     unsigned char previous() const
     {
         if (Position > 0)
@@ -648,15 +666,15 @@ struct File
         }
     }
 
-    //count() > 0 ->
+    //size() > 0 ->
     unsigned char current() const
     {
         return (*this)[Position];
     }
 
-    //position() < count() - 1 => [position() + 1]
-    //traversalMode() == BOUNDED && position() == count() - 1 => [position()]
-    //traversalMode() == CIRCULAR && position() == count() - 1 => [0]
+    //position() < size() - 1 => [position() + 1]
+    //traversalMode() == BOUNDED && position() == size() - 1 => [position()]
+    //traversalMode() == CIRCULAR && position() == size() - 1 => [0]
     unsigned char next() const
     {
         if (Position < Size - 1)
@@ -673,7 +691,7 @@ struct File
         }
     }
 
-    //_position < -1 || _position > count() - 1 => -1
+    //_position < -1 || _position > size() - 1 => -1
     int set_position(int _position)
     {
         if (_position < - 1 || _position > Size - 1) return - 1;
@@ -899,6 +917,65 @@ struct File
         return -1;
     }
 
+    //buffered read-operation; reads a block at the current position
+    //_size + position() < (size() + 1) ->
+    void ReadBlock(unsigned char* _array, int _size, bool _advancePosition) const
+    {
+        fread(_array, sizeof(unsigned char), _size, Stream);
+
+        if (_advancePosition)
+        {
+             Position += _size;
+        }
+    }
+
+    //position() + 1 < (size() + 1) ->
+    unsigned char ReadI8(bool _advancePosition) const
+    {
+        unsigned char x = (*this)[Position];
+
+        if (_advancePosition)
+        {
+             Position++;
+        }
+
+        return x;
+    }
+
+    //(!) _endianity is the endianity of the source-integral
+    //reads a 16-bit unsigned integral value at the current position
+    //position() + 2 < (size() + 1) ->
+    unsigned short ReadI16(Endianity _endianity, bool _advancePosition) const
+    {
+        char byte1 = fgetc(Stream);
+        char byte2 = fgetc(Stream);
+
+        if (_advancePosition)
+        {
+            Position += 2;
+        }
+
+        return _16(byte1, byte2, _endianity);
+    }
+
+    //(!) _endianity is the endianity of the source-integral
+    //reads a 32-bit unsigned integral value at the current position
+    //position() + 4 < (size() + 1) ->
+    unsigned int ReadI32(Endianity _endianity, bool _advancePosition) const
+    {
+        char byte1 = fgetc(Stream);
+        char byte2 = fgetc(Stream);
+        char byte3 = fgetc(Stream);
+        char byte4 = fgetc(Stream);
+
+        if (_advancePosition)
+        {
+            Position += 4;
+        }
+
+        return _32(byte1, byte2, byte3, byte4, _endianity);
+    }
+
     //_length = 0 => [_begin..]
     //(_begin + _length) >= size() => []
     list<unsigned char> Sublist(int _begin, int _length = 0) const
@@ -939,8 +1016,6 @@ struct File
 
         fseek(Stream, Size, SEEK_SET);
 
-        Position = Size;
-
         fputc(_value, Stream);
 
         Size++;
@@ -953,8 +1028,6 @@ struct File
         if (set_os(-1, -1, ReadWrite) != 0) return *this;
 
         fseek(Stream, Size, SEEK_SET);
-
-        Position = Size;
 
         for (unsigned char __byte : _value)
         {
@@ -970,8 +1043,6 @@ struct File
         if (set_os(-1, -1, ReadWrite) != 0) return *this;
 
         fseek(Stream, Size, SEEK_SET);
-
-        Position = Size;
 
         for (int i = 0; i < _length; i++)
         {
@@ -1169,6 +1240,83 @@ struct File
 
         return *this;
     }
+
+    //buffered write-operation; overwrites the block at the current position; if the current position is at the end of the file then it appends data
+    //(!) it cannot insert data
+    //_size + position() < (size() + 1) ->
+    File& WriteBlock(const unsigned char* _array, int _size, bool _advancePosition)
+    {
+        fwrite(_array, sizeof(unsigned char), _size, Stream);
+
+        Size += _size;
+
+        if (_advancePosition)
+        {
+            Position += _size;
+        }
+
+        return *this;
+    }
+
+    //(!) _endianity is the endianity of the source-integral
+    //writes a 16-bit unsigned integral value at the current position
+    //position() + 2 < (size() + 1) ->
+    File& WriteI16(unsigned short _value, Endianity _endianity, bool _advancePosition)
+    {
+        if (set_os(-1, -1, ReadWrite) != 0) return *this;
+
+        if (_endianity == LE)
+        {
+            fputc(byte_operations::ByteOf(_value, 0), Stream);
+            fputc(byte_operations::ByteOf(_value, 1), Stream);
+        }
+        else
+        {
+            fputc(byte_operations::ByteOf(_value, 1), Stream);
+            fputc(byte_operations::ByteOf(_value, 0), Stream);
+        }
+
+        Size += 2;
+
+        if (_advancePosition)
+        {
+             Position += 2;
+        }
+
+        return *this;
+    }
+
+    //(!) _endianity is the endianity of the source-integral
+    //writes a 32-bit unsigned integral value at the current position
+    //position() + 4 < (size() + 1) ->
+    File& WriteI32(unsigned int _value, Endianity _endianity, bool _advancePosition)
+    {
+        if (set_os(-1, -1, ReadWrite) != 0) return *this;
+
+        if (_endianity == LE)
+        {
+            fputc(byte_operations::ByteOf(_value, 0), Stream);
+            fputc(byte_operations::ByteOf(_value, 1), Stream);
+            fputc(byte_operations::ByteOf(_value, 2), Stream);
+            fputc(byte_operations::ByteOf(_value, 3), Stream);
+        }
+        else
+        {
+            fputc(byte_operations::ByteOf(_value, 3), Stream);
+            fputc(byte_operations::ByteOf(_value, 2), Stream);
+            fputc(byte_operations::ByteOf(_value, 1), Stream);
+            fputc(byte_operations::ByteOf(_value, 0), Stream);
+        }
+
+        Size += 4;
+
+        if (_advancePosition)
+        {
+            Position += 4;
+        }
+
+        return *this;
+    }
 };
 
 //if the directory exists successfully opened then &Path and &Name will have a set value
@@ -1188,7 +1336,7 @@ struct Directory
         if (DirectoryExists(_path))
         {
             Path = _path;
-            Name = string(Path.Subrange(Path.LastIndexOf('\\') + 1, Path.count() - 1));
+            Name = string(Path.Subrange(Path.LastIndexOf('\\') + 1, Path.characterCount() - 1));
         }
     }
 
@@ -1217,6 +1365,7 @@ struct Directory
     }
 };
 
+//returns the paths of all subdirectories in the specified directory
 //(!) shows the hidden directories as well
 //the specified directory exists and can be accessed ->
 list<string> DirectoriesOf(const string& _directoryPath)
@@ -1258,6 +1407,7 @@ list<string> DirectoriesOf(const string& _directoryPath)
     return subdirectories;
 }
 
+//returns the filepaths of all files in the specified directory
 //(!) shows the hidden files as well
 //the specified directory exists and can be accessed ->
 list<string> FilesOf(const string& _directoryPath)
@@ -1299,26 +1449,32 @@ list<string> FilesOf(const string& _directoryPath)
 
 bool FileExists(const string& _path)
 {
-    const wchar_t* const path = _path.ToWide();
+    const wchar_t* path = _path.ToWide();
     GetFileAttributesW(path);
     delete[] path;
 
     DWORD lastError = GetLastError();
 
-    SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+    if (lastError != 0)
+    {
+        SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+    }
 
     return lastError != ERROR_FILE_NOT_FOUND && lastError != ERROR_PATH_NOT_FOUND && lastError != ERROR_INVALID_NAME;
 }
 
 bool DirectoryExists(const string& _path)
 {
-    const wchar_t* const path = _path.ToWide();
+    const wchar_t* path = _path.ToWide();
     GetFileAttributesW(path);
     delete[] path;
 
     DWORD lastError = GetLastError();
 
-    SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+    if (lastError != 0)
+    {
+        SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+    }
 
     return lastError != ERROR_FILE_NOT_FOUND && lastError != ERROR_PATH_NOT_FOUND && lastError != ERROR_INVALID_NAME;
 }
@@ -1326,7 +1482,7 @@ bool DirectoryExists(const string& _path)
 //the specified file exists ->
 int SizeOf(const string& _path)
 {
-    if (!IsValidFilePath(_path))
+    if (IsValidFilePath(_path) != 0)
     {
         return E_INVALID_PATH;
     }
@@ -1335,7 +1491,7 @@ int SizeOf(const string& _path)
         return E_FILE_DOES_NOT_EXIST;
     }
 
-    const wchar_t* const path = _path.ToWide();
+    const wchar_t* path = _path.ToWide();
 
     FILE* stream = _wfopen(path, L"r+b");
 
@@ -1358,7 +1514,7 @@ int SizeOf(const string& _path)
 //the specified file/directory exists ->
 bool IsReadOnly(const string& _path)
 {
-    const wchar_t* const path = _path.ToWide();
+    const wchar_t* path = _path.ToWide();
     DWORD attributes = GetFileAttributesW(path);
     delete[] path;
 
@@ -1368,7 +1524,7 @@ bool IsReadOnly(const string& _path)
 //the specified file/directory exists ->
 bool IsHidden(const string& _path)
 {
-const wchar_t* const path = _path.ToWide();
+const wchar_t* path = _path.ToWide();
 DWORD attributes = GetFileAttributesW(path);
 delete[] path;
 
@@ -1378,7 +1534,7 @@ return attributes & FILE_ATTRIBUTE_HIDDEN;
 //the specified file/directory exists ->
 bool IsSystem(const string& _path)
 {
-const wchar_t* const path = _path.ToWide();
+const wchar_t* path = _path.ToWide();
 DWORD attributes = GetFileAttributesW(path);
 delete[] path;
 
@@ -1596,7 +1752,7 @@ int CreateFile(const string& _path)
         return E_DESTINATION_DIRECTORY_DOES_NOT_EXIST;
     }
 
-    const wchar_t* const path = _path.ToWide();
+    const wchar_t* path = _path.ToWide();
 
     FILE *file = _wfopen(path, L"w+b");
 
@@ -1624,7 +1780,7 @@ int CreateDirectory(const string& _path)
         return E_DESTINATION_DIRECTORY_DOES_NOT_EXIST;
     }
 
-    const wchar_t* const path = _path.ToWide();
+    const wchar_t* path = _path.ToWide();
     bool result = ::CreateDirectoryW(path, NULL);
     delete [] path;
 
@@ -1637,7 +1793,7 @@ int DeleteDirectory(const string &);
 //returns 0 on successful execution
 int RenameFile(const string& _filepath, const string& _newFilename)
 {
-    if (!IsValidFilePath(_filepath))
+    if (IsValidFilePath(_filepath) != 0)
     {
         return E_INVALID_PATH;
     }
@@ -1663,8 +1819,8 @@ int RenameFile(const string& _filepath, const string& _newFilename)
 
     //copying (the contents of the old file) into the new file
 
-    const wchar_t* const oldPath = _filepath.ToWide();
-    const wchar_t* const newPath = (ParentDirectoryOf(_filepath) + "\\" + _newFilename).ToWide();
+    const wchar_t* oldPath = _filepath.ToWide();
+    const wchar_t* newPath = (ParentDirectoryOf(_filepath) + "\\" + _newFilename).ToWide();
     FILE *sourceFile = _wfopen(oldPath, L"r+b");
     FILE *destinationFile = _wfopen(newPath, L"w+b");
     delete [] oldPath;
@@ -1722,7 +1878,7 @@ int RenameDirectory(const string& _path, const string& _newName)
 //_destinationPath specifies the directory in which the file should be copied
 int CopyFile(const string& _sourcePath, const string& _destinationPath)
 {
-    if (!IsValidFilePath(_sourcePath))
+    if (IsValidFilePath(_sourcePath) != 0)
     {
         return E_INVALID_SOURCE_PATH;
     }
@@ -1755,8 +1911,8 @@ int CopyFile(const string& _sourcePath, const string& _destinationPath)
 
     //copying (the contents of the old file) into the new file
 
-    const wchar_t* const filepath = _sourcePath.ToWide();
-    const wchar_t* const destinationPath = (_destinationPath + "\\" + FilenameOf(_sourcePath)).ToWide();
+    const wchar_t* filepath = _sourcePath.ToWide();
+    const wchar_t* destinationPath = (_destinationPath + "\\" + FilenameOf(_sourcePath)).ToWide();
     FILE* sourceFile = _wfopen(filepath, L"r+b");
     FILE* destinationFile = _wfopen(destinationPath, L"w+b");
     delete [] filepath;
@@ -1824,7 +1980,7 @@ int CopyDirectory(const string& _sourcePath, const string& _destinationPath)
 //returns 0 on successful execution
 int DeleteFile(const string& _path)
 {
-    if (!IsValidFilePath(_path))
+    if (IsValidFilePath(_path) != 0)
     {
         return E_INVALID_PATH;
     }
@@ -1838,7 +1994,7 @@ int DeleteFile(const string& _path)
     }
 
 
-    const wchar_t* const path = _path.ToWide();
+    const wchar_t* path = _path.ToWide();
 
     int result = _wremove(path);
 
@@ -1887,9 +2043,14 @@ int DeleteDirectory(const string& _path)
         }
     }
 
-    const wchar_t* const path = _path.ToWide();
+    const wchar_t* path = _path.ToWide();
 
     bool result = ::RemoveDirectoryW(path);
+
+    if (GetLastError() != 0)
+    {
+        SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+    }
 
     delete [] path;
 
@@ -1905,7 +2066,11 @@ string GetApplicationDirectory()
 
     unsigned int result = GetCurrentDirectoryW(MAX_PATH, array);
 
-    if (result == 0) return {};
+    if (GetLastError() != 0)
+    {
+        SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+        return {};
+    }
 
     return string(reinterpret_cast<utf16*>(array), LE, result);
 }
