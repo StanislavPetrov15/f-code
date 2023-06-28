@@ -92,18 +92,21 @@ namespace byte_operations
 		return static_cast<unsigned char>(_value);
 	}
 
+	//(!) always returns 2 bytes (not just the significant bytes)
 	//(!) the first byte in the list is LSB
 	list<unsigned char> BytesOf(unsigned short _value)
 	{
 		return { ByteOf(_value, 0), ByteOf(_value, 1) };
 	}
 
+	//(!) always returns 4 bytes (not just the significant bytes)
 	//(!) the first byte in the list is LSB
 	list<unsigned char> BytesOf(unsigned int _value)
 	{
 		return { ByteOf(_value, 0), ByteOf(_value, 1), ByteOf(_value, 2), ByteOf(_value, 3) };
 	}
 
+    //(!) always returns 8 bytes (not just the significant bytes)
 	//(!) the first byte in the list is LSB
 	list<unsigned char> BytesOf(unsigned long long _value)
 	{
@@ -111,6 +114,7 @@ namespace byte_operations
 		ByteOf(_value, 5), ByteOf(_value, 6), ByteOf(_value, 7) };
 	}
 
+    //if _endianity has value 'LE' then 'a' is the least significant byte, respectively if _endianity has value 'BE' then 'a' is the most significant byte
 	unsigned short _16(unsigned char a, unsigned char b, Endianity _endianity)
 	{
 		if (_endianity == LE)
@@ -123,6 +127,8 @@ namespace byte_operations
 		}
 	}
 
+    /* if _endianity has value 'LE' then 'a' is the least significant byte and 'd' is the most significant byte,
+       respectively if _endianity has value 'BE' then 'a' is the most significant byte and 'd' is the least significant byte */
 	unsigned int _32(unsigned char a, unsigned char b, unsigned char c, unsigned char d, Endianity _endianity)
 	{
 		if (_endianity == LE)
@@ -145,6 +151,8 @@ namespace byte_operations
 		return (high2 << 24) | (low2 << 16) | (high1 << 8) | low1;
 	}
 
+    /* if _endianity has value 'LE' then 'a' is the least significant byte and 'h' is the most significant byte,
+          respectively if _endianity has value 'BE' then 'a' is the most significant byte and 'h' is the least significant byte */
 	unsigned long long _64(unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e, unsigned char f,
 		unsigned char g, unsigned char h, Endianity _endianity)
 	{
