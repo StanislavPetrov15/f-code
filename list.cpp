@@ -1,14 +1,15 @@
 enum class SpatialKind { COMPLETE, SEGMENT };
 
 /* this type determines what happens (when an instance of a sequence type is traversed) and these four scenarios happen:
-   - the current traversal position is 0 and either previous() or back() is used; if the traversal mdoe is set to BOUNDED then (previous() returns the first element)
-     and (back() does nothing)
-   - the current traversal position is 0 and either previous() or back() is used; if the traversal mode is set to CIRCULAR then (previous() returns the last element) and
-     (back() sets the current traversal position to a value that points to the last element)
-   - the current traversal position is the position of the last element and either next() or advance() is used;
+   - the current traversal position is 0 and either previous() or back() is used - if the traversal mdoe is set to BOUNDED then
+     (previous() returns the first element) and (back() does nothing)
+   - the current traversal position is 0 and either previous() or back() is used - if the traversal mode is set to CIRCULAR then
+     (previous() returns the last element) and (back() sets the current traversal position to a value that points to the last element)
+   - the current traversal position is the position of the last element and either next() or advance() is used -
 	 if the traversal mode is set to BOUNDED then (next() returns the last element) and (advance() does nothing)
-   - the current traversal position is the position of the last element and either next() or advance() is used;
-     if the traversal mode is set to CIRCULAR then (next() returns the first element) and (advance() sets the current traversal position to a value that points to the first element) */
+   - the current traversal position is the position of the last element and either next() or advance() is used -
+     if the traversal mode is set to CIRCULAR then (next() returns the first element) and
+     (advance() sets the current traversal position to a value that points to the first element) */
 enum class TraversalMode { BOUNDED, CIRCULAR };
 
 /* when an instance of (a sequence type that uses ReleaseMode) is about to be destructed the elements (are freed automatically and immediately
@@ -60,10 +61,16 @@ template<typename T> struct list
 
     list() = default;
 
-    explicit list(int _size)
+    /* _extendCount is needed in cases where the allocated slots must be treated as existing elements (without being added first through another operation);
+        if that parameter is true then &Count equals &Size */
+    explicit list(int _size, bool _extendCount)
     {
         resize(_size);
-	//(REMOVE)	Count = _size;
+
+        if (_extendCount)
+        {
+            Count = _size;
+        }
     }
 
     list(const list<T>& _value)
@@ -247,7 +254,7 @@ template<typename T> struct list
         if (this == &_value) return *this;
 
         Clear();
-        resize(_value.count());
+        resize(_value.size());
         Append(_value);
 
         return *this;
@@ -302,7 +309,12 @@ template<typename T> struct list
         return Position;
     }
 
-    const T* elements() const
+    T* elements()
+    {
+        return Elements;
+    }
+
+     T* elements() const
     {
         return Elements;
     }
@@ -326,35 +338,35 @@ template<typename T> struct list
         return position() < Count - 1;
     }
 
-    //position() > 0 >> position() = position() - 1
-    //traversalMode() == BOUNDED && position() == 0 >> position() = position()
-    //traversalMode() == CIRCULAR && position() == 0 >> position() = count() - 1
-    list<T>& back()
+    //traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+    //traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+    //traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) count() = 19, position() = 4, back(9) >> position() = 14
+    list<T>& back(int _value)
     {
-        if (Position > 0)
+        if (TraversalMode == TraversalMode::BOUNDED && Position - _value >= 0)
         {
-            Position--;
+            Position -= _value;
         }
-        else if (TraversalMode == TraversalMode::CIRCULAR && Position == 0)
+        else if (TraversalMode == TraversalMode::CIRCULAR && Count > 0)
         {
-            Position = Count - 1;
+            Position = numeric::CircularSubtraction(0, Count - 1, Position, _value);
         }
 
         return *this;
     }
 
-    //position() < count() - 1 >> position() = position() + 1
-    //traversalMode() == BOUNDED && position() == count() - 1 >> position() = position()
-    //traversalMode() == CIRCULAR && position() == count() - 1 >> position() = 0
-    list<T>& advance()
+    //traversalMode() == BOUNDED && position() + _value >= count() >> position() = position()
+    //traversalMode() == BOUNDED && position() + _value < count() - 1 >> position() = position() + _value
+    //traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 21, position() = 16, advance(10) >> position() = 5
+    list<T>& advance(int _value)
     {
-        if (Position < Count - 1)
+        if (TraversalMode == TraversalMode::BOUNDED && Position + _value < Count)
         {
-            Position++;
+            Position += _value;
         }
-        else if (TraversalMode == TraversalMode::CIRCULAR && Position == Count - 1)
+        else if (TraversalMode == TraversalMode::CIRCULAR && Count > 0)
         {
-            Position = 0;
+            Position = numeric::CircularAddition(0, Count - 1, Position, _value);
         }
 
         return *this;
@@ -526,7 +538,6 @@ template<typename T> struct list
 		   //(_end > _begin) & (sizeof(T) > (sizeof(int) * 4)) ->
 		list<T>& Exclude(int _begin, int _end, bool _mergeAdjacentBlocks = false, int _excludedBlockBegin = EXCLUDED_BLOCK_BEGIN, int _excludedBlockEnd = EXCLUDED_BLOCK_END)
 		{
-		    //if (IsSegment()) return *this; //(remove)
 			if (_begin >= _end) return *this;
 
 			//указател към първия int елемент на текущия блок
@@ -996,7 +1007,7 @@ template<typename T> struct list
 		for (int i = 0, n = Count - _positions; i < _positions; i++, n++)
 		{
 			newList[n] = Elements[i];
-		} //(->) [x, x, x, 1, 2]
+		} //-> [x, x, x, 1, 2]
 
 		*this = newList;
 
