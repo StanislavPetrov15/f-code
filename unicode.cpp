@@ -35,8 +35,6 @@ namespace unicode
 
     const Range<unsigned short> LOW_SURROGATES(56320, 57343);
 
-    //ranges of (planes with defined code points)
-
     const int BMP_BEGIN = 0;
 
     const int BMP_END = 65535;
@@ -53,16 +51,38 @@ namespace unicode
 
     const int SSP_END = 983039;
 
-    const int PUA_BEGIN = 983040;
+    //(Private Use Area) begin
+    const int PUA1_BEGIN = 57344;
 
-    const int PUA_END = 1114111;
+    //(Private Use Area) end
+    const int PUA1_END = 63743;
 
-    const Range ARABIC_DIGITS(48, 57);
+    //(Supplementary Private Use Area-A) begin
+    const int PUA2_BEGIN = 983040;
+
+    //(Supplementary Private Use Area-A) end
+    const int PUA2_END = 1048573;
+
+    //(Supplementary Private Use Area-B) begin
+    const int PUA3_BEGIN = 1048576;
+
+    //(Supplementary Private Use Area-B) end
+    const int PUA3_END = 1114109;
+
+    const Range<int> ARABIC_DIGITS(48, 57);
 
     //determines if the code point is an arabic digit
     bool IsDigit(CodePoint _character)
     {
         return ARABIC_DIGITS.Contains(_character);
+    }
+
+    //determines if the code point is whitepsace character (characters with property WS/WSpace/White_Space = Yes)
+    bool IsWhitespace(CodePoint _character)
+    {
+         return _character == 9 || _character == 10 || _character == 11 || _character == 12 || _character == 13 || _character == 32 ||
+                _character == 133 || _character == 160 || _character == 5760 || (_character >= 8192 && _character <= 8202) ||
+                _character == 8232 || _character == 8233 || _character == 8239 || _character == 8287 || _character == 12288;
     }
 
     bool IsHighSurrogate(utf16 _codeUnit)
@@ -102,7 +122,19 @@ namespace unicode
     //determines if the code point is part of Private Use Area
     bool IsPUA(CodePoint _codePoint)
     {
-        return _codePoint >= PUA_BEGIN && _codePoint <= PUA_END;
+        return _codePoint >= PUA1_BEGIN && _codePoint <= PUA1_END;
+    }
+
+    //determines if the code point is part of (Supplementary Private Use Area-A)
+    bool IsPUA2(CodePoint _codePoint)
+    {
+        return _codePoint >= PUA2_BEGIN && _codePoint <= PUA2_END;
+    }
+
+    //determines if the code point is part of (Supplementary Private Use Area-B)
+    bool IsPUA3(CodePoint _codePoint)
+    {
+        return _codePoint >= PUA3_BEGIN && _codePoint <= PUA3_END;
     }
 
     //returns (high surrogate, low surrogate)
@@ -118,17 +150,17 @@ namespace unicode
     //the parameters rerpesents UTF-8 character that is part of BMP ->
     utf16 ToUTF16(unsigned char _high, unsigned char _low)
     {
-        SetBits(_high, false, 5, 7);
-        SetBits(_low, false, 6, 7);
+        SetBits(_high, 5, 7, false);
+        SetBits(_low, 6, 7, false);
         return (_high << 6) | _low;
     }
 
     //the parameters represent UTF-8 character that is part of BMP ->
     utf16 ToUTF16(unsigned char _high, unsigned char _lowa, unsigned char _lowb)
     {
-        SetBits(_high, false, 4, 7);
-        SetBits(_lowa, false, 6, 7);
-        SetBits(_lowb, false, 6, 7);
+        SetBits(_high, 4, 7, false);
+        SetBits(_lowa, 6, 7, false);
+        SetBits(_lowb, 6, 7, false);
         return (_high << 12) | (_lowa << 6) | _lowb;
     }
 
@@ -158,14 +190,14 @@ namespace unicode
         {
             return { static_cast<unsigned char>(_codePoint) };
         }
-       //if the code point must be encoded by two bytes
+            //if the code point must be encoded by two bytes
         else if (_codePoint >= 128 && _codePoint <= 2047)
         {
             unsigned char high = 0b11000000 | GetBits(_codePoint, 6, 10);
             unsigned char low = 0b10000000 | GetBits(_codePoint, 0, 5);
             return { high, low };
         }
-        //if the code point must be encoded by three byte
+            //if the code point must be encoded by three byte
         else if (_codePoint >= 2048 && _codePoint <= 65535)
         {
             unsigned char high = 0b11100000 | GetBits(_codePoint, 12, 15);
@@ -173,7 +205,7 @@ namespace unicode
             unsigned char lowb = 0b10000000 | GetBits(_codePoint, 0, 5);
             return { high, lowa, lowb };
         }
-        //if the code point must be encoded by four byte
+            //if the code point must be encoded by four byte
         else if (_codePoint >= 65536)
         {
             unsigned char high = 0b11110000 | GetBits(_codePoint, 18, 20);
@@ -187,27 +219,27 @@ namespace unicode
     //the parameters represent UTF-8 character that is part of BMP ->
     utf32 ToUTF32(unsigned char _high, unsigned char _lowa)
     {
-        SetBits(_high, false, 5, 7);
-        SetBits(_lowa, false, 6, 7);
+        SetBits(_high, 5, 7, false);
+        SetBits(_lowa, 6, 7, false);
         return (_high << 6) | _lowa;
     }
 
     //the parameters represent UTF-8 character that is part of BMP ->
     utf32 ToUTF32(unsigned char _high, unsigned char _lowa, unsigned char _lowb)
     {
-        SetBits(_high, false, 4, 7);
-        SetBits(_lowa, false, 6, 7);
-        SetBits(_lowb, false, 6, 7);
+        SetBits(_high, 4, 7, false);
+        SetBits(_lowa, 6, 7, false);
+        SetBits(_lowb, 6, 7, false);
         return (_high << 12) | (_lowa << 6) | _lowb;
     }
 
-   //the parameters represent UTF-8 character that is not part of BMP ->
+    //the parameters represent UTF-8 character that is not part of BMP ->
     utf32 ToUTF32(unsigned char _high, unsigned char _lowa, unsigned char _lowb, unsigned char _lowc)
     {
-        SetBits(_high, false, 3, 7);
-        SetBits(_lowa, false, 6, 7);
-        SetBits(_lowb, false, 6, 7);
-        SetBits(_lowc, false, 6, 7);
+        SetBits(_high, 3, 7, false);
+        SetBits(_lowa, 6, 7, false);
+        SetBits(_lowb, 6, 7, false);
+        SetBits(_lowc, 6, 7, false);
         return (_high << 18) | (_lowa << 12) | (_lowb << 6) | _lowc;
     }
 
@@ -228,7 +260,7 @@ namespace unicode
     //the parameters represent UTF-8 character that is not part of BMP ->
     CodePoint ToCodePoint(unsigned char _high, unsigned char _lowa, unsigned char _lowb)
     {
-         return ToUTF32(_high, _lowa, _lowb);
+        return ToUTF32(_high, _lowa, _lowb);
     }
 
     //the parameters represent a valid UTF-8 sequence ->
