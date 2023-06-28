@@ -2,23 +2,25 @@
 
 Index:
 
-array.cpp - line 20
-pair.cpp - line 183
-tuple.cpp - line 211
-range.cpp - line 1076
-list.cpp - line 1181
-string.cpp - line 1625
-numeric.cpp - line 2278
-bit_operations.cpp - line 2413
-byte_operations.cpp - line 2562
-unicode.cpp - line 2602
-time.cpp - line 2740
-filesystem.cpp - line 2822
-event.cpp - line 3159
-timer.cpp - line 3183
-chronometer.cpp - line 3219
+array.cpp - line 23
+pair.cpp - line 181
+tuple.cpp - line 209
+range.cpp - line 1074
+list.cpp - line 1179
+string.cpp - line 1624
+numeric.cpp - line 2287
+bit_operations.cpp - line 2418
+byte_operations.cpp - line 2567
+unicode.cpp - line 2616
+time.cpp - line 2775
+filesystem.cpp - line 2857
+event.cpp - line 3230
+timer.cpp - line 3254
+chronometer.cpp - line 3293
 
 -----------------------------------------------------------------------------------------
+
+array.cpp:
 
 struct array:
   # FIELDS:
@@ -29,8 +31,6 @@ struct range:
   # FIELDS:
   int begin
   int end
-
-array.cpp:
 
 # NON-MUTATING FUNCTIONS:
 
@@ -164,10 +164,8 @@ void rotateLeft(T*& _array, int _length, int _positions)
 template<typename T> void rotateRight(T*& _array, int _length, int _positions)
 
 # _length specifies the length of _array
+# set([1, 2, 3, 4, 5], 5, 2, 4, 19) >> [1, 2, 19, 19, 19]
 template<typename T> void set(T*& _array, int _length, int _begin, int _end, T _value)
-
-# _length specifies the length of the source array
-template<typename T> void set(T*& _destination, const T* _source, int _length)
 
 # _length specifies the length of _array
 template<typename T> void swap(T*& _array, int _length, int _i1, int _i2)
@@ -1213,7 +1211,9 @@ struct list<T>:
 
   list()
 
-  explicit list(int)
+  # _extendCount is needed in cases where the allocated slots must be treated as existing elements (without being added first through another operation);
+    if that parameter is true then &Count equals &Size #
+  explicit list(int _size, bool _extendCount)
 
   list(const list<T>&)
 
@@ -1269,6 +1269,8 @@ struct list<T>:
 
   int position() const
 
+  T* elements()
+
   const T* elements() const
 
   #
@@ -1281,15 +1283,15 @@ struct list<T>:
 
   bool can_advance() const
 
-  # position() > 0 >> position() = position() - 1
-  # traversalMode() == BOUNDED && position() == 0 >> position() = position()
-  # traversalMode() == CIRCULAR && position() == 0 >> position() = count() - 1
-  list<T>& back()
+  # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+  # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) count() = 19, position() = 4, back(9) >> position() = 14
+  list<T>& back(int _value)
 
-  # position() < count() - 1 >> position() = position() + 1
-  # traversalMode() == BOUNDED && position() == count() - 1 >> position() = position()
-  # traversalMode() == CIRCULAR && position() == count() - 1 >> position() = 0
-  list<T>& advance()
+  # traversalMode() == BOUNDED && position() + _value >= count() >> position() = position()
+  # traversalMode() == BOUNDED && position() + _value < count() - 1 >> position() = position() + _value
+  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 21, position() = 16, advance(10) >> position() = 5
+  list<T>& advance(int _value)
 
   # position() > 0 => [position() - 1]
   # traversalMode() == BOUNDED && position() == 0 => [0]
@@ -1945,13 +1947,20 @@ struct String:
 
   bool can_advance() const
 
-  string& back()
+  # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+  # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) characterCount() = 19, position() = 4, back(9) >> position() = 14
+  string& back(int _value)
 
-  string& advance()
+  # traversalMode() == BOUNDED && position() + _value >= characterCount() >> position() = position()
+  # traversalMode() == BOUNDED && position() + _value < characterCount() - 1 >> position() = position() + _value
+  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) characterCount() = 21, position() = 16, advance(10) >> position() = 5
+  string& advance(int _value)
 
   CodePoint& previous() const
 
-  CodePoint& current() const
+  # characterCount() > 0 ->
+  CodePoint current() const
 
   CodePoint& next() const
 
@@ -2287,7 +2296,7 @@ enum class MagnitudeDirection = SMALLER | LARGER
 
 # CONSTANTS:
 
-const list<char> HEX_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+[char] HEX_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
 
 # FUNCTIONS:
 
@@ -2401,12 +2410,8 @@ int CircularAddition(int _rangeBegin, int _rangeEnd, int _currentValue, int _add
 # (-8, 5, -3, 19) => -8
 int CircularSubtraction(int _rangeBegin, int _rangeEnd, int _currentValue, int _subtraction)
 
-unsigned long long ToDecimal(const list<char>& _hex)
-
-# activation atom
-enum BINARY_ = BINARY_A
-# the bits in _bits represent unsigned integral value ->
-unsigned long long ToDecimal(const list<bool>& _bits, BINARY_)
+# _size is the size of _hex
+unsigned long long ToDecimal(const char* _hex, int _size)
 
 -----------------------------------------------------------------------------------------
 
@@ -2441,10 +2446,10 @@ struct BitSet:
    bool GetBit(int _index) const
 
    # (0000000000).SetBits((11001), 3) => 0010011000
-   void SetBits(const list<bool>& _bits, int _targetBegin)
+   void SetBits(const list<bool>& _bits, int _begin)
 
    # (0000000000).SetBits((11001), 3) => 0010011000
-   void SetBitsR(const list<bool>& _bits, int _targetBegin)
+   void SetBitsR(const list<bool>& _bits, int _begin)
 
 # reverse<unsigned char>(01001010) => 01010010
 # reverse<unsigned short>(0000000001001010) => 0101001000000000
@@ -2487,16 +2492,16 @@ void SetBit(unsigned int& _number, int _index, bool _value)
 void SetBit(unsigned long long& _number, int _index, bool _value)
 
 # _begin >= 0 || _end <= 7, _begin < _end ->
-void SetBits(unsigned char& _number, bool _value, int _begin, int _end)
+void SetBits(unsigned char& _number, int _begin, int _end, bool _value)
 
 # _begin >= 0 || _end <= 15, _begin < _end ->
-void SetBits(unsigned short& _number, bool _value, int _begin, int _end)
+void SetBits(unsigned short& _number, int _begin, int _end, bool _value)
 
 # _begin >= 0 || _end <= 31, _begin < _end ->
-void SetBits(unsigned int& _number, bool _value, int _begin, int _end)
+void SetBits(unsigned int& _number, int _begin, int _end, bool _value)
 
 # _begin >= 0 || _end <= 63, _begin < _end ->
-void SetBits(unsigned long long& _number, bool _value, int _begin, int _end)
+void SetBits(unsigned long long& _number, int _begin, int _end, bool _value)
 
 # returns all bits of _value; the first bit in the list is LSB
 # (194) => [01000011]
@@ -2576,22 +2581,31 @@ unsigned char ByteOf(unsigned int _value, int _index)
 # _index = 0..7 ->
 unsigned char ByteOf(unsigned long long _value, int _index)
 
+# (!) always returns 2 bytes (not just the significant bytes)
 # (!) the first byte in the list is LSB
 list<unsigned char> BytesOf(unsigned short _value)
 
+# (!) always returns 4 bytes (not just the significant bytes)
 # (!) the first byte in the list is LSB
 list<unsigned char> BytesOf(unsigned int _value)
 
+# (!) always returns 8 bytes (not just the significant bytes)
 # (!) the first byte in the list is LSB
 list<unsigned char> BytesOf(unsigned long long _value)
 
+# if _endianity has value 'LE' then 'a' is the least significant byte,
+  respectively if _endianity has value 'BE' then 'a' is the most significant byte #
 unsigned short _16(unsigned char a, unsigned char b, Endianity _endianity)
 
+# if _endianity has value 'LE' then 'a' is the least significant byte and 'd' is the most significant byte,
+  respectively if _endianity has value 'BE' then 'a' is the most significant byte and 'd' is the least significant byte #
 unsigned int _32(unsigned char a, unsigned char b, unsigned char c, unsigned char d, Endianity _endianity)
 
 # _low (low1, high1) + _high (low2, high2) => unsigned int { high2, low2, high1, low1 }, where 'high1' is the high byte of the result
 unsigned int _32(unsigned short _low, unsigned short _high)
 
+# if _endianity has value 'LE' then 'a' is the least significant byte and 'h' is the most significant byte,
+  respectively if _endianity has value 'BE' then 'a' is the most significant byte and 'h' is the least significant byte #
 unsigned long long _64(unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e, unsigned char f, unsigned char g, unsigned char h, Endianity _endianity)
 
 # _low (low1...high2) + _high (low2...high2) => unsigned long long { high2...low2, high1...low1 }, where 'high2' is the high byte of the result
@@ -2639,8 +2653,6 @@ Range<unsigned short> HIGH_SURROGATES = (55296, 56319)
 
 Range<unsigned short> LOW_SURROGATES = (56320, 57343)
 
-# ranges of (planes with defined code points)
-
 const int BMP_BEGIN = 0
 
 const int BMP_END = 65535
@@ -2657,14 +2669,31 @@ const int SSP_BEGIN = 917504
 
 const int SSP_END = 983039
 
-const int PUA_BEGIN = 983040
+# (Private Use Area) begin
+const int PUA1_BEGIN = 57344;
 
-const int PUA_END = 1114111
+# (Private Use Area) end
+const int PUA1_END = 63743;
+
+# (Supplementary Private Use Area-A) begin
+const int PUA2_BEGIN = 983040;
+
+# (Supplementary Private Use Area-A) end
+const int PUA2_END = 1048573;
+
+# (Supplementary Private Use Area-B) begin
+const int PUA3_BEGIN = 1048576;
+
+# (Supplementary Private Use Area-B) end
+const int PUA3_END = 1114109;
 
 const Range ARABIC_DIGITS = (48, 57)
 
 # determines if the code point is an arabic digit
 bool IsDigit(CodePoint _character)
+
+# determines if the code point is whitespace character (characters with property WS/WSpace/White_Space = Yes)
+bool IsWhitespace(CodePoint _character)
 
 bool IsHighSurrogate(utf16 _codeUnit)
 
@@ -2684,6 +2713,12 @@ bool IsSSP(CodePoint _codePoint)
 
 # determines if the code point is part of Private Use Area
 bool IsPUA(CodePoint _codePoint)
+
+# determines if the code point is part of (Supplementary Private Use Area-A)
+bool IsPUA2(CodePoint _codePoint)
+
+# determines if the code point is part of (Supplementary Private Use Area-B)
+bool IsPUA3(CodePoint _codePoint)
 
 # returns (high surrogate, low surrogate)
 # _codePoint is not a code point from BMP ->
@@ -2897,9 +2932,11 @@ bool IsFilePath(const string& _path)
 # _path is syntactically valid path ->
 bool IsDirectoryPath(const string& _path)
 
+# "D:\images\forest.bmp" => "forest.bmp"
 # _path is syntactically valid path ->
 string FilenameOf(const string& _path)
 
+# "D:\images\forest.bmp" => "forest"
 # _path is syntactically valid path ->
 string NameOf(const string& _path)
 
@@ -2907,7 +2944,7 @@ string NameOf(const string& _path)
 # _filepath is syntactically valid file path ->
 string ExtensionOf(const string& _filepath)
 
-# "C:\\contents\\images" => "C:\\contents"
+# "C:\contents\images" => "C:\contents"
 # _path is syntactically valid path ->
 string ParentDirectoryOf(const string& _path)
 
@@ -2974,30 +3011,30 @@ struct File:
 
   bool can_advance() const
 
-  # position() > 0 >> position() = position() - 1
-  # traversalMode() == BOUNDED && position() == 0 >> position() = position()
-  # traversalMode() == CIRCULAR && position() == 0 >> position() = count() - 1
+  # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+  # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 19, position() = 4, back(9) >> position() = 14
   File& back()
 
-  # position() < count() - 1 >> position() = position() + 1
-  # traversalMode() == BOUNDED && position() == count() - 1 >> position() = position()
-  # traversalMode() == CIRCULAR && position() == count() - 1 >> position() = 0
+  # traversalMode() == BOUNDED && position() + _value >= size() >> position() = position()
+  # traversalMode() == BOUNDED && position() + _value < size() - 1 >> position() = position() + _value
+  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 21, position() = 16, advance(10) >> position() = 5
   File& advance()
 
   # position() > 0 => [position() - 1]
   # traversalMode() == BOUNDED && position() == 0 => [0]
-  # traversalMode() == CIRCULAR && position() == 0 => [count() - 1]
+  # traversalMode() == CIRCULAR && position() == 0 => [size() - 1]
   unsigned char previous() const
 
-  # count() > 0 ->
+  # size() > 0 ->
   unsigned char current() const
 
-  # position() < count() - 1 => [position() + 1]
-  # traversalMode() == BOUNDED && position() == count() - 1 => [position()]
-  # traversalMode() == CIRCULAR && position() == count() - 1 => [0]
+  # position() < size() - 1 => [position() + 1]
+  # traversalMode() == BOUNDED && position() == size() - 1 => [position()]
+  # traversalMode() == CIRCULAR && position() == size() - 1 => [0]
   unsigned char next() const
 
-  # _position < -1 || _possition > count() - 1 => -1
+  # _position < -1 || _possition > size() - 1 => -1
   int set_position(int _position)
 
   # NON-MUTATING FUNCTIONS:
@@ -3031,6 +3068,23 @@ struct File:
   # the specified value does not exist => -1
   int LastIndexOf(std::function<bool(unsigned char)> _predicate) const
 
+  # buffered read-operation; reads a block at the current position
+  # _size + position() < (size() + 1) ->
+  void ReadBlock(unsigned char* _array, int _size, bool _advancePosition) const
+
+  # position() + 1 < (size() + 1) ->
+  unsigned char ReadI8(bool _advancePosition) const
+
+  # (!) _endianity is the endianity of the source-integral
+  # reads a 16-bit unsigned integral value at the current position
+  # position() + 2 < (size() + 1) ->
+  unsigned short ReadI16(Endianity _endianity, bool _advancePosition) const
+
+  # (!) _endianity is the endianity of the source-integral
+  # reads a 32-bit unsigned integral value at the current position
+  # position() + 4 < (size() + 1) ->
+  unsigned int ReadI32(Endianity _endianity, bool _advancePosition) const
+
   # _length = 0 => [_begin..]
   # (_begin + _length) >= size() => []
   list<unsigned char> Sublist(int _begin, int _length = 0) const
@@ -3063,6 +3117,21 @@ struct File:
   # _index1 <= _index2 ->
   File& Swap(int _index1, int _index2)
 
+  # buffered write-operation; overwrites the block at the current position; if the current position is at the end of the file then it appends data
+  # (!) it cannot insert data
+  # _size + position() < (size() + 1) ->
+  File& WriteBlock(const unsigned char* _array, int _size, bool _advancePosition)
+
+  # (!) _endianity is the endianity of the source-integral
+  # writes a 16-bit unsigned integral value ath the current position
+  # position() + 2 < (size() + 1) ->
+  File& WriteI16(unsigned short _value, Endianity _endianity, bool _advancePosition)
+
+  # (!) _endianity is the endianity of the source-integral
+  # writes a 32-bit unsigned integral value at the current position
+  # position() + 4 < (size() + 1) ->
+  File& WriteI32(unsigned int _value, Endianity _endianity, bool _advancePosition)
+
 # if the directory exists then &Path and &Name will have a set value
 struct Directory:
 
@@ -3086,10 +3155,12 @@ struct Directory:
 
   const string &name() const
 
+# returns the paths of all subdirectories in the specified directory
 # (!) shows the hidden directories as well
 # the specified directory exists and can be accessed ->
 list<string> DirectoriesOf(const string& _directoryPath)
 
+# returns the filepaths of all files in the specified directory
 # (!) shows the hidden files as well
 # the specified directory exists and can be accessed ->
 list<string> FilesOf(const string& _directoryPath)
@@ -3182,7 +3253,7 @@ template<typename... args> struct event:
 
 timer.cpp:
 
-struct Timer:s
+struct Timer:
 
   # CONSTRUCTORS:
 
@@ -3190,7 +3261,8 @@ struct Timer:s
 
   # the interval is set in microseconds
   # _repeat specifies whether the period is repeated after the previous one ends
-  Timer(int _interval, bool _repeat = true)
+  # _data is an optional data
+  Timer(int _interval, bool _repeat, void* _data = nullptr)
 
   Timer(const Timer&) = delete
 
@@ -3202,13 +3274,15 @@ struct Timer:s
 
   bool Repeat = false
 
-  event<Timer*> OnTick;
+  event<Timer*, void*> OnTick
 
   int interval()
 
   # FUNCTIONS:
 
   bool IsRunning()
+
+  void Restart()
 
   void Start()
 
