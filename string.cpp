@@ -428,7 +428,7 @@ struct string
         StorageEncoding = _storageEncoding;
 
         //in case that _length is <N>|c or <N>|u
-        SetBits(_length, false, 30, 31);
+        SetBits(_length, 30, 31, false);
 
         for (int i = 0; i < _length; i++)
         {
@@ -646,7 +646,7 @@ struct string
 
         int lengthMarker = GetBits(_length, 30, 31);
         //-> clearing the marking bits
-        SetBits(_length, false, 30, 31);
+        SetBits(_length, 30, 31, false);
 
         while (true)
         {
@@ -936,7 +936,7 @@ struct string
 
         int lengthMarker = GetBits(_length, 30, 31);
         //-> clearing the marking bits
-        SetBits(_length, false, 30, 31);
+        SetBits(_length, 30, 31, false);
 
         while (true)
         {
@@ -1143,7 +1143,7 @@ struct string
 
         int lengthMarker = GetBits(_length, 30, 31);
         //-> clearing the marking bits
-        SetBits(_length, false, 30, 31);
+        SetBits(_length, 30, 31, false);
 
         while (true)
         {
@@ -1343,7 +1343,7 @@ struct string
             i = UTF16_CODE_UNIT_LENGTH;
         }
 
-        while (i)
+        while (true)
         {
             utf16 codeUnit = _array[i];
 
@@ -1788,32 +1788,6 @@ struct string
         }
     }
 
-    ///POINTERS NEEDED FOR 'RANGE-FOR'
-
-    /*T* begin() const
-    {
-        if (Count > 0)
-        {
-            return Elements;
-        }
-        else
-        {
-            return nullptr;
-        }
-    }
-
-    T* end() const
-    {
-        if (Count > 0)
-        {
-            return &Elements[Count];
-        }
-        else
-        {
-            return nullptr;
-        }
-    }*/
-
     ///OPERATORS
 
     //this operator does not compare the fields of the two objects; it compares only the character content
@@ -2047,7 +2021,7 @@ struct string
         return ByteCount;
     }
 
-    int count() const
+    int characterCount() const
     {
         return CharacterCount;
     }
@@ -2164,35 +2138,35 @@ struct string
         return position() < CharacterCount - 1;
     }
 
-    //position() > 0 >> position() = position() - 1
-    //traversalMode() == BOUNDED && position() == 0 >> position() = position()
-    //traversalMode() == CIRCULAR && position() == 0 >> position() = characterCount() - 1
-    string& back()
+    //traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+    //traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+    //traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) characterCount() = 19, position() = 4, back(9) >> position() = 14
+    string& back(int _value)
     {
-        if (Position > 0)
+        if (TraversalMode == TraversalMode::BOUNDED && Position - _value >= 0)
         {
-            Position--;
+            Position -= _value;
         }
-        else if (TraversalMode == TraversalMode::CIRCULAR && Position == 0)
+        else if (TraversalMode == TraversalMode::CIRCULAR && CharacterCount > 0)
         {
-            Position = CharacterCount - 1;
+            Position = numeric::CircularSubtraction(0, CharacterCount - 1, Position, _value);
         }
 
         return *this;
     }
 
-    //position() < characterCount() - 1 >> position() = position() + 1
-    //traversalMode() == BOUNDED && position() == characterCount() - 1 >> position() = position()
-    //traversalMode() == CIRCULAR && position() == characterCount() - 1 >> position() = 0
-    string& advance()
+    //traversalMode() == BOUNDED && position() + _value >= characterCount() >> position() = position()
+    //traversalMode() == BOUNDED && position() + _value < characterCount() - 1 >> position() = position() + _value
+    //traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) characterCount() = 21, position() = 16, advance(10) >> position() = 5
+    string& advance(int _value)
     {
-        if (Position < CharacterCount - 1)
+        if (TraversalMode == TraversalMode::BOUNDED && Position + _value < CharacterCount)
         {
-            Position++;
+            Position += _value;
         }
-        else if (TraversalMode == TraversalMode::CIRCULAR && Position == CharacterCount - 1)
+        else if (TraversalMode == TraversalMode::CIRCULAR && CharacterCount > 0)
         {
-            Position = 0;
+            Position = numeric::CircularAddition(0, CharacterCount - 1, Position, _value);
         }
 
         return *this;
@@ -2217,7 +2191,7 @@ struct string
         }
     }
 
-    //count() > 0 ->
+    //characterCount() > 0 ->
     CodePoint current() const
     {
         return (*this)[Position];
@@ -2400,8 +2374,8 @@ struct string
     string& Insert(CodePoint _value, int _index)
     {
         if (IsSegment()) return *this;
-        else if (count() == 0) return *this;
-        else if (_index < 0 || _index >= count()) return *this;
+        else if (characterCount() == 0) return *this;
+        else if (_index < 0 || _index >= characterCount()) return *this;
 
         list<unsigned char> bytes = bytesOf(_value);
 
@@ -2440,8 +2414,8 @@ struct string
     string& Insert(const string& _value, int _index)
     {
         if (IsSegment()) return *this;
-        else if (count() == 0) return *this;
-        else if (_index < 0 || _index >= count()) return *this;
+        else if (characterCount() == 0) return *this;
+        else if (_index < 0 || _index >= characterCount()) return *this;
 
         //equalization of (the encoding of the inserted string) to the encoding of &this
 
@@ -2792,7 +2766,7 @@ struct string
     string& Set(int _index, CodePoint _value)
     {
         if (IsSegment()) return *this;
-        else if (_index < 0 || _index >= count()) return *this;
+        else if (_index < 0 || _index >= characterCount()) return *this;
 
         Range<int> byteRange = byteRangeOf(_index);
 
@@ -2835,9 +2809,9 @@ struct string
     {
         if (IsSegment()) return *this;
         else if (!InRange(_begin)) return *this;
-        else if (!InRange(_begin + (_value.count()) - 1)) return *this;
+        else if (!InRange(_begin + (_value.characterCount()) - 1)) return *this;
 
-        for (int i = 0; i < _value.count(); i++)
+        for (int i = 0; i < _value.characterCount(); i++)
         {
             Set(_begin + i, _value[i]);
         }
@@ -3141,7 +3115,7 @@ struct string
     //[5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1, 7]) => 0
     int CountOf(const string& _value) const
     {
-        if (_value.count() == 0) return 0;
+        if (_value.characterCount() == 0) return 0;
 
         int count = 0;
 
@@ -3304,7 +3278,7 @@ struct string
     {
         if (!InRange(_begin)) return -1;
 
-        for (int i = _begin, matches = 0; i < CharacterCount && matches < _value.count(); i++)
+        for (int i = _begin, matches = 0; i < CharacterCount && matches < _value.characterCount(); i++)
         {
             if ((*this)[i] == _value[matches])
             {
@@ -3822,7 +3796,7 @@ struct string
 
         for (int i = CharacterCount - 1; i > (isPositive ? - 1 : 0); i--)
         {
-            int digit = (*this)[i] /*- '0'*/;
+            int digit = (*this)[i] - '0';
             result += digit * multiplier;
             multiplier *= 10;
         }
@@ -3839,7 +3813,7 @@ struct string
 
         for (int i = CharacterCount - 1; i > - 1; i--)
         {
-            int digit = (*this)[i] /*- '0'*/;
+            int digit = (*this)[i] - '0';
             result += digit * multiplier;
             multiplier *= 10;
         }
@@ -4144,28 +4118,29 @@ struct string
     //the string does not contain composite characters ->
     const wchar_t* ToWide() const
     {
-        list<wchar_t> result; //as the number of the code units is not known (without calculation) t:list must be used instead of wchar_t*
+        wchar_t* result = new wchar_t[CharacterCount * 2 + 1]; /* allocate enough space for all the characters
+            even if each of them is not part of BMP; if all the characters are part of BMP though, half of the allocated memory will be wasted */
 
-        result.ReleaseMode = ReleaseMode::FUTURE; //because &result->Elements is the return value
+        int codePointsCount = 0;
 
         for (int i = 0; i < ByteCount; )
         {
             //if the storage format is UTF-8 and the character is encoded by one byte
             if (StorageEncoding == UTF8 && (Elements[i] >> 7) == 0b0)
             {
-                result.Append(Elements[i]);
+                result[codePointsCount++] = Elements[i];
                 i += 1;
             }
                 //if the storage format is UTF-8 and the character is encoded by two bytes
             else if (StorageEncoding == UTF8 && (Elements[i] >> 5) == 0b110)
             {
-                result.Append(ToUTF16(Elements[i], Elements[i + 1]));
+                result[codePointsCount++] = ToUTF16(Elements[i], Elements[i + 1]);
                 i += 2;
             }
                 //if the storage format is UTF-8 and the character is encoded by three bytes
             else if (StorageEncoding == UTF8 && (Elements[i] >> 4) == 0b1110)
             {
-                result.Append(ToUTF16(Elements[i], Elements[i + 1], Elements[i + 2]));
+                result[codePointsCount++] = ToUTF16(Elements[i], Elements[i + 1], Elements[i + 2]);
                 i += 3;
             }
                 //if the storage format is UTF-8 and the character is encoded by four bytes
@@ -4173,20 +4148,20 @@ struct string
             {
                 CodePoint codePoint = ToCodePoint(Elements[i], Elements[i + 1], Elements[i + 2], Elements[i + 3]);
                 t2<utf16, utf16> surrogatePair = GetSurrogatePair(codePoint);
-                result.Append(surrogatePair.e1());
-                result.Append(surrogatePair.e2());
+                result[codePointsCount++] = surrogatePair.e1();
+                result[codePointsCount++] = surrogatePair.e2();
                 i += 4;
             }
                 //if the storage format is UTF-16LE and the character is part of BMP
             else if (StorageEncoding == UTF16LE && IsBMP(_16(Elements[i], Elements[i + 1], LE)))
             {
-                result.Append(_16(Elements[i], Elements[i + 1], LE));
+                result[codePointsCount++] = _16(Elements[i], Elements[i + 1], LE);
                 i += UTF16_CODE_UNIT_LENGTH;
             }
                 //if the storage format is UTF-16BE and the character is part of BMP
             else if (StorageEncoding == UTF16BE && IsBMP(_16(Elements[i], Elements[i + 1], BE)))
             {
-                result.Append(_16(Elements[i], Elements[i + 1], BE));
+                result[codePointsCount++] = _16(Elements[i], Elements[i + 1], BE);
                 i += UTF16_CODE_UNIT_LENGTH;
             }
                 //(STATE) the character is not part of BMP
@@ -4195,8 +4170,8 @@ struct string
             {
                 utf16 highSurrogate = _16(Elements[i], Elements[i + 1], LE);
                 utf16 lowSurrogate = _16(Elements[i + 2], Elements[i + 3], LE);
-                result.Append(highSurrogate);
-                result.Append(lowSurrogate);
+                result[codePointsCount++] = highSurrogate;
+                result[codePointsCount++] = lowSurrogate;
                 i += UTF16_CODE_UNIT_LENGTH * 2;
             }
                 //if the storage format is UTF-16BE and the character is not part of BMP
@@ -4204,8 +4179,8 @@ struct string
             {
                 utf16 highSurrogate = _16(Elements[i], Elements[i + 1], BE);
                 utf16 lowSurrogate = _16(Elements[i + 2], Elements[i + 3], BE);
-                result.Append(highSurrogate);
-                result.Append(lowSurrogate);
+                result[codePointsCount++] = highSurrogate;
+                result[codePointsCount++] = lowSurrogate;
                 i += UTF16_CODE_UNIT_LENGTH * 2;
             }
                 //(END-STATE)
@@ -4216,13 +4191,13 @@ struct string
 
                 if (IsBMP(codePoint))
                 {
-                        result.Append(codePoint);
+                        result[codePointsCount++] = codePoint;
                 }
                 else
                 {
                     t2<utf16, utf16> surrogatePair = GetSurrogatePair(codePoint);
-                    result.Append(surrogatePair.e1());
-                    result.Append(surrogatePair.e2());
+                    result[codePointsCount++] = surrogatePair.e1();
+                    result[codePointsCount++] = surrogatePair.e2();
                 }
 
                 i += 4;
@@ -4234,22 +4209,22 @@ struct string
 
                 if (IsBMP(codePoint))
                 {
-                    result.Append(codePoint);
+                    result[codePointsCount++] = codePoint;
                 }
                 else
                 {
                     t2<utf16, utf16> surrogatePair = GetSurrogatePair(codePoint);
-                    result.Append(surrogatePair.e1());
-                    result.Append(surrogatePair.e2());
+                    result[codePointsCount++] = surrogatePair.e1();
+                    result[codePointsCount++] = surrogatePair.e2();
                 }
 
                 i += 4;
             }
         }
 
-        result.Append('\0');
+        result[codePointsCount] = '\0';
 
-        return result.elements();
+        return result;
     } // -> delete []
 
     list<char> ToBytes() const
