@@ -1,8 +1,9 @@
 /* (USAGE-EXAMPLE)
    void timer_Tick(Timer* _timer, void* _data) { ... }
-   Timer timer(2500, true);
+   Timer timer(2500, true, nullptr);
    timer.OnTick += timer_Tick;
-   timer.Stop(); */
+   timer.Restart(); //eventually
+   timer.Stop(); //timer is stopped; Restart() should not be called after that point */
 struct Timer
 {
 private:
