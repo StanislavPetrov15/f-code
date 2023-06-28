@@ -605,7 +605,7 @@ template<typename T> void rotateLeft(T*& _array, int _length, int _positions)
     for (int i = 0, n = _length - _positions; i < _positions; i++, n++)
     {
         newArray[n] = _array[i];
-    } //(->) [x, x, x, 1, 2]
+    } //-> [x, x, x, 1, 2]
 
     delete[] _array;
 
@@ -641,21 +641,13 @@ template<typename T> void rotateRight(T*& _array, int _length, int _positions)
 }
 
 //_length specifies the length of _array
+//set([1, 2, 3, 4, 5], 5, 2, 4, 19) >> [1, 2, 19, 19, 19]
 template<typename T> void set(T*& _array, int _length, int _begin, int _end, T _value)
 {
     for (int i = _begin; i < _end + 1; i++)
     {
         _array[i] = _value;
     }
-}
-
-//_length specifies the length of the source array
-template<typename T> void set(T*& _destination, const T* _source, int _length)
-{
-      for (int i = 0; i < _length; i++)
-      {
-            _destination[i] = _source[i];
-      }
 }
 
 //_length specifies the length of _array
