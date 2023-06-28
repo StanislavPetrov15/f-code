@@ -21,7 +21,8 @@ public:
 
     //the interval is set in microseconds
     //_repeat specifies whether the period is repeated after the previous one ends
-    Timer(int _interval, bool _repeat, void* _data)
+    //_data is an optional data
+    Timer(int _interval, bool _repeat, void* _data = nullptr)
     {
         Interval = _interval;
         Repeat = _repeat;
