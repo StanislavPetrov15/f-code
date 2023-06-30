@@ -1,0 +1,132 @@
+<div style="margin-top: 20px; margin-left: 25px; background-color:rgb(255, 255, 255);">
+
+<p style="color:rgb(255, 0, 100); font-size: 30px;">f-code</p> 
+
+<p>© November 2021, Stanislav Petrov</p> <br><br>
+
+<p><b>OVERVIEW</b></p>
+
+<p>(!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation, networking, time functions, regular expressions, 2D graphics rendering and few other things; this is a very early version - at this stage the library contains only a small portion of the planned features and it also may contain some bugs</p>
+
+<p>(!) the file 'public interface' describes the constants, types and functions in the library</p>
+
+<p>(!) the library is intended to work on (Windows 10 / Windows 11) and 64-byte processor</p>
+
+<p>(!) the library is tested on (Windows 10 and Windows 11) (C++14)</p>
+
+<p>(!) the library does not use third-party source code</p>
+
+<p>(!) the functionality of the library will be expanded in the near future by (adding new files) and (expanding the capabilities of the existing files)</p>
+
+<p>(!) sometimes in the comments the name of a (global object, local object(that is not an argument) or pointer 'this') is preceded by character '&'</p>
+
+<p>(!) some constructors/functions accept 'activation atoms' - these are enum values that force a specific constructor/function call; this is needed when there is a conflict between constructors/functions with otherwise exact signatures</p>
+
+<p>(!) the ranges used in the library are inclusive</p>
+
+<p>(!) some of the things in the library are quite easy to implement but they still have to be there (for completeness)</p>
+
+(!) the library consists of the following files:<br>
+<ul style="margin-top:0px;">
+<li>array.cpp</li>
+<li>range.cpp</li>
+<li>tuple.cpp</li>
+<li>pair.cpp</li>
+<li>list.cpp</li>
+<li>string.cpp</li>
+<li>bit_operations.cpp</li>
+<li>byte_operations.cpp</li>
+<li>numeric.cpp</li>
+<li>unicode.cpp</li>
+<li>time.cpp</li>
+<li>filesystem.cpp</li>
+<li>event.cpp</li>
+<li>timer.cpp</li>
+<li>chronometer.cpp</li>
+</ul>
+
+(!) file dependencies:<br>
+<ul style="margin-top:0px;">
+<li>numeric.cpp - do not depend on other files</li>
+<li>array.cpp - depends on <Windows.h></li>
+<li>range.cpp - do not depend on other files</li>
+<li>tuple.cpp - do not depend on other files</li>
+<li>pair.cpp - do not depend on other files</li>
+<li>list.cpp - depends on <functional> and range.cpp</li>
+<li>bit_operations.cpp - depends on list.cpp</li>
+<li>byte_operations.cpp - depends on list.cpp</li>
+<li>unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp</li>
+<li>string.cpp - depends on <iostream>, byte_operations.cpp, numeric.cpp and unicode.cpp</li>
+<li>time.cpp - depends on <ctime> and numeric.cpp</li>
+<li>filesystem.cpp - depends on string.cpp and time.cpp</li>
+<li>event.cpp - depends on list.cpp</li>
+<li>timer.cpp - depends on <chromo>, <thread> and event.cpp</li>
+<li>chronometer.cpp - depends on <chrono></li>
+</ul>
+
+(!) some functions contains notes describing the following (in the order shown below): 
+<ul style="margin-top:0px;">
+<li>description of the function</li>
+<li>description of one or more parameters of the function (if their meaning is not clear at first)</li>
+<li>the result from (a function call with specific argument values) in the format " => ", where 'argument-values' consists of one or more argument values; the character '|' means 'or'</li>
+<li>examples in format " => "; some arguments in the example can have value 'x' which means that the value of the argument does not matter for the specific example; the examples not always show every possible variant of the particular function call; most of the time only the variants for which the result is not clear (which is subjective) are shown - (a set of one or more argument values) followed by character '->' means that (the argument(s) must have the specified values) for the correct execution of the function</li>
+</ul>
+
+<p>(!) (a character '->' after the body of a function) followed by (set of object values) means that the objects receive the specified values</p>
+
+<p>(!) (a character '->' after the body of a function) followed by (an operation or operations) means that the specified operation(s) must be executed after the function is finished</p>
+
+(!) f-code use five tags that gives additional information to the programmer; these tags can be applied to a file or a program object (a variable, function, structure, etc.); some tags can be applied only to specific program objects; if a tag is applied to a file then the tag should be included in the beginning of the file, and if it's applied to a program object it is included right before the object; the tags used in the library (and the description of their meaning) are the following:
+<ul style="margin-top:0px;">
+<li>(!) { value } - a very important note</li>
+<li>(EXAMPLE) { value } - example of a certain functionality</li>
+<li>(MAY-NEED-BETTER-EXPLANATION) { value } - the functionality described by 'value' may need better explanation</li>
+<li>(STATE) { value } - describes the state of a specific object (if the code is correctly executed) at the location of the tag</li>
+<li>(END-STATE) this tag is always preceded by tag (STATE); this tag specifies that the state of the object specified by tag (STATE) is no more valid, i.e. after the line in which the tag (END-STATE) is located the state of the object may be different than the state of the object described in the tag (STATE)</li>
+</ul>
+
+<p><b>EXAMPLES</b></p>
+
+list<int> ls { 5, 0, 9, 1, 8, 4 };<br>
+list<int> lx(ls, 2, 4); <span style="color:rgb(100, 100, 255);">//creates a 'list segment'; &lx is a segment of &ls; &ls is a source list for &lx; list segments are computationally fast way to access a continuous range; of elements of an existing list; the segment can be treated like a separate list and in some situations this makes things easier; adding and deletion of elements to/from a segment is not allowed, the values of the individual elements can be changed though; this functionality (in some form or another) is also known by different names in other languages/libraries</span> <br><br>
+
+list<int> ls(1000000); <span style="color:rgb(100, 100, 255);">allocates space for 1000000 int values; this functionality is useful if the maximum number of elements that will be added to the list is known beforehand - in this way resize operations can be avoided</span><br><br>
+
+string s("republic", ascii, Encoding::UTF16LE); <span style="color:rgb(100, 100, 255);">//creates a UTF16LE string from an ASCII input</span><br><br>
+
+<span style="color:rgb(100, 100, 255);">//"ĞȸĨ𠀔У" = Unicode[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]</span><br>
+list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 }; <br>
+string s(ls.elements(), u8, Encoding::UTF16LE); <span style="color:rgb(100, 100, 255);">//creates a UTF16LE string from an UTF8 input</span><br><br>
+
+<span style="color:rgb(100, 100, 255);">//"𠀔λΨΡ" = Unicode[131092, 955, 936, 929] = UTF16[55360, 56340, 955, 936, 929] = byte[216, 64, 220, 20, 3, 187, 3, 168, 3, 161]</span><br>
+list<unsigned char> ls { 216, 64, 220, 20, 3, 187, 3, 168, 3, 161, 0, 0 }; <br>
+string bs(ls.elements(), u16, BE, static_cast(10), Encoding::UTF32BE); <span style="color:rgb(100, 100, 255);">//creates an UTF32BE string (from UTF16BE byte input)</span><br><br>
+
+string s(L"oak↕country₢planet", Encoding::UTF8); <span style="color:rgb(100, 100, 255);">//creates an UTF8 string from (UTF16LE byte input)</span>
+
+(!) (the constructors accepting byte arrays) may accept the array length (in bytes), (in code units) or (in characters); in order to pass the length in bytes one have to use or |b, to pass the length in code units |u, and to pass the length in characters |c; the maximum value of is 1073741823 (constant MAX_LENGTH) (ЕXAMPLE) 162 (162 bytes) (ЕXAMPLE) 495|b (495 bytes) (EXAMPLE) 829|u (829 code units) (ЕXAMPLE) 327|c (327 characters) 
+<span style="color:rgb(100, 100, 255);"><br>
+//"ĞȸĨ𠀔У" = Unicode[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]</span><br>
+list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 }; <br>
+string s(ls.elements(), u8, 5|characters, Encoding::UTF32LE); <span style="color:rgb(100, 100, 255);">//creates an UTF32LE string from (UTF8 input consisting of 5 characters)</span><br><br>
+
+<span style="color:rgb(100, 100, 255);">//"ĞȸĨ𠀔У" = Unicode[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]</span><br>
+list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 };<br>
+string s(ls.elements(), u8, 12|units, Encoding::UTF32LE); <span style="color:rgb(100, 100, 255);">//creates an UTF32LE string from (UTF8 input consisting of 12 code units)</span><br><br>
+
+<span style="color:rgb(100, 100, 255);">//"ĞȸĨ𠀔У" = Unicode[286, 568, 296, 131092, 1059] = UTF8[196 158 200 184 196 168 240 160 128 148 208 163]</span><br>
+list<unsigned char> ls { 196, 158, 200, 184, 196, 168, 240, 160, 128, 148, 208, 163, 0 }; <br>
+string s(ls.elements(), u8, 12|bytes, Encoding::UTF32LE); <span style="color:rgb(100, 100, 255);">//creates an UTF32LE string from (UTF8 input consisting of 12 bytes) </span><br><br>
+
+string dir = "C:\documents"; <br>
+filesystem::DeleteFile(dir + "\documents\sunset.jpeg"); <br>
+filesystem::CreateDirectory(dir + "\notes"); <br>
+filesystem::RenameFile(dir + "\notes\note1.txt", "note2.txt"); <br><br>
+
+bool b1 = IsSystem("E:\folder1"); <br>
+bool b2 = IsReadOnly("E:\notes.txt"); <br>
+
+list<string> files = filesystem::FilesOf("G:"); <br>
+list<string> directories = filesystem::DirectoriesOf("G:"); <br>
+
+</div>
