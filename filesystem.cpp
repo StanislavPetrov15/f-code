@@ -1747,6 +1747,10 @@ int CreateFile(const string& _path)
     {
         return E_INVALID_PATH;
     }
+    else if (FileExists(_path))
+    {
+        return E_FILE_ALREADY_EXISTS;
+    }
     else if (!DirectoryExists(ParentDirectoryOf(_path)))
     {
         return E_DESTINATION_DIRECTORY_DOES_NOT_EXIST;
