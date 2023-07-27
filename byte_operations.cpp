@@ -160,10 +160,10 @@ namespace byte_operations
 				(static_cast<unsigned long long>(g) << 48) |
 				(static_cast<unsigned long long>(f) << 40) |
 				(static_cast<unsigned long long>(e) << 32) |
-				(d << 24) |
-				(c << 16) |
-				(b << 8) |
-				a;
+				(static_cast<unsigned long long>(d) << 24) |
+				(static_cast<unsigned long long>(c) << 16) |
+				(static_cast<unsigned long long>(b) << 8) |
+                static_cast<unsigned long long>(a);
 		}
 		else
 		{
@@ -171,10 +171,10 @@ namespace byte_operations
 				(static_cast<unsigned long long>(b) << 48) |
 				(static_cast<unsigned long long>(c) << 40) |
 				(static_cast<unsigned long long>(d) << 32) |
-				(e << 24) |
-				(f << 16) |
-				(g << 8) |
-				h;
+				(static_cast<unsigned long long>(e) << 24) |
+				(static_cast<unsigned long long>(f) << 16) |
+				(static_cast<unsigned long long>(g) << 8) |
+                static_cast<unsigned long long>(h);
 		}
 	}
 
