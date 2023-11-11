@@ -51,6 +51,14 @@ template<typename T> struct list
         return true;
     }
 
+    void copy(const list<T>& _source)
+    {
+         for (int i = 0; i < _source.count(); i++)
+         {
+              Elements[i] = _source[i];
+         }
+    }
+
     public:
 
     TraversalMode TraversalMode = TraversalMode::BOUNDED;
@@ -878,14 +886,6 @@ template<typename T> struct list
         }
 
         return *this;
-    }
-
-    void copy(const list<T>& _source)
-    {
-         for (int i = 0; i < _source.count(); i++)
-         {
-              Elements[i] = _source[i];
-         }
     }
 
 	//[1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
