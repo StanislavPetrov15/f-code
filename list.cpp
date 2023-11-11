@@ -1,4 +1,8 @@
+//(INTERNAL)
 enum class SpatialKind { COMPLETE, SEGMENT };
+
+//(INTERNAL)
+enum class MutabilityKind { MUTABLE, IMMUTABLE };
 
 /* this type determines what happens (when an instance of a sequence type is traversed) and these four scenarios happen:
    - the current traversal position is 0 and either previous() or back() is used - if the traversal mdoe is set to BOUNDED then
@@ -16,10 +20,6 @@ enum class TraversalMode { BOUNDED, CIRCULAR };
 	 (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future moment (when FUTURE is used)) */
 enum class ReleaseMode { IMMEDIATE, FUTURE };
 
-const int EXCLUDED_BLOCK_BEGIN = INT_MIN + 1;
-
-const int EXCLUDED_BLOCK_END = INT_MAX - 1;
-
 //(!) the size(accessed by size()) of a segment is equal to the size of the list that the segment refers to
 template<typename T> struct list
 {
@@ -28,7 +28,7 @@ template<typename T> struct list
     int Count = 0;
     int Size = 0;
     int Position = 0;
-    int ExtensionValue = 4.0; //(в проценти)
+    int ExtensionValue = 4.0; //(in percent of the current size)
     T* Elements = nullptr;
     SpatialKind SpatialKind = SpatialKind::COMPLETE;
 
@@ -54,6 +54,8 @@ template<typename T> struct list
     public:
 
     TraversalMode TraversalMode = TraversalMode::BOUNDED;
+
+    MutabilityKind MutabilityKind = MutabilityKind::MUTABLE;
 
     ReleaseMode ReleaseMode = ReleaseMode::IMMEDIATE;
 
@@ -144,7 +146,7 @@ template<typename T> struct list
 
     ~list()
     {
-        if (IsSegment())
+        if (SpatialKind == SpatialKind::SEGMENT)
         {
             return;
         }
@@ -250,7 +252,7 @@ template<typename T> struct list
 
     list<T>& operator=(const list<T>& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT) return *this;
         if (this == &_value) return *this;
 
         Clear();
@@ -317,13 +319,6 @@ template<typename T> struct list
      T* elements() const
     {
         return Elements;
-    }
-
-    ///
-
-    bool IsSegment() const
-    {
-        return SpatialKind == SpatialKind::SEGMENT;
     }
 
     ///TRAVERSAL FUNCTIONS
@@ -416,6 +411,12 @@ template<typename T> struct list
         }
     }
 
+    //the list has atleast one value ->
+    T& last() const
+    {
+        return Elements[Count - 1];
+    }
+
     //_position < -1 || _position > count() - 1 => -1
     int set_position(int _position)
     {
@@ -427,6 +428,16 @@ template<typename T> struct list
     }
 
     ///MUTATION FUNCTIONS
+
+    //acquire ownership of _array
+    void Acquire(T* _array, int _arrayLength)
+    {
+        Count = _arrayLength;
+        Size = _arrayLength;
+        Position = 0;
+        delete[] Elements;
+        Elements = _array;
+    }
 
     //acquire ownership of _list; after the operation is completed _list becomes invalid
     void Acquire(list<T>& _list)
@@ -450,7 +461,7 @@ template<typename T> struct list
 
    list<T>& Append(const T& _value)
    {
-       if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
        if (Count + 1 > Size)
        {
@@ -465,7 +476,7 @@ template<typename T> struct list
 
     list<T>& Append(const T& _value, int _times)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < _times; i++)
         {
@@ -477,7 +488,7 @@ template<typename T> struct list
 
     list<T>& Append(const list<T>& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (const T& __element : _value)
         {
@@ -489,7 +500,7 @@ template<typename T> struct list
 
     list<T>& Append(const T* _value, int _length)
 	{
-		if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 		
 		for (int i = 0; i < _length; i++)
 		{
@@ -498,11 +509,29 @@ template<typename T> struct list
 		
 		return *this;
 	}
-	
+
+    //the contents of _data are copied inside the list
+	list<T>& BuiltFromArray(const T* _data, int _dataLength)
+    {
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
+
+        Count = _dataLength;
+        Size = _dataLength;
+        delete[] Elements;
+        Elements = new T[Size];
+
+        for (int i = 0; i < _dataLength; i++)
+        {
+            Elements[i] = _data[i];
+        }
+
+        return *this;
+    }
+
     //_size < 0 -> state of the list doesn't change
     list<T>& Clear(int _size = 0)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (_size < 0) return *this;
 
         Count = 0;
@@ -513,153 +542,10 @@ template<typename T> struct list
         return *this;
     }
 
-    /* - изключва логически даден блок; т.е. в такъв случай няма нужда при 'изтриване' на блок да се изтрива стария масив(&Elements) и да се създава нов
-
-		   - след изключването програмиста може да определи кои части от списъка са 'изтрити'(т.е. изключени), докато при физическо изтриване
-			 на даден блок, това може да се определи единствено, чрез запазване на тази информация във външни обекти
-
-		   - изключването става чрез маркиране на блока - първите N* байта са маркер за начало на изключен блок, а следващите N* указват дължината на блока
-
-		   - последния int елемент от изключения блок е маркер за край на изключен блок, а int елемента преди него указава дължината на блока - това е нужно
-			 тъй като не може да се разчита на абсолютния индекс - потребителя може да ползва сегмент - в такъв случай индексите може да са с грешна стойност
-
-		   - при достъп на елемент не се проверява дали съответния елемент е част от изключен блок, т.е. програмиста носи отговорността за логическата валидност
-			 на извършваните операции
-
-		   - извършва се обединяване на блокове ако има нужда (и при желание на програмиста - p:_mergeAdjacentBlocks), т.е. ако при изключване на блок точно преди
-			 него и/или точно след него има друг изключен блок, то блоковете се сливат
-
-		   - <T> трябва да има ((A) две int полета в началото) и ((B) две int полета в края на декларационния блок) (които осигуряват достатъчно място
-			(съответно в края и началото на обекта) за съответните маркиращи елементи), тъй като в противен случай при маркирането ще се засегнат полета, чиито
-			(валидни стойности) са нужни за нормалното изпълнение на програмата - тези полета се наричат 'осигурителни полета'; наличието на такива полета ще
-			 увеличи размера на обекта със 16 байта(Microsoft C++)(без да се смята допълнителното пространство за евентуално подравняване)
-
-		   * sizeof(T*) */
-		   //(_end > _begin) & (sizeof(T) > (sizeof(int) * 4)) ->
-		list<T>& Exclude(int _begin, int _end, bool _mergeAdjacentBlocks = false, int _excludedBlockBegin = EXCLUDED_BLOCK_BEGIN, int _excludedBlockEnd = EXCLUDED_BLOCK_END)
-		{
-			if (_begin >= _end) return *this;
-
-			//указател към първия int елемент на текущия блок
-			int* currentBlockBegin = reinterpret_cast<int*>(&(*this)[_begin]);
-
-			//указател към последния int елемент на текущия блок
-			int* currentBlockEnd = (reinterpret_cast<int*>(&(*this)[_end]) + (sizeof(T) / sizeof(int))) - 1;
-
-			//указва дали отляво на текущия блок е долепен друг изключен блок
-			bool leftAdjacent = _begin > 0 && *(currentBlockBegin - 1) == _excludedBlockEnd;
-
-			//указва дали отдясно на текущия блок е долепен друг изключен блок
-			bool rightAdjacent = _end < Count - 1 && *(reinterpret_cast<int*>(&(*this)[_end + 1])) == _excludedBlockBegin;
-
-			//ако отляво и отдясно на текущия блок не е долепен друг изключен блок или блоковете не трябва да се сливат
-			if ((!leftAdjacent && !rightAdjacent) || !_mergeAdjacentBlocks)
-			{
-				//задаване на маркер за начало на блока
-				*currentBlockBegin = _excludedBlockBegin;
-
-				//задаване на дължина на блока в началото (след маркера)
-				*(currentBlockBegin + 1) = (_end - _begin) + 1;
-
-				//задаване на дължина на блока в края (преди маркера)
-				*(currentBlockEnd - 1) = (_end - _begin) + 1;
-
-				//задаване на маркер за край на блока
-				*currentBlockEnd = _excludedBlockEnd;
-			}
-			//ако отляво на текущия блок е долепен друг изключен блок, а отдясно не е
-			else if (leftAdjacent && !rightAdjacent)
-			{
-				//дължина на предишния блок
-				int previousBlockLength = *(currentBlockBegin - 2);
-
-				//задаване на новата дължина на предишния блок
-				*(currentBlockBegin + 1) = (_end - _begin) + previousBlockLength + 1;
-
-				//дължина на текущия блок
-				int currentBlockLength = (_end - _begin) + 1;
-
-				//задаване на дължина на блока в края (преди маркера)
-				*(currentBlockEnd - 1) = previousBlockLength + currentBlockLength;
-
-				//задаване на маркер за край на блока
-				*currentBlockEnd = _excludedBlockEnd;
-
-				//нулиране на последните две int полета на предишния блок (за да се предотврати неправилно използване на крайния маркер и стойността преди него)
-				*(currentBlockBegin - 1) = 0;
-				*(currentBlockBegin - 2) = 0;
-			}
-			//ако отдясно на текущия блок е долепен друг изключен блок, а отляво не е
-			else if (!leftAdjacent && rightAdjacent)
-			{
-				//задаване на маркер за начало на блока
-				*currentBlockBegin = _excludedBlockBegin;
-
-				//задаване на дължина на блока в началото (след маркера)
-				*(currentBlockBegin + 1) = (_end - _begin) + 1;
-
-				//указател към първия int елемент на следващия блок
-				int* nextBlockBegin = reinterpret_cast<int*>(&(*this)[_end + 1]);
-
-				//дължина на следващия блок
-				int nextBlockLength = *(nextBlockBegin + 1);
-
-				//указател към последния int елемент на следващия блок
-				int* nextBlockEnd = (reinterpret_cast<int*>(&(*this)[_end + nextBlockLength]) + (sizeof(T) / sizeof(int))) - 1;
-
-				//дължина на текущия блок
-				int currentBlockLength = (_end - _begin) + 1;
-
-				//задаване на новата дължина на следващия блок
-				*(nextBlockEnd - 1) = currentBlockLength + nextBlockLength;
-
-				//нулиране на първите две int полета на следващия блок (за да се предотврати неправилно използване на началния маркер и стойността след него)
-				*(nextBlockBegin) = 0;
-				*(nextBlockBegin + 1) = 0;
-			}
-			//ако отляво и отдясно на текущия блок е долепен друг изключен блок
-			else if (leftAdjacent && rightAdjacent)
-			{
-				//указател към първия int елемент на следващия блок
-				int* nextBlockBegin = reinterpret_cast<int*>(&(*this)[_end + 1]);
-
-				//дължина на предишния блок
-				int previousBlockLength = *(currentBlockBegin - 2);
-
-				//дължина на текущия блок
-				int currentBlockLength = (_end - _begin) + 1;
-
-				//дължина на следващия блок
-				int nextBlockLength = *(nextBlockBegin + 1);
-
-				//указател към първия int елемент на предишния блок
-				int* previousBlockBegin = reinterpret_cast<int*>(&(*this)[_begin - previousBlockLength]);
-
-				//указател към последния int елемент на следващия блок
-				int* nextBlockEnd = (reinterpret_cast<int*>(&(*this)[_end + nextBlockLength]) + (sizeof(T) / sizeof(int))) - 1;
-
-				//задаване на новата дължина на предишния блок
-				*(previousBlockBegin + 1) = previousBlockLength + currentBlockLength + nextBlockLength;
-
-				//задаване на новата дължина на следващия блок
-				*(nextBlockEnd - 1) = previousBlockLength + currentBlockLength + nextBlockLength;
-
-				//нулиране на последните две int полета на предишния блок (за да се предотврати неправилно използване на крайния маркер и стойността преди него)
-				*(currentBlockBegin - 1) = 0;
-				*(currentBlockBegin - 2) = 0;
-
-				//нулиране на първите две int полета на следващия блок (за да се предотврати неправилно използване на началния маркер и стойността след него)
-				*(nextBlockBegin) = 0;
-				*(nextBlockBegin + 1) = 0;
-			}
-
-			return *this;
-		}
-
     //[1, 2, 10].FillLeft(5, 7) => [5, 5, 5, 5, 1, 2, 10]
     list<T>& FillLeft(const T& _value, int _length)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; Count < _length; i++)
         {
@@ -672,7 +558,7 @@ template<typename T> struct list
     //[1, 2, 10].FillRight(5, 7) => [1, 2, 10, 5, 5, 5, 5]
     list<T>& FillRight(const T& _value, int _length)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; Count < _length; i++)
         {
@@ -685,7 +571,7 @@ template<typename T> struct list
     //(count() > 0 && _index > 0 && _index < count()) ->
     list<T>& Insert(const T& _value, int _index)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (count() == 0) return *this;
         else if (_index < 0 || _index >= count()) return *this;
 
@@ -711,7 +597,7 @@ template<typename T> struct list
     //(count() > 0 && _index > 0 && _index < count()) ->
     list<T>& Insert(const list<T>& _value, int _index)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (count() == 0) return *this;
         else if (_index < 0 || _index >= count()) return *this;
 
@@ -736,7 +622,7 @@ template<typename T> struct list
         }
 
         accumulator.Count = Count + _value.count(); //->
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -744,7 +630,7 @@ template<typename T> struct list
     //[1, 2, 3, 4, 5].Move(2, 4) => [1, 2, 4, 5, 3]
     list<T>& Move(int _sourceIndex, int _destinationIndex)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_sourceIndex) || !InRange(_destinationIndex)) return *this;
 
         int smaller = numeric::SmallerOf(_sourceIndex, _destinationIndex);
@@ -778,7 +664,7 @@ template<typename T> struct list
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
     list<T>& Reduce(int _reducer)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         return ReduceLeft(_reducer).ReduceRight(_reducer);
     }
@@ -787,7 +673,7 @@ template<typename T> struct list
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
     list<T>& ReduceLeft(int _reducer)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         return Remove(0, _reducer - 1);
     }
@@ -796,14 +682,14 @@ template<typename T> struct list
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
     list<T>& ReduceRight(int _reducer)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         return Remove(Count - _reducer, Count - 1);
     }
 
     list<T>& Remove(int _begin, int _end)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_begin, _end)) return *this;
 
         list<T> accumulator;
@@ -818,14 +704,14 @@ template<typename T> struct list
             accumulator.Append(Elements[i]);
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
 
     list<T>& RemoveAt(int _index, int _length = 1)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_index)) return *this;
         else if (_length < 1) return *this;
 
@@ -841,7 +727,7 @@ template<typename T> struct list
             accumulator.Append(Elements[i]);
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -850,19 +736,21 @@ template<typename T> struct list
     //[1, 25, 4, 3, 4, 6, 5, 2, 41, 4, 52, 7, 8, 9].RemoveAll(4) => [1, 25, 3, 6, 5, 2, 41, 52, 7, 8, 9]
     list<T>& RemoveAll(const T& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         list<T> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (__element != _value)
+            T& element = Elements[i];
+
+            if (element != _value)
             {
-                accumulator.Append(__element);
+                accumulator.Append(element);
             }
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -871,38 +759,42 @@ template<typename T> struct list
     //[1, 2, 3, 4, 5, 6, 5, 2, 7, 8, 9].RemoveAll(2, 4, 5, 8) => [1, 3, 6, 7, 8, 9]
     list<T>& RemoveAll(const list<T>& _set)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         list<T> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (!_set.Contains(__element))
+            T& element = Elements[i];
+
+            if (!_set.Contains(element))
             {
-                accumulator.Append(__element);
+                accumulator.Append(element);
             }
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
 
     list<T>& RemoveIf(const std::function<bool(const T&)>& _predicate)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         list<T> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (!_predicate(__element))
+            T& element = Elements[i];
+
+            if (!_predicate(element))
             {
-                accumulator.Append(__element);
+                accumulator.Append(element);
             }
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -910,7 +802,7 @@ template<typename T> struct list
     //[9, 2, 7].Repeat(2) => [9, 2, 7, 9, 2, 7, 9, 2, 7]
     list<T>& Repeat(int _times)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         int originalLength = Count;
         for (int n = 0; n < _times; n++)
@@ -929,7 +821,7 @@ template<typename T> struct list
     //[5, 9, 0, 3, 7, 18, 4, 2, 6].Replace(4, 7, [2, 6, 1]) => [5, 9, 0, 3, 2, 6, 1, 6]
     list<T>& Replace(int _begin, int _end, const list<T>& _replacement)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_begin, _end)) return *this;
 
         Remove(_begin, _end);
@@ -941,13 +833,15 @@ template<typename T> struct list
     //replace every occurrence of _replaced with _replacement
     list<T>& Replace(const T& _replaced, const T& _replacement)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
-        for (T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (__element == _replaced)
+            T& element = Elements[i];
+
+            if (element == _replaced)
             {
-                __element = _replacement;
+                element = _replacement;
             }
         }
 
@@ -957,7 +851,7 @@ template<typename T> struct list
     //replace every occurrence of _replaced with _replacement
     list<T>& Replace(const list<T>& _replaced, const list<T>& _replacement)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         while (true)
         {
@@ -976,7 +870,7 @@ template<typename T> struct list
     //[9, 7, 2, 5, 9, 0, 6, 2, 8, 4].Reverse() => [4, 8, 2, 6, 0, 9, 5, 2, 7, 9]
     list<T>& Reverse()
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < Count / 2; i++)
         {
@@ -986,12 +880,20 @@ template<typename T> struct list
         return *this;
     }
 
+    void copy(const list<T>& _source)
+    {
+         for (int i = 0; i < _source.count(); i++)
+         {
+              Elements[i] = _source[i];
+         }
+    }
+
 	//[1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
 	list<T>& RotateLeft(int _positions = 1)
 	{
-		if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
-		list<T> newList(Count);
+		list<T> newList(Count, true);
 
 		if (_positions > Count)
 		{
@@ -1009,7 +911,13 @@ template<typename T> struct list
 			newList[n] = Elements[i];
 		} //-> [x, x, x, 1, 2]
 
-		*this = newList;
+        for (int i = 0; i < newList.count(); i++)
+        {
+            auto df = newList[i];
+            auto dg = true;
+        }
+
+        copy(newList);
 
 		return *this;
 	}
@@ -1017,9 +925,9 @@ template<typename T> struct list
 	//[1, 2, 3, 4, 5].RotateRight(3) => [3, 4, 5, 1, 2]
 	list<T>& RotateRight(int _positions = 1)
 	{
-		if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
-		list<T> newList(Count);
+		list<T> newList(Count, true);
 
 		if (_positions > Count)
 		{
@@ -1038,7 +946,7 @@ template<typename T> struct list
 			newList[n] = Elements[i];
 		} //-> [x, x, 1, 2, 3]
 
-		*this = newList;
+		copy(newList);
 
 		return *this;
 	}
@@ -1046,7 +954,7 @@ template<typename T> struct list
     //<T> implements o:< or it is a primitive numerical type ->
     list<T>& SelectionSort(bool _ascending = true)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < Count; i++)
         {
@@ -1058,7 +966,7 @@ template<typename T> struct list
 
     list<T>& SelectionSort(const std::function<bool(const T&, const T&)>& _predicate, bool _ascending = true)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < Count; i++)
         {
@@ -1083,7 +991,7 @@ template<typename T> struct list
     //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
     list<T>& Set(int _begin, int _end, const T& _value)
     {
-		    if (IsSegment()) return *this;
+            if (MutabilityKind == MutabilityKind::IMMUTABLE)  return *this;
             else if (!InRange(_begin) || !InRange(_end)) return *this;
 
 		    for (int i = _begin; i <= _end; i++)
@@ -1097,7 +1005,7 @@ template<typename T> struct list
     //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
     list<T>& Set(int _begin, const list<bool>& _value)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_begin)) return *this;
         else if (!InRange(_begin + (_value.count()) - 1)) return *this;
 
@@ -1111,7 +1019,7 @@ template<typename T> struct list
 
     list<T>& Swap(int _index1, int _index2)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_index1) || !InRange(_index2)) return *this;
 
         T element = Elements[_index1];
@@ -1124,7 +1032,7 @@ template<typename T> struct list
     //_element1 and _element2 are pointers to elements of the list ->
     list<T>& Swap(T* _element1, T* _element2)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         T element = *_element1;
         *_element1 = *_element2;
@@ -1136,7 +1044,7 @@ template<typename T> struct list
     //[2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].Trim(2) => [5, 9, 0, 6]
     list<T>& Trim(const T& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         TrimBegin(_value);
         TrimEnd(_value);
@@ -1147,18 +1055,13 @@ template<typename T> struct list
     //[2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimBegin(2) => [5, 9, 0, 6, 2, 2, 2, 2, 2]
     list<T>& TrimBegin(const T& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < Count; i++)
         {
-            if (i == Count - 1)
+            if (Elements[i] != _value)
             {
-                *this = {};
-                return *this;
-            }
-            else if (Elements[i] != _value)
-            {
-                *this = Subrange(i, Count - 1);
+                copy(Subrange(i, Count - 1));
                 break;
             }
         }
@@ -1169,18 +1072,13 @@ template<typename T> struct list
     //[2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimEnd(2) => [2, 2, 2, 5, 9, 0, 6]
     list<T>& TrimEnd(const T& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
-        for (int i = Count - 1; i > - 1; i--)
+        for (int i = Count - 1; i > -1; i--)
         {
-            if (i == 0)
+            if (Elements[i] != _value)
             {
-                *this = {};
-                return *this;
-            }
-            else if (Elements[i] != _value)
-            {
-                *this = Subrange(0, i);
+                copy(Subrange(0, i));
                 break;
             }
         }
@@ -1244,9 +1142,9 @@ template<typename T> struct list
 
     bool Contains(const T& _value) const
     {
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (__element == _value)
+            if (Elements[i] == _value)
             {
                 return true;
             }
@@ -1281,9 +1179,9 @@ template<typename T> struct list
 
     bool Contains(const std::function<bool(const T&)>& _predicate) const
     {
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (_predicate(__element))
+            if (_predicate(Elements[i]))
             {
                 return true;
             }
@@ -1309,11 +1207,11 @@ template<typename T> struct list
     //[9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([6, 30, 3, 1]) => true
     bool ContainsAny(const list<T>& _set) const
     {
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
             for (int n = 0; n < _set.count(); n++)
             {
-                if (__element == _set[n])
+                if (Elements[i] == _set[n])
                 {
                     return true;
                 }
@@ -1325,9 +1223,9 @@ template<typename T> struct list
 
     bool ContainsOnly(const T& _value) const
     {
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (__element != _value)
+            if (Elements[i] != _value)
             {
                 return false;
             }
@@ -1342,9 +1240,9 @@ template<typename T> struct list
     {
         if (Count == 0) return false;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (!_set.Contains(__element))
+            if (!_set.Contains(Elements[i]))
             {
                 return false;
             }
@@ -1357,9 +1255,9 @@ template<typename T> struct list
     {
         if (Count == 0) return false;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (!_predicate(__element))
+            if (!_predicate(Elements[i]))
             {
                 return false;
             }
@@ -1372,9 +1270,9 @@ template<typename T> struct list
     {
         int accumulator = 0;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (__element == _value)
+            if (Elements[i] == _value)
             {
                 accumulator++;
             }
@@ -1407,9 +1305,9 @@ template<typename T> struct list
     {
         int count = 0;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (_predicate(__element))
+            if (_predicate(Elements[i]))
             {
                 count++;
             }
@@ -1471,11 +1369,13 @@ template<typename T> struct list
     {
         list<T> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (__element != _value)
+            T& element = Elements[i];
+
+            if (element != _value)
             {
-                accumulator.Append(__element);
+                accumulator.Append(element);
             }
         }
 
@@ -1487,11 +1387,13 @@ template<typename T> struct list
     {
         list<T> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (!_set.Contains(__element))
+            T& element = Elements[i];
+
+            if (!_set.Contains(element))
             {
-                accumulator.Append(__element);
+                accumulator.Append(element);
             }
         }
 
@@ -1502,44 +1404,30 @@ template<typename T> struct list
     {
         list<T> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (!_predicate(__element))
+            T& element = Elements[i];
+
+            if (!_predicate(element))
             {
-                accumulator.Append(__element);
+                accumulator.Append(element);
             }
         }
 
         return accumulator;
     }
 
-    //<A> трябва да наследява <T>
-		template<typename A> list<A*> Extract() const
-		{
-			list<A*> elements;
-
-			for (const T& __element : *this)
-			{
-				A* pointer = dynamic_cast<A*>(__element);
-
-				if (pointer)
-				{
-					elements.Append(pointer);
-				}
-			}
-
-			return elements;
-		}
-
     //(if the element specified by the predicate is present in the list) the function returns a pointer to it
     //(if the element specified by the predicate is not present in the list) the functions returns a null pointer
     T* First(const std::function<bool(const T&)>& _predicate) const
     {
-        for (T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (_predicate(__element))
+            T& element = Elements[i];
+
+            if (_predicate(element))
             {
-                return &__element;
+                return &element;
             }
         }
 
@@ -1551,9 +1439,9 @@ template<typename T> struct list
     {
         list<A> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            accumulator.Append(A(__element));
+            accumulator.Append(A(Elements[i]));
         }
 
         return accumulator;
@@ -1569,9 +1457,9 @@ template<typename T> struct list
     {
         list<A> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            accumulator.Append(_generator(__element));
+            accumulator.Append(_generator(Elements[i]));
         }
 
         return accumulator;
@@ -1585,11 +1473,11 @@ template<typename T> struct list
 
     bool HasDuplicates() const
     {
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            for (const T& __element_ : *this)
+            for (int n = 0; n < Count; n++)
             {
-                if (__element == __element_)
+                if (Elements[i] == Elements[n])
                 {
                     return true;
                 }
@@ -1715,37 +1603,23 @@ template<typename T> struct list
     }
 
     /* A = [5, 0, 3, 6]
-        B = [3, 2, 4, 5, 9]
+       B = [3, 2, 4, 5, 9]
         IntersectionOf(A, B) => [3, 5] */
-    static list<T> IntersectionOf(const list<T>& _left, const list<T>& _right)
+    static list<T> IntersectionOf(const list<T>& _list1, const list<T>& _list2)
     {
         list<T> accumulator;
 
-        for (int i = 0; i < _left.count(), i < _right.count(); i++)
+        for (int i = 0; i < _list1.count(); i++)
         {
-            if (_left.Contains(_right[i]))
+            T& element = _list1[i];
+
+            if (_list2.Contains(element) && !accumulator.Contains(element))
             {
-                accumulator.Append(_right[i]);
+                accumulator.Append(element);
             }
         }
 
         return accumulator;
-    }
-
-    bool Intersects(const list<T>& _value) const
-    {
-        for (const T& __element : *this)
-        {
-            for (int n = 0; n < _value.count(); n++)
-            {
-                if (__element == _value[n])
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     //count() > 1 ->
@@ -2166,26 +2040,79 @@ template<typename T> struct list
     {
         list<T> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (_predicate(__element))
+            T& element = Elements[i];
+
+            if (_predicate(element))
             {
-                accumulator.Append(__element);
+                accumulator.Append(element);
             }
         }
 
         return accumulator;
     }
 
+    /* A = [8, 19, 2, 5, 5, 0, 2, 7, 10, 4]
+       B = [23, 21, 4, 7, 5, 19, 17, 26]
+       UnionOf(A, B) => [8, 19, 2, 5, 0, 7, 10, 4, 23, 21, 17, 26] */
+    static list<T> UnionOf(const list<T>& _list1, const list<T>& _list2)
+    {
+        list<T> accumulator;
+
+        for (int i = 0; i < _list1.count(); i++)
+        {
+            T& element = _list1[i];
+
+            if (!accumulator.Contains(element))
+            {
+                accumulator.Append(element);
+            }
+        }
+
+        for (int i = 0; i < _list2.count(); i++)
+        {
+            T& element = _list2[i];
+
+            if (!accumulator.Contains(element))
+            {
+                accumulator.Append(element);
+            }
+        }
+
+        return accumulator;
+    }
+
+    //[21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Unique() => [21, 35, 2, 9, 40, 31, 24, 18]
+    list<T> Unique() const
+    {
+        list<T> accumulator;
+
+        for (int i = 0; i < Count; i++)
+        {
+            T& element = Elements[i];
+
+              if (!accumulator.Contains(element))
+              {
+                  accumulator.Append(element);
+              }
+        }
+
+        return accumulator;
+    }
+
+    //[21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Until(52) => [21, 35, 2, 9, 40, 31, 52, 9, 24]
     list<T> Until(const T& _value) const
     {
         list<T> accumulator;
 
-        for (const T& __element : *this)
+        for (int i = 0; i < Count; i++)
         {
-            if (__element != _value)
+            T& element = Elements[i];
+
+            if (element != _value)
             {
-                accumulator.Append(__element);
+                accumulator.Append(element);
             }
             else
             {
