@@ -5,6 +5,10 @@ namespace filesystem
     using unicode::utf16;
     using unicode::utf32;
 
+    enum class FileAttribute { READ_ONLY, READ_WRITE, VISIBLE, HIDDEN };
+
+    enum class DirectoryAttribute { VISIBLE, HIDDEN };
+
     //Errors:
     const char E_UNSUCCESSFUL_OPERATION = -1;
     const char E_UNKNOWN_ERROR = -2;
@@ -62,8 +66,8 @@ namespace filesystem
        - (existentially valid path :: a path that is referring to an existing physical file) */
 
     /* (!) the functions accept only absolute paths
-       (!) a path cannot begins with an empty space
-       (!) a path must begins with (a letter from the English alphabet) followed by ':' or '\'
+       (!) a path cannot begin with an empty space
+       (!) a path must begin with (a letter from the English alphabet) followed by ':' or '\'
        (!) a path cannot have an empty stem element
        (!) a stem element cannot contain invalid characters
        (!) the length of a path cannot be larger than (&MAX_PATH - 1)
@@ -976,6 +980,28 @@ struct File
         return _32(byte1, byte2, byte3, byte4, _endianity);
     }
 
+    //(!) _endianity is the endianity of the source-integral
+    //reads a 64-bit unsigned integral value at the current position
+    //position() + 8 < (size() + 1) ->
+    unsigned int ReadI64(Endianity _endianity, bool _advancePosition) const
+    {
+        char byte1 = fgetc(Stream);
+        char byte2 = fgetc(Stream);
+        char byte3 = fgetc(Stream);
+        char byte4 = fgetc(Stream);
+        char byte5 = fgetc(Stream);
+        char byte6 = fgetc(Stream);
+        char byte7 = fgetc(Stream);
+        char byte8 = fgetc(Stream);
+
+        if (_advancePosition)
+        {
+            Position += 8;
+        }
+
+        return _64(byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8, _endianity);
+    }
+
     //_length = 0 => [_begin..]
     //(_begin + _length) >= size() => []
     list<unsigned char> Sublist(int _begin, int _length = 0) const
@@ -1258,6 +1284,24 @@ struct File
         return *this;
     }
 
+    //writes a 8-bit unsigned integral value at the current position
+    //position() + 1 < (size() + 1) ->
+    File& WriteI8(unsigned char _value, bool _advancePosition)
+    {
+        if (set_os(-1, -1, ReadWrite) != 0) return *this;
+
+        fputc(_value, Stream);
+
+        Size += 1;
+
+        if (_advancePosition)
+        {
+            Position += 1;
+        }
+
+        return *this;
+    }
+
     //(!) _endianity is the endianity of the source-integral
     //writes a 16-bit unsigned integral value at the current position
     //position() + 2 < (size() + 1) ->
@@ -1313,6 +1357,46 @@ struct File
         if (_advancePosition)
         {
             Position += 4;
+        }
+
+        return *this;
+    }
+
+    //(!) _endianity is the endianity of the source-integral
+    //writes a 64-bit unsigned integral value at the current position
+    //position() + 8 < (size() + 1) ->
+    File& WriteI64(unsigned int _value, Endianity _endianity, bool _advancePosition)
+    {
+        if (set_os(-1, -1, ReadWrite) != 0) return *this;
+
+        if (_endianity == LE)
+        {
+            fputc(byte_operations::ByteOf(_value, 0), Stream);
+            fputc(byte_operations::ByteOf(_value, 1), Stream);
+            fputc(byte_operations::ByteOf(_value, 2), Stream);
+            fputc(byte_operations::ByteOf(_value, 3), Stream);
+            fputc(byte_operations::ByteOf(_value, 4), Stream);
+            fputc(byte_operations::ByteOf(_value, 5), Stream);
+            fputc(byte_operations::ByteOf(_value, 6), Stream);
+            fputc(byte_operations::ByteOf(_value, 7), Stream);
+        }
+        else
+        {
+            fputc(byte_operations::ByteOf(_value, 7), Stream);
+            fputc(byte_operations::ByteOf(_value, 6), Stream);
+            fputc(byte_operations::ByteOf(_value, 5), Stream);
+            fputc(byte_operations::ByteOf(_value, 4), Stream);
+            fputc(byte_operations::ByteOf(_value, 3), Stream);
+            fputc(byte_operations::ByteOf(_value, 2), Stream);
+            fputc(byte_operations::ByteOf(_value, 1), Stream);
+            fputc(byte_operations::ByteOf(_value, 0), Stream);
+        }
+
+        Size += 8;
+
+        if (_advancePosition)
+        {
+            Position += 8;
         }
 
         return *this;
@@ -1524,21 +1608,21 @@ bool IsReadOnly(const string& _path)
 //the specified file/directory exists ->
 bool IsHidden(const string& _path)
 {
-const wchar_t* path = _path.ToWide();
-DWORD attributes = GetFileAttributesW(path);
-delete[] path;
+    const wchar_t* path = _path.ToWide();
+    DWORD attributes = GetFileAttributesW(path);
+    delete[] path;
 
-return attributes & FILE_ATTRIBUTE_HIDDEN;
+    return attributes & FILE_ATTRIBUTE_HIDDEN;
 }
 
 //the specified file/directory exists ->
 bool IsSystem(const string& _path)
 {
-const wchar_t* path = _path.ToWide();
-DWORD attributes = GetFileAttributesW(path);
-delete[] path;
+    const wchar_t* path = _path.ToWide();
+    DWORD attributes = GetFileAttributesW(path);
+    delete[] path;
 
-return attributes & FILE_ATTRIBUTE_SYSTEM;
+    return attributes & FILE_ATTRIBUTE_SYSTEM;
 }
 
 //the specified file/directory exists ->
@@ -2014,6 +2098,8 @@ int DeleteFile(const string& _path)
 }
 
 //returns 0 on successful execution
+/* it is possible that the specified directory is not fully deleted;
+   such scenario can happen if some files/directories within the directory cannot be deleted */
 int DeleteDirectory(const string& _path)
 {
     if (!IsValidDirectoryPath(_path))
@@ -2029,12 +2115,18 @@ int DeleteDirectory(const string& _path)
         return E_DIRECTORY_DOES_NOT_EXIST;
     }
 
-    //deleting the contents of __directory
+    //deleting the contents of __directory ((!) RemoveDirectoryW() can delete only an empty directory)
     for (const string& __filepath : FilesOf(_path))
     {
-        filesystem::DeleteFile(__filepath);
+        int result = filesystem::DeleteFile(__filepath);
+
+        if (result != 0)
+        {
+            return result;
+        }
     }
 
+    //deleting the subdirectories
     for (const string& __directoryPath : DirectoriesOf(_path))
     {
         if (IsSystem(__directoryPath))
@@ -2059,6 +2151,82 @@ int DeleteDirectory(const string& _path)
     delete [] path;
 
     return result ? 0 : E_UNKNOWN_ERROR;
+}
+
+//returns 0 on successful execution
+int SetFileAttribute(const string& _path, FileAttribute _attribute)
+{
+    const wchar_t* path = _path.ToWide();
+    DWORD attributes = GetFileAttributesW(path);
+    bool result;
+
+    if (!FileExists(_path))
+    {
+        return E_FILE_DOES_NOT_EXIST;
+    }
+    else if (IsSystem(_path))
+    {
+        return E_SYSTEM_FILE_MANIPULATION_ATTEMPT;
+    }
+
+    if (_attribute == FileAttribute::READ_WRITE)
+    {
+        unsigned long long attributes_ = attributes;
+        bit_operations::SetBit(attributes_, 0, false);
+        result = SetFileAttributesW(path, attributes_);
+    }
+    else if (_attribute == FileAttribute::READ_ONLY)
+    {
+        unsigned long long attributes_ = attributes;
+        bit_operations::SetBit(attributes_, 0, true);
+        result = SetFileAttributesW(path, attributes_);
+    }
+    else if (_attribute == FileAttribute::VISIBLE)
+    {
+        unsigned long long attributes_ = attributes;
+        bit_operations::SetBit(attributes_, 1, false);
+        result = SetFileAttributesW(path, attributes_);
+    }
+    else if (_attribute == FileAttribute::HIDDEN)
+    {
+        unsigned long long attributes_ = attributes;
+        bit_operations::SetBit(attributes_, 1, true);
+        result = SetFileAttributesW(path, attributes_);
+    }
+
+    return result != 0 ? 0 : GetLastError();
+}
+
+//returns 0 on successful execution
+int SetDirectoryAttribute(const string& _path, DirectoryAttribute _attribute)
+{
+    const wchar_t* path = _path.ToWide();
+    DWORD attributes = GetFileAttributesW(path);
+    bool result;
+
+    if (!DirectoryExists(_path))
+    {
+        return E_FILE_DOES_NOT_EXIST;
+    }
+    else if (IsSystem(_path))
+    {
+        return E_SYSTEM_DIRECTORY_MANIPULATION_ATTEMPT;
+    }
+
+    if (_attribute == DirectoryAttribute::VISIBLE)
+    {
+        unsigned long long attributes_ = attributes;
+        bit_operations::SetBit(attributes_, 1, false);
+        result = SetFileAttributesW(path, attributes_);
+    }
+    else if (_attribute == DirectoryAttribute::HIDDEN)
+    {
+        unsigned long long attributes_ = attributes;
+        bit_operations::SetBit(attributes_, 1, true);
+        result = SetFileAttributesW(path, attributes_);
+    }
+
+    return result != 0 ? 0 : GetLastError();
 }
 
 //error => ""
