@@ -151,7 +151,7 @@ namespace bit_operations
             return result;
         }
 
-		//(0000000000).SetBits((11001), 3) => 0011001000
+        //(0000000000).SetBits((111001), 3) => 0111001000
 		void SetBits(const list<bool>& _bits, int _begin)
 		{
             for (int i = 0; i < _bits.count(); i++)
@@ -160,8 +160,8 @@ namespace bit_operations
             }
 		}
 
-        //(0000000000).SetBits((11001), 3) => 0010011000
-        void SetBitsR(const list<bool>& _bits, int _begin)
+        //(0000000000).SetBits((111001), 3) => 0100111000
+        void SetBitsReversed(const list<bool>& _bits, int _begin)
         {
             for (int i = 0; i < _bits.count(); i++)
             {
@@ -170,9 +170,9 @@ namespace bit_operations
         }
 	};
 
-	//reverse<unsigned char>(01001010) => 01010010
-	//reverse<unsigned short>(0000000001001010) => 0101001000000000
-	//reverse<unsigned int>(00000100111001011110000000101010) => 01010100000001111010011100100000
+	//Reverse<unsigned char>(01001010) => 01010010
+	//Reverse<unsigned short>(0000000001001010) => 0101001000000000
+	//Reverse<unsigned int>(00000100111001011110000000101010) => 01010100000001111010011100100000
 	//<T> = uchar | ushort | uint ->
 	template<typename T> T Reverse(T _sequence)
 	{
@@ -308,68 +308,160 @@ namespace bit_operations
 		}
 	}
 
-	//_begin >= 0 || _end <= 7, _begin < _end ->
-	void SetBits(unsigned char& _number, int _begin, int _end, bool _value)
-	{
-		unsigned char mask = (static_cast<unsigned char>(UCHAR_MAX << (7 - _end)) >> ((7 - _end) + _begin)) << _begin;
+    /* (A) shifting by more positions than the bit length of the integer type may create problems (it certainly does on 32-bit integer) as it's
+           probably undefined behaviour (there's no definite answer on the internet) so this segment is needed to ensure that things are working
+           properly */
 
-		if (_value)
-		{
-			_number |= mask;
-		}
-		else
-		{
-			_number &= static_cast<unsigned char>(~mask);
-		}
-	}
+    //SetBits(x = 236, 4, 7, 0b1011) -> x = 188
+    //_begin >= 0 || _end <= 7, _begin < _end ->
+    void SetBits(unsigned char& _number, int _begin, int _end, unsigned char _value)
+    {
+            //extracting the (0.._begin) segment
+            unsigned char n = _number << (8 - _begin);
+            unsigned char rightSegment = n >> (8 - _begin);
 
-	//_begin >= 0 || _end <= 15, _begin < _end ->
-	void SetBits(unsigned short& _number, int _begin, int _end, bool _value)
-	{
-		unsigned short mask = (static_cast<unsigned short>(USHRT_MAX << (15 - _end)) >> ((15 - _end) + _begin)) << _begin;
+            //clearing the (_begin.._end) segment so the bitwise OR operator can be used to 'insert' the _value into _number
 
-		if (_value)
-		{
-			_number |= mask;
-		}
-		else
-		{
-			_number &= ~mask;
-		}
-	}
+            //(A)
+            if (_end < 7)
+            {
+                _number >>= _end + 1;
+                _number <<= _end + 1;
+            }
+            else
+            {
+                _number = 0;
+            }
 
-	//_begin >= 0 || _end <= 31, _begin < _end ->
-	void SetBits(unsigned int& _number, int _begin, int _end, bool _value)
-	{
-		unsigned int mask = (static_cast<unsigned int>(UINT_MAX << (31 - _end)) >> ((31 - _end) + _begin)) << _begin;
+            _number |= rightSegment; //
 
-		if (_value)
-		{
-			_number |= mask;
-		}
-		else
-		{
-			_number &= ~mask;
-		}
-	}
+            _value <<= _begin;
+            _number |= _value;
+    }
 
-	//_begin >= 0 || _end <= 63, _begin < _end ->
-	void SetBits(unsigned long long& _number, int _begin, int _end, bool _value)
-	{
-		unsigned long long mask = (static_cast<unsigned long long>(ULLONG_MAX << (63 - _end)) >> ((63 - _end) + _begin)) << _begin;
+    //SetBits(x = 236, 4, 7, 0b1011) -> x = 188
+    //_begin >= 0 || _end <= 15, _begin < _end ->
+    void SetBits(unsigned short& _number, int _begin, int _end, unsigned short _value)
+    {
+        //extracting the (0.._begin) segment
+        unsigned short n = _number << (16 - _begin);
+        unsigned short rightSegment = n >> (16 - _begin);
 
-		if (_value)
-		{
-			_number |= mask;
-		}
-		else
-		{
-			_number &= ~mask;
-		}
-	}
+        //clearing the (_begin.._end) segment so the bitwise OR operator can be used to 'insert' the _value into _number
+
+        //(A)
+        if (_end < 15)
+        {
+            _number >>= _end + 1;
+            _number <<= _end + 1;
+        }
+        else
+        {
+            _number = 0;
+        }
+
+        _number |= rightSegment; //
+
+        _value <<= _begin;
+        _number |= _value;
+    }
+
+    //SetBits(x = 236, 4, 7, 0b1011) -> x = 188
+    //_begin >= 0 || _end <= 31, _begin < _end ->
+    void SetBits(unsigned int& _number, int _begin, int _end, unsigned int _value)
+    {
+        //extracting the (0.._begin) segment
+        unsigned int n = _number << (32 - _begin);
+        unsigned int rightSegment = n >> (32 - _begin);
+
+        //clearing the (_begin.._end) segment so the bitwise OR operator can be used to 'insert' the _value into _number
+
+        //(A)
+        if (_end < 31)
+        {
+            _number >>= _end + 1;
+            _number <<= _end + 1;
+        }
+        else
+        {
+            _number = 0;
+        }
+
+        _number |= rightSegment; //
+
+        _value <<= _begin;
+        _number |= _value;
+    }
+
+    //SetBits(x = 236, 4, 7, 0b1011) -> x = 188
+    //_begin >= 0 || _end <= 63, _begin < _end ->
+    void SetBits(unsigned long long& _number, int _begin, int _end, unsigned long long _value)
+    {
+        //extracting the (0.._begin) segment
+        unsigned long long n = _number << (64 - _begin);
+        unsigned long long rightSegment = n >> (64 - _begin);
+
+        //clearing the (_begin.._end) segment so the bitwise OR operator can be used to 'insert' the _value into _number
+
+        //(A)
+        if (_end < 63)
+        {
+            _number >>= _end + 1;
+            _number <<= _end + 1;
+        }
+        else
+        {
+            _number = 0;
+        }
+
+        _number |= rightSegment; //
+
+        _value <<= _begin;
+        _number |= _value;
+    }
+
+    //SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 11001000
+    //_bits.count() + _begin < 9 ->
+    void SetBits(unsigned char& _number, int _begin, const list<bool>& _bits)
+    {
+        for (int i = 0; i < _bits.count(); i++)
+        {
+            SetBit(_number, _bits[_bits.count() - (i + 1)], _begin + i);
+        }
+    }
+
+    //SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 00..11001000
+    //_bits.count() + _begin < 17 ->
+    void SetBits(unsigned short& _number, int _begin, const list<bool>& _bits)
+    {
+        for (int i = 0; i < _bits.count(); i++)
+        {
+            SetBit(_number, _bits[_bits.count() - (i + 1)], _begin + i);
+        }
+    }
+
+    //SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 00..11001000
+    //_bits.count() + _begin < 33 ->
+    void SetBits(unsigned int& _number, int _begin, const list<bool>& _bits)
+    {
+        for (int i = 0; i < _bits.count(); i++)
+        {
+            SetBit(_number, _bits[_bits.count() - (i + 1)], _begin + i);
+        }
+    }
+
+    //SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 00..11001000
+    //_bits.count() + _begin < 65 ->
+    void SetBits(unsigned long long& _number, int _begin, const list<bool>& _bits)
+    {
+        for (int i = 0; i < _bits.count(); i++)
+        {
+            SetBit(_number, _bits[_bits.count() - (i + 1)], _begin + i);
+        }
+    }
 
 	//returns all bits of _value; the first bit in the list is LSB
-	//(194) => [01000011]
+	//BitsOf(194) => [01000011]
 	list<bool> BitsOf(unsigned char _value)
 	{
 		list<bool> bits;
@@ -383,7 +475,7 @@ namespace bit_operations
 	}
 
 	//return all bits of _value; the first bit in the list is LSB
-	//(41092) => [0010000100000101]
+	//BitsOf(41092) => [0010000100000101]
 	list<bool> BitsOf(unsigned short _value)
 	{
 		list<bool> bits;
@@ -397,7 +489,7 @@ namespace bit_operations
 	}
 
 	//return all bits of _value; the first bit in the list is LSB
-    //(41092) => [00100001000001010000000000000000]
+    //BitsOf(41092) => [00100001000001010000000000000000]
 	list<bool> BitsOf(unsigned int _value)
 	{
 		list<bool> bits;
@@ -411,7 +503,7 @@ namespace bit_operations
 	}
 
 	//return all bits of _value; the first bit in the list is LSB
-    //(41092) => [0010000100000101000000000000000000000000000000000000000000000000]
+    //BitsOf(41092) => [0010000100000101000000000000000000000000000000000000000000000000]
 	list<bool> BitsOf(unsigned long long _value)
 	{
 		list<bool> bits;
@@ -425,7 +517,7 @@ namespace bit_operations
 	}
 
     //returns all bits of _value; the first bit in the list is LSB
-    //(194) => [11000010]
+    //BitsOfR(194) => [11000010]
     list<bool> BitsOfR(unsigned char _value)
     {
         list<bool> bits;
@@ -439,7 +531,7 @@ namespace bit_operations
     }
 
     //return all bits of _value; the first bit in the list is MSB
-    //(41092) => [1010000010000100]
+    //BitsOfR(41092) => [1010000010000100]
     list<bool> BitsOfR(unsigned short _value)
     {
         list<bool> bits;
@@ -453,7 +545,7 @@ namespace bit_operations
     }
 
     //return all bits of _value; the first bit in the list is МSB
-    //(41092) => [00000000000000001010000010000100]
+    //BitsOfR(41092) => [00000000000000001010000010000100]
     list<bool> BitsOfR(unsigned int _value)
     {
         list<bool> bits;
@@ -467,7 +559,7 @@ namespace bit_operations
     }
 
     //return all bits of _value; the first bit in the list is MSB
-    //(41092) => [0000000000000000000000000000000000000000000000001010000010000100]
+    //BitsOfR(41092) => [0000000000000000000000000000000000000000000000001010000010000100]
     list<bool> BitsOfR(unsigned long long _value)
     {
         list<bool> bits;
