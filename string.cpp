@@ -44,20 +44,18 @@ enum HEX_ { HEX_A };
 //encoding format for (input and output string data)
 enum Encoding { ASCII_, UTF8, UTF16LE, UTF16BE, UTF32LE, UTF32BE };
 
-const int INVALID_INTEGER = INT_MIN;
-
 //maximum length in (bytes/code units/characters)
 const int MAX_LENGTH = 1073741823;
 
-//marker specifying (the length of a string in bytes)
+//markers specifying (the length of a string in bytes);
 const unsigned int b = 0; //[31] = 0, [30] = 0
 const unsigned int bytes = b; //pseudonym of &b
 
-//marker specifying (the length of a string in code units)
+//markers specifying (the length of a string in code units)
 const unsigned int u = 1073741824; //[31] = 0, [30] = 1
 const unsigned int units = u; //pseudonym of &u
 
-//marker specifying (the length of a string in characters)
+//markers specifying (the length of a string in characters);
 const unsigned int c = 2147483648; //[31] = 1, [30] = 0
 const unsigned int characters = c; //pseudonym of &c
 
@@ -84,8 +82,11 @@ Encoding DefaultStorageEncoding = UTF8;
 		the maximum value of <N> is 1073741823 (constant MAX_LENGTH)
         (ЕXAMPLE) 162 (162 bytes)
         (ЕXAMPLE) 495|b (495 bytes)
+        (EXAMPLE) 12|bytes (12 bytes)
         (EXAMPLE) 829|u (829 code units)
+        (EXAMPLE) 341|u (341 code units)
         (ЕXAMPLE) 327|c (327 characters)
+        (EXAMPLE) 215|characters (215 characters)
         (ЕXAMPLE) [utf16]:array -> string(array, 94|c) (construction of a string accepting an array of UTF-16 code units with length 94 characters) */
 /*(!) (MAY-NEED-BETTER-EXPLANATION)
 	    when an incorrect length value is passed to a (constructor accepting UTF-16 or UTF-32 arrays) it is possible for a discrepancy to occur between
@@ -317,6 +318,8 @@ struct string
 
     TraversalMode TraversalMode = TraversalMode::BOUNDED;
 
+    MutabilityKind MutabilityKind = MutabilityKind::MUTABLE;
+
     ReleaseMode ReleaseMode = ReleaseMode::IMMEDIATE;
 
     ///CONSTRUCTORS:
@@ -428,7 +431,7 @@ struct string
         StorageEncoding = _storageEncoding;
 
         //in case that _length is <N>|c or <N>|u
-        SetBits(_length, 30, 31, false);
+        SetBits(_length, 30, 31, 0b00);
 
         for (int i = 0; i < _length; i++)
         {
@@ -646,7 +649,7 @@ struct string
 
         int lengthMarker = GetBits(_length, 30, 31);
         //-> clearing the marking bits
-        SetBits(_length, 30, 31, false);
+        SetBits(_length, 30, 31, 0b00);
 
         while (true)
         {
@@ -936,7 +939,7 @@ struct string
 
         int lengthMarker = GetBits(_length, 30, 31);
         //-> clearing the marking bits
-        SetBits(_length, 30, 31, false);
+        SetBits(_length, 30, 31, 0b00);
 
         while (true)
         {
@@ -1143,7 +1146,7 @@ struct string
 
         int lengthMarker = GetBits(_length, 30, 31);
         //-> clearing the marking bits
-        SetBits(_length, 30, 31, false);
+        SetBits(_length, 30, 31, 0b00);
 
         while (true)
         {
@@ -1778,7 +1781,7 @@ struct string
 
     ~string()
     {
-        if (IsSegment())
+        if (SpatialKind == SpatialKind::SEGMENT)
         {
             return;
         }
@@ -2026,6 +2029,36 @@ struct string
         return CharacterCount;
     }
 
+    int codeUnitCount() const
+    {
+        if (StorageEncoding == UTF8)
+        {
+            return ByteCount;
+        }
+        else if (StorageEncoding == UTF16LE || StorageEncoding == UTF16BE)
+        {
+            int count = 0;
+
+            for (int i = 0; i < CharacterCount; i++)
+            {
+                  if ((*this)[i] <= 65535)
+                  {
+                      count++;
+                  }
+                  else
+                  {
+                       count += 2;
+                  }
+            }
+
+            return count;
+        }
+        else if (StorageEncoding == UTF32LE || StorageEncoding == UTF32BE)
+        {
+            return ByteCount / 4;
+        }
+    }
+
     int size() const
     {
         return Size;
@@ -2047,11 +2080,6 @@ struct string
     }
 
     ///
-
-    bool IsSegment() const
-    {
-        return SpatialKind == SpatialKind::SEGMENT;
-    }
 
     //"205" => false
     //"205." => false
@@ -2216,6 +2244,12 @@ struct string
         }
     }
 
+    //the string has atleast one value ->
+    CodePoint last() const
+    {
+        return (*this)[CharacterCount - 1];
+    }
+
     //_position < -1 || _position > characterCount() - 1 => -1
     int set_position(int _position)
     {
@@ -2253,7 +2287,7 @@ struct string
     //the bytes in _value represent a single character (in a specific encoding) and (are appended to &elements() in the same order as they are in _value)
     string& Append(const list<unsigned char>& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         if (ByteCount + _value.count() > Size)
         {
@@ -2273,7 +2307,7 @@ struct string
 
     string& Append(CodePoint _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         list<unsigned char> bytes = bytesOf(_value);
 
@@ -2295,7 +2329,7 @@ struct string
 
     string& Append(CodePoint _value, int _times)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < _times; i++)
         {
@@ -2307,7 +2341,7 @@ struct string
 
     string& Append(const list<CodePoint>& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (CodePoint __element : _value)
         {
@@ -2319,7 +2353,7 @@ struct string
 
     string& Append(const string& _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < _value.CharacterCount; i++)
         {
@@ -2332,7 +2366,7 @@ struct string
     //_size < 0 -> state of the string doesn't change
     string& Clear(int _size = 0)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (_size < 0) return *this;
 
         ByteCount = 0;
@@ -2347,7 +2381,7 @@ struct string
     //[1, 2, 10].FillLeft(5, 7) => [5, 5, 5, 5, 1, 2, 10]
     string& FillLeft(CodePoint _value, int _length)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; CharacterCount < _length; i++)
         {
@@ -2360,7 +2394,7 @@ struct string
     //[1, 2, 10].FillRight(5, 7) => [1, 2, 10, 5, 5, 5, 5]
     string& FillRight(CodePoint _value, int _length)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; CharacterCount < _length; i++)
         {
@@ -2373,7 +2407,7 @@ struct string
     //(count() > 0 && _index > 0 && _index < characterCount()) ->
     string& Insert(CodePoint _value, int _index)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (characterCount() == 0) return *this;
         else if (_index < 0 || _index >= characterCount()) return *this;
 
@@ -2413,7 +2447,7 @@ struct string
     //(count() > 0 && _index > 0 && (_index <= characterCount())) ->
     string& Insert(const string& _value, int _index)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (characterCount() == 0) return *this;
         else if (_index < 0 || _index >= characterCount()) return *this;
 
@@ -2468,7 +2502,7 @@ struct string
     //[1, 2, 3, 4, 5].Move(2, 4) => [1, 2, 4, 5, 3]
     string& Move(int _sourceIndex, int _destinationIndex)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_sourceIndex) || !InRange(_destinationIndex)) return *this;
 
         int smaller = numeric::SmallerOf(_sourceIndex, _destinationIndex);
@@ -2502,7 +2536,7 @@ struct string
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
     string Reduce(int _reducer)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         return ReduceLeft(_reducer).ReduceRight(_reducer);
     }
@@ -2511,7 +2545,7 @@ struct string
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
     string ReduceLeft(int _reducer)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (_reducer < 0 || _reducer > CharacterCount) return *this;
 
         return Remove(0, _reducer - 1);
@@ -2521,7 +2555,7 @@ struct string
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
     string ReduceRight(int _reducer)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (_reducer < 0 || _reducer > CharacterCount) return *this;
 
         return Remove(CharacterCount - _reducer, CharacterCount - 1);
@@ -2529,7 +2563,7 @@ struct string
 
     string& Remove(int _begin, int _end)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_begin, _end)) return *this;
 
         string accumulator;
@@ -2551,7 +2585,7 @@ struct string
 
     string& RemoveAt(int _index, int _length = 1)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_index)) return *this;
         else if (_length < 1) return *this;
 
@@ -2576,7 +2610,7 @@ struct string
     //[1, 25, 4, 3, 4, 6, 5, 2, 41, 4, 52, 7, 8, 9].RemoveAll(4) => [1, 25, 3, 6, 5, 2, 41, 52, 7, 8, 9]
     string RemoveAll(CodePoint _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         string accumulator;
 
@@ -2597,7 +2631,7 @@ struct string
     //[1, 2, 3, 4, 5, 6, 5, 2, 7, 8, 9].RemoveAll(2, 4, 5, 8) => [1, 3, 6, 7, 8, 9]
     string RemoveAll(const string& _set)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         string accumulator;
 
@@ -2616,7 +2650,7 @@ struct string
 
     string RemoveIf(const std::function<bool(CodePoint)>& _predicate)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         string accumulator;
 
@@ -2636,7 +2670,7 @@ struct string
     //[9, 2, 7].Repeat(2) => [9, 2, 7, 9, 2, 7, 9, 2, 7]
     string Repeat(int _times)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         int originalLength = CharacterCount;
         for (int n = 0; n < _times; n++)
@@ -2653,7 +2687,7 @@ struct string
     //[5, 9, 0, 3, 7, 18, 4, 2, 6].Replace(4, 7, [2, 6, 1]) => [5, 9, 0, 3, 2, 6, 1, 6]
     string Replace(int _begin, int _end, const string& _replacement)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_begin, _end)) return *this;
 
         Remove(_begin, _end);
@@ -2665,7 +2699,7 @@ struct string
 	//replace every occurrence of _replaced with _replacement
     string& Replace(CodePoint _replaced, CodePoint _replacement)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < CharacterCount; i++)
         {
@@ -2681,7 +2715,7 @@ struct string
 	//replace every occurrence of _replaced with _replacement
     string& Replace(const string& _replaced, const string& _replacement)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         while (true)
         {
@@ -2700,7 +2734,7 @@ struct string
     //[9, 7, 2, 5, 9, 0, 6, 2, 8, 4].Reverse() => [4, 8, 2, 6, 0, 9, 5, 2, 7, 9]
     string& Reverse()
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < CharacterCount / 2; i++)
         {
@@ -2713,7 +2747,7 @@ struct string
     //[1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
     string& RotateLeft(int _positions = 1)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (CharacterCount == 0) return *this;
 
         string accumulator = *this;
@@ -2739,7 +2773,7 @@ struct string
     //[1, 2, 3, 4, 5].RotateRight(3) => [3, 4, 5, 1, 2]
     string& RotateRight(int _positions = 1)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (CharacterCount == 0) return *this;
 
         string accumulator = *this;
@@ -2765,7 +2799,7 @@ struct string
 
     string& Set(int _index, CodePoint _value)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (_index < 0 || _index >= characterCount()) return *this;
 
         Range<int> byteRange = byteRangeOf(_index);
@@ -2807,7 +2841,7 @@ struct string
     //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
     string& Set(int _begin, const string& _value)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_begin)) return *this;
         else if (!InRange(_begin + (_value.characterCount()) - 1)) return *this;
 
@@ -2822,7 +2856,7 @@ struct string
     //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
     string& Set(int _begin, int _end, CodePoint _value)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         if (!InRange(_begin, _end)) return *this;
 
         Range<int> byteRange { byteRangeOf(_begin).begin(), byteRangeOf(_end).end() };
@@ -2863,7 +2897,7 @@ struct string
 
     string& Swap(int _index1, int _index2)
     {
-        if (IsSegment()) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_index1) || !InRange(_index2)) return *this;
 
         CodePoint element = (*this)[_index1];
@@ -2876,7 +2910,7 @@ struct string
     //[2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].Trim(2) => [5, 9, 0, 6]
     string& Trim(CodePoint _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         TrimBegin(_value);
         TrimEnd(_value);
@@ -2887,16 +2921,11 @@ struct string
     //[2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimBegin(2) => [5, 9, 0, 6, 2, 2, 2, 2, 2]
     string& TrimBegin(CodePoint _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         for (int i = 0; i < CharacterCount; i++)
         {
-            if (i == CharacterCount - 1)
-            {
-                 *this = {};
-                 return *this;
-            }
-            else if ((*this)[i] != _value)
+            if ((*this)[i] != _value)
             {
                 *this = Subrange(i, CharacterCount - 1);
                 break;
@@ -2909,16 +2938,11 @@ struct string
     //[2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimEnd(2) => [2, 2, 2, 5, 9, 0, 6]
     string& TrimEnd(CodePoint _value)
     {
-        if (IsSegment()) return *this;
+        if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
-        for (int i = CharacterCount - 1; i > - 1; i--)
+        for (int i = CharacterCount - 1; i > -1; i--)
         {
-            if (i == 0)
-            {
-                *this = {};
-                return *this;
-            }
-            else if ((*this)[i] != _value)
+            if ((*this)[i] != _value)
             {
                 *this = Subrange(0, i);
                 break;
@@ -3372,6 +3396,26 @@ struct string
         return -1;
     }
 
+    /* A = [5, 0, 3, 6]
+       B = [3, 2, 4, 5, 9]
+       IntersectionOf(A, B) => [3, 5] */
+    static list<CodePoint> IntersectionOf(const string& _string1, const string& _string2)
+    {
+        list<CodePoint> accumulator;
+
+        for (int i = 0; i < _string1.CharacterCount; i++)
+        {
+            CodePoint element = _string1[i];
+
+            if (_string2.Contains(element) && !accumulator.Contains(element))
+            {
+                accumulator.Append(element);
+            }
+        }
+
+        return accumulator;
+    }
+
 	//the specified value does not exist => -1
     int LastIndexOf(CodePoint _value) const
     {
@@ -3727,6 +3771,25 @@ struct string
         return accumulator;
     }
 
+    //[8, 19, 2, 5, 5, 0, 2, 7, 10, 4].UnionWith([23, 21, 4, 7, 5, 19, 17, 26]) => [19, 5, 7, 4]
+    static list<CodePoint> UnionOf(const string& _string1, const string& _string2)
+    {
+        list<CodePoint> accumulator;
+
+        for (int i = 0; i < _string1.CharacterCount; i++)
+        {
+            CodePoint element = _string1[i];
+
+            if (_string2.Contains(element) && !accumulator.Contains(element))
+            {
+                accumulator.Append(element);
+            }
+        }
+
+        return accumulator;
+    }
+
+    //[21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Until(52) => [21, 35, 2, 9, 40, 31, 52, 9, 24]
     string Until(CodePoint _value) const
     {
         string accumulator;
@@ -3902,7 +3965,7 @@ struct string
         if (_number == 0) return "0";
 
         string accumulator;
-        double f = _number > 0 ? _number : numeric::Abs(_number);
+        double f = _number > 0 ? _number : numeric::Absolute(_number);
 
         while (f > 0.9)
         {
@@ -3921,12 +3984,14 @@ struct string
             accumulator += digit_i;
         }
 
+        accumulator.Reverse();
+
         if (_number < 0)
         {
             accumulator.Insert('-', 0);
         }
 
-        return accumulator.Reverse();
+        return accumulator;
     }
 
     float ToFloat() const
