@@ -8,7 +8,7 @@ namespace numeric
 
     ///FUNCTIONS
 
-    template<typename T> T Abs(T _number)
+    template<typename T> T Absolute(T _number)
     {
         if (_number >= 0)
         {
@@ -26,7 +26,7 @@ namespace numeric
     {
         if (_number < 0.0)
         {
-            return Abs(_number);
+            return Absolute(_number);
         }
         else
         {
@@ -41,19 +41,19 @@ namespace numeric
     //(0) => 0.0
     double FractionOf(double N)
     {
-        return Abs(N - RoundDown(N));
+        return Absolute(N - RoundDown(N));
     }
 
     int Mod(int, int);
 
     bool IsEven(int N)
     {
-        return Mod(Abs(N), 2) == 0;
+        return Mod(Absolute(N), 2) == 0;
     }
 
     bool IsOdd(int N)
     {
-        return Mod(Abs(N), 2) != 0;
+        return Mod(Absolute(N), 2) != 0;
     }
 
     //(52, 5) => 2
