@@ -139,13 +139,13 @@ namespace byte_operations
 		}
 	}
 
-	//_low (low1, high1) + _high (low2, high2) => unsigned int { high2, low2, high1, low1 }, where 'high1' is the high byte of the result
-	unsigned int _32(unsigned short _low, unsigned short _high)
+    //=> unsigned int { _a[0], _a[1], _b[0], _b1 } where the first byte in the list is the least significant byte
+	unsigned int _32(unsigned short _a, unsigned short _b)
 	{
-		unsigned char low1 = ByteOf(_low, 0);
-		unsigned char high1 = ByteOf(_low, 1);
-		unsigned char low2 = ByteOf(_high, 0);
-		unsigned char high2 = ByteOf(_high, 1);
+		unsigned char low1 = ByteOf(_a, 0);
+		unsigned char high1 = ByteOf(_b, 1);
+		unsigned char low2 = ByteOf(_a, 0);
+		unsigned char high2 = ByteOf(_b, 1);
 		return (high2 << 24) | (low2 << 16) | (high1 << 8) | low1;
 	}
 
@@ -178,17 +178,39 @@ namespace byte_operations
 		}
 	}
 
-	//_low (low1...high2) + _high (low2...high2) => unsigned long long { high2...low2, high1...low1 }, where 'high2' is the high byte of the result
-	unsigned long long _64(unsigned int _low, unsigned int _high)
+    //=> unsigned long long { _a[0], _a[1], _b[0], _b[1], _c[0], _c[1], _d[0], _d[1] } where the first byte in the list is the least significant byte
+    unsigned long long _64(unsigned short _a, unsigned short _b, unsigned short _c, unsigned short _d)
+    {
+        unsigned char a0 = ByteOf(_a, 0);
+        unsigned char a1 = ByteOf(_a, 1);
+        unsigned char b0 = ByteOf(_b, 0);
+        unsigned char b1 = ByteOf(_b, 1);
+        unsigned char c0 = ByteOf(_c, 0);
+        unsigned char c1 = ByteOf(_c, 1);
+        unsigned char d0 = ByteOf(_d, 0);
+        unsigned char d1 = ByteOf(_d, 1);
+
+        return (static_cast<unsigned long long>(d1) << 56) |
+               (static_cast<unsigned long long>(d0) << 48) |
+               (static_cast<unsigned long long>(c1) << 40) |
+               (static_cast<unsigned long long>(c0) << 32) |
+               (static_cast<unsigned long long>(b1) << 24) |
+               (static_cast<unsigned long long>(b0) << 16) |
+               (static_cast<unsigned long long>(a1) << 8) |
+               static_cast<unsigned long long>(a0);
+    }
+
+    //=> unsigned long long { _a[0], _a[1], _a[2], _a[3], _b[0], _b[1], _b[2], _b[3] } where the first byte in the list is the least significant byte
+	unsigned long long _64(unsigned int _a, unsigned int _b)
 	{
-		unsigned char low0 = ByteOf(_low, 0);
-		unsigned char low1 = ByteOf(_low, 1);
-		unsigned char low2 = ByteOf(_low, 2);
-		unsigned char low3 = ByteOf(_low, 3);
-		unsigned char high0 = ByteOf(_high, 0);
-		unsigned char high1 = ByteOf(_high, 1);
-		unsigned char high2 = ByteOf(_high, 2);
-		unsigned char high3 = ByteOf(_high, 3);
+		unsigned char low0 = ByteOf(_a, 0);
+		unsigned char low1 = ByteOf(_a, 1);
+		unsigned char low2 = ByteOf(_a, 2);
+		unsigned char low3 = ByteOf(_a, 3);
+		unsigned char high0 = ByteOf(_b, 0);
+		unsigned char high1 = ByteOf(_b, 1);
+		unsigned char high2 = ByteOf(_b, 2);
+		unsigned char high3 = ByteOf(_b, 3);
 
 		return (static_cast<unsigned long long>(high3) << 56) |
 			(static_cast<unsigned long long>(high2) << 48) |
