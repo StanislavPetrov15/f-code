@@ -3,20 +3,20 @@
 Index:
 
 array.cpp - line 23
-pair.cpp - line 181
-tuple.cpp - line 209
-range.cpp - line 1074
-list.cpp - line 1179
-string.cpp - line 1624
-numeric.cpp - line 2287
-bit_operations.cpp - line 2418
-byte_operations.cpp - line 2567
-unicode.cpp - line 2616
-time.cpp - line 2775
-filesystem.cpp - line 2857
-event.cpp - line 3230
-timer.cpp - line 3254
-chronometer.cpp - line 3293
+pair.cpp - line 189
+tuple.cpp - line 217
+range.cpp - line 1082
+list.cpp - line 1187
+string.cpp - line 1642
+numeric.cpp - line 2316
+bit_operations.cpp - line 2447
+byte_operations.cpp - line 2616
+unicode.cpp - line 2668
+time.cpp - line 2827
+filesystem.cpp - line 2909
+event.cpp - line 3297
+timer.cpp - line 3321
+chronometer.cpp - line 3360
 
 -----------------------------------------------------------------------------------------
 
@@ -33,6 +33,14 @@ struct range:
   int end
 
 # NON-MUTATING FUNCTIONS:
+
+# _length specifies the length of _array
+# _length_ specifies the length of _value
+template<typename T> bool beginsWith(const T* _array, int _length, const T* _value, int _length_)
+
+# _length specifies the length of _array
+# _length_ specifies the length of _value
+template<typename T> bool endsWith(const T* _array, int _length, const T* _value, int _length_)
 
 # _length specifies the length of _array
 template<typename T> bool contains(const T* const _array, int _length, T _value)
@@ -1215,21 +1223,21 @@ struct list<T>:
     if that parameter is true then &Count equals &Size #
   explicit list(int _size, bool _extendCount)
 
-  list(const list<T>&)
+  list(const list<T>&, bool _isMutable = true)
 
-  list(const std::initializer_list<T>& _list)
-
-  # it generates a segment
-  list(const list<T>& _source, int _begin, int _end)
+  list(const std::initializer_list<T>& _list, bool _isMutable = true)
 
   # it generates a segment
-  list(const list<T>& _source, const Range<int>& _range)
+  list(const list<T>& _source, int _begin, int _end, bool _isMutable = true)
 
   # it generates a segment
-  list(const T* _source, int _elementsCount, int _begin, int _end)
+  list(const list<T>& _source, const Range<int>& _range, bool _isMutable = true)
 
   # it generates a segment
-  list(const T* _source, int _elementsCount, const Range<int>& _range)
+  list(const T* _source, int _elementsCount, int _begin, int _end, bool _isMutable = true)
+
+  # it generates a segment
+  list(const T* _source, int _elementsCount, const Range<int>& _range, bool _isMutable = true)
 
   # OPERATORS:
 
@@ -1273,10 +1281,6 @@ struct list<T>:
 
   const T* elements() const
 
-  #
-
-  bool IsSegment() const
-
   # TRAVERSAL FUNCTIONS
 
   bool can_reverse() const
@@ -1311,6 +1315,9 @@ struct list<T>:
 
   # MUTATION FUNCTIONS:
 
+  # acquire ownership of _array
+  void Acquire(T* _array, int _arrayLength)
+
   # acquire ownership of _list; after the operation is completed _list becomes invalid
   void Acquire(list<T>& _list)
 
@@ -1319,6 +1326,9 @@ struct list<T>:
   list<T>& Append(const T& _value, int _times)
 
   list<T>& Append(const list<T>& _value)
+
+  # the contents of _data are copied inside the list
+  list<T>& BuiltFromArray(const T* _data, int _dataLength)
 
   # _size < 0 -> state of the list doesn't change
   list<T>& Clear(int _size = 0)
@@ -1513,9 +1523,7 @@ struct list<T>:
   # A = [5, 0, 3, 6]
     B = [3, 2, 4, 5, 9]
     IntersectionOf(A, B) => [3, 5] #
-  static list<T> IntersectionOf(const list<T>& _left, const list<T>& _right)
-
-  bool Intersects(const list<T>& _value) const
+  static list<T> IntersectionOf(const list<T>& _list1, const list<T>& _list2)
 
   # count() > 1 ->
   bool IsHeterogeneous() const
@@ -1613,6 +1621,16 @@ struct list<T>:
 
   list<T> Where(const std::function<bool(const T&)>& _predicate) const
 
+  # A = [8, 19, 2, 5, 5, 0, 2, 7, 10, 4]
+    B = [23, 21, 4, 7, 5, 19, 17, 26]
+    UnionOf(A, B) => [8, 19, 2, 5, 0, 7, 10, 4, 23, 21, 17, 26] #
+  static list<T> UnionOf(const string& _string1, const string& _string2)
+
+  static list<T> UnionOf(const list<T>& _list1, const list<T>& _list2)
+
+  # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Unique() => [21, 35, 2, 9, 40, 31, 24, 18]
+
+  # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Until(52) => [21, 35, 2, 9, 40, 31, 52, 9, 24]
   list<T> Until(const T& _value) const
 
   #
@@ -1664,9 +1682,6 @@ Encoding DefaultInputEncoding = ASCII_
 # the default encoding format of the stored value of a string
 Encoding DefaultStorageEncoding = UTF8
 
-# this type belongs to the 'Sequence' type category; t:string and t:list share many equivalent functions, but t:string do not implement
-  First(), Generate(), Intersects(), IntersectionOf(), IsHeterogenous(), IsHomogenous(), Max(), Min(), fm:Sort() and Swap(*, *), while at the same time
-  implements a set of extension functions #
 # the input string (passed to the constructors) is in ASCII, UTF-8, UTF-16LE, UTF-16BE, UTF-32LE or UTF-32BE format
 # the input string (may contain a terminating character) or (it's length may be explicitly specified)
 # the output string (the string value after the construction process has ended) is stored as (byte sequence) representing (a sequence of UTF-8, UTF-16LE or UTF-32LE code units)
@@ -1917,7 +1932,9 @@ struct String:
 
   int byteCount() const
 
-  int count() const
+  int characterCount() const
+
+  int codeUnitCount() const
 
   int size() const
 
@@ -1928,8 +1945,6 @@ struct String:
   const unsigned char* elements() const
 
   #
-
-  bool IsSegment() const
 
   # "205" => false
   # "205." => false
@@ -1963,6 +1978,9 @@ struct String:
   CodePoint current() const
 
   CodePoint& next() const
+
+  # the string has atleast one value ->
+  CodePoint& last() const
 
   int set_position(int _position)
 
@@ -2151,6 +2169,11 @@ struct String:
   # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
   int IndexOfNot(CodePoint _value, int _begin = 0) const
 
+  # A = [5, 0, 3, 6]
+    B = [3, 2, 4, 5, 9]
+    IntersectionOf(A, B) => [3, 5] #
+  static list<CodePoint> IntersectionOf(const string& _string1, const string& _string2)
+
   # the specified value does not exist => -1
   int LastIndexOf(CodePoint _value) const
 
@@ -2231,6 +2254,12 @@ struct String:
 
   string Where(const std::function<bool(CodePoint)>& _predicate) const
 
+  # A = [8, 19, 2, 5, 5, 0, 2, 7, 10, 4]
+    B = [23, 21, 4, 7, 5, 19, 17, 26]
+    UnionOf(A, B) => [8, 19, 2, 5, 0, 7, 10, 4, 23, 21, 17, 26] #
+  static list<CodePoint> UnionOf(const string& _string1, const string& _string2)
+
+  # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Until(52) => [21, 35, 2, 9, 40, 31, 52, 9, 24]
   string Until(CodePoint _value) const
 
   # OTHER FUNCTIONS:
@@ -2445,15 +2474,15 @@ struct BitSet:
 
    bool GetBit(int _index) const
 
-   # (0000000000).SetBits((11001), 3) => 0010011000
+   # (0000000000).SetBits((111001), 3) => 0111001000
    void SetBits(const list<bool>& _bits, int _begin)
 
-   # (0000000000).SetBits((11001), 3) => 0010011000
-   void SetBitsR(const list<bool>& _bits, int _begin)
+   # (0000000000).SetBits((111001), 3) => 0100111000
+   void SetBitsReversed(const list<bool>& _bits, int _begin)
 
-# reverse<unsigned char>(01001010) => 01010010
-# reverse<unsigned short>(0000000001001010) => 0101001000000000
-# reverse<unsigned int>(00000100111001011110000000101010) => 01010100000001111010011100100000
+# Reverse<unsigned char>(01001010) => 01010010
+# Reverse<unsigned short>(0000000001001010) => 0101001000000000
+# Reverse<unsigned int>(00000100111001011110000000101010) => 01010100000001111010011100100000
 # <T> = uchar | ushort | uint ->
 template<typename T> T Reverse(T _sequence)
 
@@ -2491,48 +2520,68 @@ void SetBit(unsigned int& _number, int _index, bool _value)
 # _index >= 0 || _index <= 63 ->
 void SetBit(unsigned long long& _number, int _index, bool _value)
 
+# SetBits(x = 236, 4, 7, 0b1011) -> x = 188
 # _begin >= 0 || _end <= 7, _begin < _end ->
-void SetBits(unsigned char& _number, int _begin, int _end, bool _value)
+void SetBits(unsigned char& _number, int _begin, int _end, unsigned char _value)
 
+# SetBits(x = 236, 4, 7, 0b1011) -> x = 188
 # _begin >= 0 || _end <= 15, _begin < _end ->
-void SetBits(unsigned short& _number, int _begin, int _end, bool _value)
+void SetBits(unsigned short& _number, int _begin, int _end, unsigned short _value)
 
+# SetBits(x = 236, 4, 7, 0b1011) -> x = 188
 # _begin >= 0 || _end <= 31, _begin < _end ->
-void SetBits(unsigned int& _number, int _begin, int _end, bool _value)
+void SetBits(unsigned int& _number, int _begin, int _end, unsigned int _value)
 
+# SetBits(x = 236, 4, 7, 0b1011) -> x = 188
 # _begin >= 0 || _end <= 63, _begin < _end ->
-void SetBits(unsigned long long& _number, int _begin, int _end, bool _value)
+void SetBits(unsigned long long& _number, int _begin, int _end, unsigned long long _value)
+
+# SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 11001000
+# _bits.count() + _begin < 9 ->
+void SetBits(unsigned char& _number, int _begin, const list<bool>& _bits)
+
+# SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 00...11001000
+# _bits.count() + _begin < 17 ->
+void SetBits(unsigned short& _number, int _begin, const list<bool>& _bits)
+
+# SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 00..11001000
+# _bits.count() + _begin < 33 ->
+void SetBits(unsigned int& _number, int _begin, const list<bool>& _bits)
+
+# SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 00..11001000
+# _bits.count() + _begin < 65 ->
+void SetBits(unsigned long long& _number, int _begin, const list<bool>& _bits)
 
 # returns all bits of _value; the first bit in the list is LSB
-# (194) => [01000011]
+# BitsOf(194) => [01000011]
 list<bool> BitsOf(unsigned char _value)
 
 # returns all bits of _value; the first bit in the list is LSB
-# (41092) => [0010000100000101]
+# BitsOf(41092) => [0010000100000101]
 list<bool> BitsOf(unsigned short _value)
 
 # returns all bits of _value; the first bit in the list is LSB
-# (41092) => [00100001000001010000000000000000]
+# BitsOf(41092) => [00100001000001010000000000000000]
 list<bool> BitsOf(unsigned int _value)
 
 # returns all bits of _value; the first bit in the list is LSB
-# (41092) => [0010000100000101000000000000000000000000000000000000000000000000]
+# BitsOf(41092) => [0010000100000101000000000000000000000000000000000000000000000000]
 list<bool> BitsOf(unsigned long long _value)
 
 # returns all bits of _value; the first bit in the list is LSB
-# (194) => [11000010]
+# BitsOfR(194) => [11000010]
 list<bool> BitsOfR(unsigned char _value)
 
 # return all bits of _value; the first bit in the list is MSB
-# (41092) => [1010000010000100]
+# BitsOfR(41092) => [1010000010000100]
 list<bool> BitsOfR(unsigned short _value)
 
 # return all bits of _value; the first bit in the list is МSB
-# (41092) => [00000000000000001010000010000100]
+# BitsOfR(41092) => [00000000000000001010000010000100]
 list<bool> BitsOfR(unsigned int _value)
 
 # return all bits of _value; the first bit in the list is MSB
-# (41092) => [0000000000000000000000000000000000000000000000001010000010000100]
+# BitsOfR(41092) => [0000000000000000000000000000000000000000000000001010000010000100]
 list<bool> BitsOfR(unsigned long long _value)
 
 # returns the number of bits needed for the binary representation of (the absolute value of _number)
@@ -2601,15 +2650,18 @@ unsigned short _16(unsigned char a, unsigned char b, Endianity _endianity)
   respectively if _endianity has value 'BE' then 'a' is the most significant byte and 'd' is the least significant byte #
 unsigned int _32(unsigned char a, unsigned char b, unsigned char c, unsigned char d, Endianity _endianity)
 
-# _low (low1, high1) + _high (low2, high2) => unsigned int { high2, low2, high1, low1 }, where 'high1' is the high byte of the result
-unsigned int _32(unsigned short _low, unsigned short _high)
+# => unsigned int { _a[0], _a[1], _b[0], _b1 } where the first byte in the list is the least significant byte
+unsigned int _32(unsigned short _a, unsigned short _b)
 
 # if _endianity has value 'LE' then 'a' is the least significant byte and 'h' is the most significant byte,
   respectively if _endianity has value 'BE' then 'a' is the most significant byte and 'h' is the least significant byte #
 unsigned long long _64(unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e, unsigned char f, unsigned char g, unsigned char h, Endianity _endianity)
 
-# _low (low1...high2) + _high (low2...high2) => unsigned long long { high2...low2, high1...low1 }, where 'high2' is the high byte of the result
-unsigned long long _64(unsigned int _low, unsigned int _high)
+# => unsigned long long { _a[0], _a[1], _b[0], _b[1], _c[0], _c[1], _d[0], _d[1] } where the first byte in the list is the least significant byte
+unsigned long long _64(unsigned short _a, unsigned short _b, unsigned short _c, unsigned short _d)
+
+# => unsigned long long { _a[0], _a[1], _a[2], _a[3], _b[0], _b[1], _b[2], _b[3] } where the first byte in the list is the least significant byte
+unsigned long long _64(unsigned int _a, unsigned int _b)
 
 -----------------------------------------------------------------------------------------
 
@@ -3034,6 +3086,9 @@ struct File:
   # traversalMode() == CIRCULAR && position() == size() - 1 => [0]
   unsigned char next() const
 
+  # the list has atleast one value ->
+  T& last() const
+
   # _position < -1 || _possition > size() - 1 => -1
   int set_position(int _position)
 
@@ -3121,6 +3176,10 @@ struct File:
   # (!) it cannot insert data
   # _size + position() < (size() + 1) ->
   File& WriteBlock(const unsigned char* _array, int _size, bool _advancePosition)
+
+  # writes a 8-bit unsigned integral value ath the current position
+  # position() + 1 < (size() + 1) ->
+  File& WriteI18(unsigned short _value, bool _advancePosition)
 
   # (!) _endianity is the endianity of the source-integral
   # writes a 16-bit unsigned integral value ath the current position
@@ -3220,7 +3279,15 @@ int CopyDirectory(const string& _sourcePath, const string& _destinationPath)
 int DeleteFile(const string& _path)
 
 # returns 0 on successful execution
+# it is possible that the specified directory is not fully deleted;
+  such scenario can happen if some files/directories within the directory cannot be deleted #
 int DeleteDirectory(const string& _path)
+
+# returns 0 on successful execution
+int SetFileAttribute(const string& _path, FileAttribute _attribute)
+
+# returns 0 on successful execution
+void SetDirectoryAttribute(const string& _path, DirectoryAttribute _attribute)
 
 # error => ""
 string GetApplicationDirectory()
