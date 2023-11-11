@@ -22,7 +22,42 @@ struct range
 ///NON-MUTATING FUNCTIONS
 
 //_length specifies the length of _array
-template<typename T> bool contains(const T* const _array, int _length, T _value)
+//_length_ specifies the length of _value
+template<typename T> bool beginsWith(const T* _array, int _length, const T* _value, int _length_)
+{
+      if (_length_ > _length) return false;
+
+      for (int i = 0; i < _length_; i++)
+      {
+           if (_array[i] != _value[i])
+           {
+                return false;
+           }
+      }
+
+      return true;
+}
+
+//_length specifies the length of _array
+//_length_ specifies the length of _value
+template<typename T> bool endsWith(const T* _array, int _length, const T* _value, int _length_)
+{
+    if (_length_ > _length) return false;
+
+    int counter = 0;
+    for (int i = _length - 1, n = _length_ - 1; (i > - 1) && (n > - 1); i--, n--)
+    {
+        if (_array[i] == _value[n])
+        {
+            counter++;
+        }
+    }
+
+    return _length_ == counter;
+}
+
+//_length specifies the length of _array
+template<typename T> bool contains(const T* _array, int _length, T _value)
 {
     for (int i = 0; i < _length; i++)
     {
@@ -37,7 +72,7 @@ template<typename T> bool contains(const T* const _array, int _length, T _value)
 
 //_length specifies the length of _array
 //_length_ specifies the length of _value
-template<typename T> bool contains(const T* const _array, int _length, const T* const _value, int _length_)
+template<typename T> bool contains(const T* _array, int _length, const T* _value, int _length_)
 {
     int matches = 0;
 
@@ -67,7 +102,7 @@ template<typename T> void resize(T*&, int, int);
 
 //_length specifies the length of _array
 //except([2, 9, 0, 1, 4, 9, 7, 3], 8, 9) => [2, 0, 1, 4, 7, 3]
-template<typename T> array<T> except(const T* const _array, int _length, T _value)
+template<typename T> array<T> except(const T* _array, int _length, T _value)
 {
     T* accumulator = new T[_length];
 
@@ -86,7 +121,7 @@ template<typename T> array<T> except(const T* const _array, int _length, T _valu
     return { accumulator, matchCount };
 } //-> delete [] <array>.pointer
 
-template<typename T> array<T> except(const T* const _array, int _length, const T* const _set, int _length_)
+template<typename T> array<T> except(const T* _array, int _length, const T* _set, int _length_)
 {
     T* accumulator = new T[_length];
 
@@ -113,7 +148,7 @@ template<typename T> array<T> except(const T* const _array, int _length, const T
 //equality([5, 0, 9], [6, 4, 1], 3, 3) => FALSE
 //equality([5, 0, 9], [5, 9, 0], 3, 3) => FALSE
 //equality([5, 0, 9], [5, 0, 9], 3, 3) => TRUE
-template<typename T> bool equality(const T* const _array1, const T* const _array2, int _length1, int _length2)
+template<typename T> bool equality(const T* _array1, const T* _array2, int _length1, int _length2)
 {
     if (_array1 == _array2) return TRUE;
     else if (_array1 == nullptr && _array2 != nullptr) return FALSE;
@@ -135,7 +170,7 @@ template<typename T> bool equality(const T* const _array1, const T* const _array
 
 //_length specifies the length of _array
 //the specified value does not exist => -1
-template<typename T> int indexOf(const T* const _array, int _length, T _value)
+template<typename T> int indexOf(const T* _array, int _length, T _value)
 {
     for (int i = 0; i < _length; i ++)
     {
@@ -177,7 +212,7 @@ template<typename T> int indexOf(const T* _array1, const T* _array2, int _length
 //_length specifies the length of _array
 //indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 9) => 3
 //indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 4) => 0
-template<typename T> int indexOfNot(const T* const _array, int _length, T _value)
+template<typename T> int indexOfNot(const T* _array, int _length, T _value)
 {
     for (int i = 0; i < _length; i++)
     {
@@ -191,7 +226,7 @@ template<typename T> int indexOfNot(const T* const _array, int _length, T _value
 }
 
 // _length specifies the length of _array
-template<typename T> bool isHeterogenous(const T* const _array, int _length)
+template<typename T> bool isHeterogenous(const T* _array, int _length)
 {
     for (int i = 1; i < _length; i++)
     {
@@ -205,7 +240,7 @@ template<typename T> bool isHeterogenous(const T* const _array, int _length)
 }
 
 // _length specifies the length of _array
-template<typename T> bool isHomogenous(const T* const _array, int _length)
+template<typename T> bool isHomogenous(const T* _array, int _length)
 {
     for (int i = 1; i < _length; i++)
     {
@@ -220,7 +255,7 @@ template<typename T> bool isHomogenous(const T* const _array, int _length)
 
 //_length specifies the length of _array
 //the specified value does not exist => -1
-template<typename T> int lastIndexOf(const T* const _array, int _length, T _value)
+template<typename T> int lastIndexOf(const T* _array, int _length, T _value)
 {
     for (int i = _length - 1; i > -1; i--)
     {
@@ -240,7 +275,7 @@ template<typename T> int lastIndexOf(const T* const _array, int _length, T _valu
 //[3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
 //[3, 10, 15, 12, 0, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (4, 4)
 //[3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (-1, -1)
-template<typename T> range rangeOf(const T* const _array, int _length, const T* const _set, int _length_)
+template<typename T> range rangeOf(const T* _array, int _length, const T* _set, int _length_)
 {
     for (int i = 0, n = -1; i < _length; i++)
     {
@@ -280,7 +315,7 @@ template<typename T> range rangeOf(const T* const _array, int _length, const T* 
 //split([7, 41, 56, 7, 18, 76, 15, 9, 7], 9,7 ) => [[41, 56], [18, 76, 15, 9]]
 //split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7) => [[41, 56], [], [], [18, 5, 15]]
 //split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7, true) => [[41, 56], [18, 5, 15]]
-template<typename T> T** split(T* const _array, int _length, T _separator, bool _ignoreEmptyValues = false)
+template<typename T> T** split(T* _array, int _length, T _separator, bool _ignoreEmptyValues = false)
 {
     T** accumulator = new T*[5];
 
@@ -376,7 +411,7 @@ template<typename T> T** split(T* const _array, int _length, T _separator, bool 
 } //-> delete [] <array>.pointer
 
 //_length specifies the length of _array
-template<typename T> array<T> where(const T* const _array, int _length, const std::function<bool(T)>& _predicate)
+template<typename T> array<T> where(const T* _array, int _length, const std::function<bool(T)>& _predicate)
 {
     T* accumulator = new T[_length];
     int matchCount = 0;
@@ -400,7 +435,7 @@ template<typename T> array<T> where(const T* const _array, int _length, const st
 //copy("variance", "namespace", 8, 9, 2, 4, 5) >> "namerianc"
 //copy("variance", "namespace", 8, 9, 2, 7, 5) >> "namespari"
 //copy("variance", "namespace", 8, 9, 6, 2, 5) >> "nacespace"
-template<typename T> void copy(const T* const _source, T* const _destination, int _sourceLength, int _destinationLength, int _sourceBegin,
+template<typename T> void copy(const T* _source, T* _destination, int _sourceLength, int _destinationLength, int _sourceBegin,
          int _destinationBegin, int _copyLength)
 {
     for (int n = 0; ; n++)
@@ -426,7 +461,7 @@ template<typename T> void copy(const T* const _source, T* const _destination, in
 //copyRange("variance", "namespace", 8, 9, 2, 4, 5) >> "namesriae"
 //copyRange("variance", "namespace", 8, 9, 5, 5, 3) >> "namespace"
 //copyRange("variance", "namespace", 8, 9, 5, 7, 8) >> "namespacn"
-template<typename T> void copyRange(const T* const _source, T* const _destination, int _sourceLength, int _destinationLength,
+template<typename T> void copyRange(const T* _source, T* _destination, int _sourceLength, int _destinationLength,
 int _sourceBegin, int _sourceEnd, int _destinationBegin)
 {
     for (int n = 0; ; n ++)
