@@ -27,7 +27,7 @@ template<typename T> struct list
 
     int Count = 0;
     int Size = 0;
-    int Position = 0;
+    int Position = 0; //iteration position
     int ExtensionValue = 4.0; //(in percent of the current size)
     T* Elements = nullptr;
     SpatialKind SpatialKind = SpatialKind::COMPLETE;
@@ -53,13 +53,16 @@ template<typename T> struct list
 
     void copy(const list<T>& _source)
     {
-         for (int i = 0; i < _source.count(); i++)
-         {
-              Elements[i] = _source[i];
-         }
+        delete [] Elements;
+        Elements = new T[_source.Size];
 
-	 Size = _source.Size;
-         Count = _source.Count;
+        for (int i = 0; i < _source.count(); i++)
+        {
+            Elements[i] = _source[i];
+        }
+
+        Size = _source.Size;
+        Count = _source.Count;
     }
 
     public:
