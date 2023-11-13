@@ -308,6 +308,21 @@ struct string
         }
     }
 
+    void copy(const string& _source)
+    {
+        delete [] Elements;
+        Elements = new unsigned char[_source.ByteCount];
+
+        for (int i = 0; i < _source.ByteCount; i++)
+        {
+            Elements[i] = _source.Elements[i]; //(TODO) write 4/8 bytes at once instead of one
+        }
+
+        Size = _source.Size;
+        ByteCount = _source.ByteCount;
+        CharacterCount = _source.CharacterCount;
+    }
+
     public:
 
     /* this variable plays a role for the speed of string generation; the larger the final size of the string is (i.e. the size after
