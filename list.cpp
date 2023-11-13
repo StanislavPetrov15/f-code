@@ -57,6 +57,9 @@ template<typename T> struct list
          {
               Elements[i] = _source[i];
          }
+
+	 Size = _source.Size;
+         Count = _source.Count;
     }
 
     public:
