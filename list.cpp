@@ -58,7 +58,7 @@ template<typename T> struct list
 
         for (int i = 0; i < _source.count(); i++)
         {
-            Elements[i] = _source[i];
+            Elements[i] = _source[i]; //(TODO) write 4/8 bytes at once instead of one
         }
 
         Size = _source.Size;
