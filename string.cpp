@@ -2766,18 +2766,18 @@ struct string
         else if (CharacterCount == 0) return *this;
 
         string accumulator = *this;
-        string copy = *this;
+        string copy_ = *this;
 
         for (int n = 0; n < _positions; n++)
         {
-            Set(accumulator.CharacterCount - 1, copy[0]);
+            Set(accumulator.CharacterCount - 1, copy_[0]);
 
             for (int i = 0; i < CharacterCount - 1; i++)
             {
-                Set(i, copy[i + 1]);
+                Set(i, copy_[i + 1]);
             }
 
-            copy = accumulator;
+            copy_ = accumulator;
         }
 
         copy(accumulator);
@@ -2792,18 +2792,18 @@ struct string
         else if (CharacterCount == 0) return *this;
 
         string accumulator = *this;
-        string copy = *this;
+        string copy_ = *this;
 
         for (int n = 0; n < _positions; n++)
         {
-            accumulator.Set(0, copy[copy.CharacterCount - 1]);
+            accumulator.Set(0, copy_[copy_.CharacterCount - 1]);
 
             for (int i = 1; i < CharacterCount; i++)
             {
-                Set(i, copy[i - 1]);
+                Set(i, copy_[i - 1]);
             }
 
-            copy = accumulator;
+            copy_ = accumulator;
         }
 
         copy(accumulator);
