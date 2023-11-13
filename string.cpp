@@ -328,7 +328,7 @@ struct string
     /* this variable plays a role for the speed of string generation; the larger the final size of the string is (i.e. the size after
 	   ending of the generation process), the larger the value of this variable must be; it needs to be increased by 1 every 2kb;
 	   if the string is very large and it's final size is known before the construction, then it is better to set the binary size before
-	   the start of the generation process - in such a way there wouldn't be need for (potentialy multiple) resize operations */
+	   the start of the generation process - in such a way there wouldn't be need for (potentially multiple) resize operations */
     int Extensor = 50; //in bytes
 
     TraversalMode TraversalMode = TraversalMode::BOUNDED;
@@ -2593,7 +2593,7 @@ struct string
             accumulator.Append((*this)[i]);
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -2616,8 +2616,8 @@ struct string
             accumulator.Append((*this)[i]);
         }
 
-        *this = accumulator;
-
+        copy(accumulator);
+        
         return *this;
     }
 
@@ -2637,7 +2637,7 @@ struct string
             }
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -2658,7 +2658,7 @@ struct string
             }
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -2677,7 +2677,7 @@ struct string
             }
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -2780,7 +2780,7 @@ struct string
             copy = accumulator;
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -2806,7 +2806,7 @@ struct string
             copy = accumulator;
         }
 
-        *this = accumulator;
+        copy(accumulator);
 
         return *this;
     }
@@ -2942,7 +2942,7 @@ struct string
         {
             if ((*this)[i] != _value)
             {
-                *this = Subrange(i, CharacterCount - 1);
+                copy(Subrange(i, CharacterCount - 1));
                 break;
             }
         }
@@ -2959,7 +2959,7 @@ struct string
         {
             if ((*this)[i] != _value)
             {
-                *this = Subrange(0, i);
+                copy(Subrange(0, i));
                 break;
             }
         }
