@@ -2762,25 +2762,28 @@ struct string
     //[1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
     string& RotateLeft(int _positions = 1)
     {
-        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
-        else if (CharacterCount == 0) return *this;
+    if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
-        string accumulator = *this;
-        string copy_ = *this;
+        string newList = *this/*it is needed for the correct execution of byteRangeOf() in Set(); if newList is just an empty allocated space
+             byteRangeOf() may return incorrect result*/;;
 
-        for (int n = 0; n < _positions; n++)
+        if (_positions > CharacterCount)
         {
-            Set(accumulator.CharacterCount - 1, copy_[0]);
-
-            for (int i = 0; i < CharacterCount - 1; i++)
-            {
-                Set(i, copy_[i + 1]);
-            }
-
-            copy_ = accumulator;
+            _positions = _positions % CharacterCount;
         }
 
-        copy(accumulator);
+        //(EXAMPLE) [1, 2, 3, 4, 5] (2)
+        for (int i = _positions, n = 0; i < CharacterCount; i++, n++)
+        {
+            newList.Set(n, (*this)[i]);
+        } //-> [3, 4, 5, x, x]
+
+        for (int i = 0, n = CharacterCount - _positions; i < _positions; i++, n++)
+        {
+            newList.Set(n, (*this)[i]);
+        } //-> [x, x, x, 1, 2]
+
+        copy(newList);
 
         return *this;
     }
@@ -2788,25 +2791,29 @@ struct string
     //[1, 2, 3, 4, 5].RotateRight(3) => [3, 4, 5, 1, 2]
     string& RotateRight(int _positions = 1)
     {
-        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
-        else if (CharacterCount == 0) return *this;
+         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
-        string accumulator = *this;
-        string copy_ = *this;
+        string newList = *this/*it is needed for the correct execution of byteRangeOf() in Set(); if newList is just an empty allocated space
+             byteRangeOf() may return incorrect result*/;
 
-        for (int n = 0; n < _positions; n++)
+        if (_positions > CharacterCount)
         {
-            accumulator.Set(0, copy_[copy_.CharacterCount - 1]);
-
-            for (int i = 1; i < CharacterCount; i++)
-            {
-                Set(i, copy_[i - 1]);
-            }
-
-            copy_ = accumulator;
+            _positions = _positions % CharacterCount;
         }
 
-        copy(accumulator);
+        //(EXAMPLE) [1, 2, 3, 4, 5] (2)
+
+        for (int i = CharacterCount - _positions, n = 0; i < CharacterCount; i++, n++)
+        {
+            newList.Set(n, (*this)[i]);
+        } //-> [4, 5, x, x, x]
+
+        for (int i = 0, n = _positions; i < CharacterCount - _positions; i++, n++)
+        {
+            newList.Set(n, (*this)[i]);
+        } //-> [x, x, 1, 2, 3]
+
+        copy(newList);
 
         return *this;
     }
