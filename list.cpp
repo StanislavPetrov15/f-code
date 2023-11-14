@@ -917,12 +917,6 @@ template<typename T> struct list
 			newList[n] = Elements[i];
 		} //-> [x, x, x, 1, 2]
 
-        for (int i = 0; i < newList.count(); i++)
-        {
-            auto df = newList[i];
-            auto dg = true;
-        }
-
         copy(newList);
 
 		return *this;
