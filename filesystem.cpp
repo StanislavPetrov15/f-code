@@ -1532,7 +1532,7 @@ bool FileExists(const string& _path)
     int result = GetFileAttributesW(path);
     delete[] path;
 
-    DWORD lastError;
+    DWORD lastError = 0;
 
     if (result == INVALID_FILE_ATTRIBUTES)
     {
@@ -1549,9 +1549,9 @@ bool DirectoryExists(const string& _path)
     int result = GetFileAttributesW(path);
     delete[] path;
 
-    DWORD lastError;
+    DWORD lastError = 0;
 
-    if (lastError != 0)
+    if (result != 0)
     {
         lastError = GetLastError();
         SetLastError(0);
