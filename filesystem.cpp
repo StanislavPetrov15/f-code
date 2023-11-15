@@ -500,11 +500,6 @@ struct File
             Size = ftell(Stream);
             fseek(Stream, 0, SEEK_SET);
         }
-
-        if (GetLastError() != 0)
-        {
-            SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
-        }
     }
 
     File(const File&) = delete;
@@ -1534,14 +1529,15 @@ list<string> FilesOf(const string& _directoryPath)
 bool FileExists(const string& _path)
 {
     const wchar_t* path = _path.ToWide();
-    GetFileAttributesW(path);
+    int result = GetFileAttributesW(path);
     delete[] path;
 
-    DWORD lastError = GetLastError();
+    DWORD lastError;
 
-    if (lastError != 0)
+    if (result == INVALID_FILE_ATTRIBUTES)
     {
-        SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+        lastError = GetLastError();
+        SetLastError(0);
     }
 
     return lastError != ERROR_FILE_NOT_FOUND && lastError != ERROR_PATH_NOT_FOUND && lastError != ERROR_INVALID_NAME;
@@ -1550,14 +1546,15 @@ bool FileExists(const string& _path)
 bool DirectoryExists(const string& _path)
 {
     const wchar_t* path = _path.ToWide();
-    GetFileAttributesW(path);
+    int result = GetFileAttributesW(path);
     delete[] path;
 
-    DWORD lastError = GetLastError();
+    DWORD lastError;
 
     if (lastError != 0)
     {
-        SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+        lastError = GetLastError();
+        SetLastError(0);
     }
 
     return lastError != ERROR_FILE_NOT_FOUND && lastError != ERROR_PATH_NOT_FOUND && lastError != ERROR_INVALID_NAME;
@@ -2143,11 +2140,6 @@ int DeleteDirectory(const string& _path)
 
     bool result = ::RemoveDirectoryW(path);
 
-    if (GetLastError() != 0)
-    {
-        SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
-    }
-
     delete [] path;
 
     return result ? 0 : E_UNKNOWN_ERROR;
@@ -2238,13 +2230,14 @@ string GetApplicationDirectory()
 
     unsigned int result = GetCurrentDirectoryW(MAX_PATH, array);
 
-    if (GetLastError() != 0)
+    if (result != 0)
     {
-        SetLastError(0); //it's needed because GetLastError() does not clear the value (sometimes only ???)
+        return string(reinterpret_cast<utf16*>(array), LE, result);
+    }
+    else
+    {
         return {};
     }
-
-    return string(reinterpret_cast<utf16*>(array), LE, result);
 }
 }
 
