@@ -2952,6 +2952,11 @@ struct string
                 copy(Subrange(i, CharacterCount - 1));
                 break;
             }
+
+		if (i == CharacterCount - 1)
+		{
+			Clear();
+		}
         }
 
         return *this;
@@ -2969,6 +2974,11 @@ struct string
                 copy(Subrange(0, i));
                 break;
             }
+
+	    if (i == 0)
+	    {
+		Clear();
+	    }
         }
 
         return *this;
