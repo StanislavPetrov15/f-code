@@ -1064,6 +1064,11 @@ template<typename T> struct list
                 copy(Subrange(i, Count - 1));
                 break;
             }
+
+	    if (i == Count - 1)
+	    {
+	        Clear();
+	    }
         }
 
         return *this;
@@ -1081,6 +1086,11 @@ template<typename T> struct list
                 copy(Subrange(0, i));
                 break;
             }
+
+		if (i == 0)
+		{
+	            Clear();
+		}
         }
 
         return *this;
