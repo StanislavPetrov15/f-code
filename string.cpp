@@ -1634,16 +1634,25 @@ struct string
 
     string(const string& _string)
     {
-        if (this == &_string) return;
+       if (this == &_string) return;
 
         Extensor = _string.Extensor;
         StorageEncoding = _string.StorageEncoding;
+        Size = _string.Size;
+        ByteCount = _string.ByteCount;
+        CharacterCount = _string.CharacterCount;
 
-        Clear();
+        if (Elements != nullptr)
+        {
+           delete [] Elements;
+        }
 
-        resize(_string.byteCount());
-
-        Append(_string);
+        Elements = new unsigned char[Size];
+       
+        for (int i = 0; i < Size; i++)
+        {
+            Elements[i] = _string.Elements[i];
+        }
     }
 
     //it generates a segment
