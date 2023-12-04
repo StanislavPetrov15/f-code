@@ -115,11 +115,20 @@ template<typename T> struct list
 
     list(const std::initializer_list<T>& _value)
     {
-        resize(_value.size());
+        Size = _value.size();
+        Count = _value.size();
 
-        for (const T& __element : _value)
+        if (Elements != nullptr)
         {
-            Append(__element);
+            delete [] Elements;
+        }
+
+        Elements = new T[Size];
+
+        const T* value = data(_value);
+        for (int i = 0; i < Count; i++)
+        {
+            Elements[i] = value[i];
         }
     }
 
