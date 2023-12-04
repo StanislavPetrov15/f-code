@@ -91,11 +91,26 @@ template<typename T> struct list
 
     list(const list<T>& _value)
     {
-        if (this == &_value) return;
+       if (this == &_value) return;
 
-        resize(_value.count());
+        Size = _value.Size;
+        Count = _value.Count;
+        SpatialKind = _value.SpatialKind;
+        TraversalMode = _value.TraversalMode;
+        MutabilityKind = _value.MutabilityKind;
+        ReleaseMode = _value.ReleaseMode;
 
-        Append(_value);
+        if (Elements != nullptr)
+        {
+            delete [] Elements;
+        }
+
+        Elements = new T[Size];
+
+        for (int i = 0; i < Count; i++)
+        {
+            Elements[i] = _value.Elements[i];
+        }
     }
 
     list(const std::initializer_list<T>& _value)
