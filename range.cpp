@@ -132,7 +132,7 @@
 
         //Range(30, 35).IsAfter(Range(21, 30)) => false
         //Range(33, 37).IsAfter(Range(21, 30)) => true
-        bool IsAfter(const Range _range) const
+        bool IsAfter(const Range& _range) const
         {
             if (! IsSet() || ! _range.IsSet())
             {
