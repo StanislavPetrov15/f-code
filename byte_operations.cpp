@@ -90,7 +90,7 @@ namespace byte_operations
 		return static_cast<unsigned char>(_value);
 	}
 
-	//(!) always returns 2 bytes (not just the significant bytes)
+	//(!) always returns 2 bytes (not just the significant byte)
 	//(!) the first byte in the list is LSB
 	list<unsigned char> BytesOf(unsigned short _value)
 	{
