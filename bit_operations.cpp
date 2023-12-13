@@ -173,7 +173,7 @@ namespace bit_operations
 	//Reverse<unsigned char>(01001010) => 01010010
 	//Reverse<unsigned short>(0000000001001010) => 0101001000000000
 	//Reverse<unsigned int>(00000100111001011110000000101010) => 01010100000001111010011100100000
-	//<T> = uchar | ushort | uint ->
+	//<T> = unsigned char | unsigned short | unsigned int ->
 	template<typename T> T Reverse(T _sequence)
 	{
 		T sequence = 0;
