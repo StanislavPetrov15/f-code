@@ -978,7 +978,7 @@ struct File
     //(!) _endianity is the endianity of the source-integral
     //reads a 64-bit unsigned integral value at the current position
     //position() + 8 < (size() + 1) ->
-    unsigned int ReadI64(Endianity _endianity, bool _advancePosition) const
+    unsigned long long ReadI64(Endianity _endianity, bool _advancePosition) const
     {
         char byte1 = fgetc(Stream);
         char byte2 = fgetc(Stream);
