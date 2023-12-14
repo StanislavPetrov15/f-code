@@ -14,9 +14,9 @@ byte_operations.cpp - line 2616
 unicode.cpp - line 2668
 time.cpp - line 2827
 filesystem.cpp - line 2909
-event.cpp - line 3297
-timer.cpp - line 3321
-chronometer.cpp - line 3360
+event.cpp - line 3302
+timer.cpp - line 3326
+chronometer.cpp - line 3365
 
 -----------------------------------------------------------------------------------------
 
@@ -3139,6 +3139,11 @@ struct File:
   # reads a 32-bit unsigned integral value at the current position
   # position() + 4 < (size() + 1) ->
   unsigned int ReadI32(Endianity _endianity, bool _advancePosition) const
+
+  # (!) _endianity is the endianity of the source-integral
+  # reads a 64-bit unsigned integral value at the current position
+  # position() + 8 < (size() + 1) ->
+  unsigned long long ReadI64(Endianity _endianity, bool _advancePosition) const
 
   # _length = 0 => [_begin..]
   # (_begin + _length) >= size() => []
