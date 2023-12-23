@@ -426,7 +426,7 @@ namespace bit_operations
     {
         for (int i = 0; i < _bits.count(); i++)
         {
-            SetBit(_number, _bits[_bits.count() - (i + 1)], _begin + i);
+            SetBit(_number, _begin + i, _bits[_bits.count() - (i + 1)]);
         }
     }
 
@@ -436,7 +436,7 @@ namespace bit_operations
     {
         for (int i = 0; i < _bits.count(); i++)
         {
-            SetBit(_number, _bits[_bits.count() - (i + 1)], _begin + i);
+            SetBit(_number, _begin + i, _bits[_bits.count() - (i + 1)]);
         }
     }
 
@@ -446,7 +446,7 @@ namespace bit_operations
     {
         for (int i = 0; i < _bits.count(); i++)
         {
-            SetBit(_number, _bits[_bits.count() - (i + 1)], _begin + i);
+            SetBit(_number, _begin + i, _bits[_bits.count() - (i + 1)]);
         }
     }
 
@@ -456,7 +456,7 @@ namespace bit_operations
     {
         for (int i = 0; i < _bits.count(); i++)
         {
-            SetBit(_number, _bits[_bits.count() - (i + 1)], _begin + i);
+            SetBit(_number, _begin + i, _bits[_bits.count() - (i + 1)]);
         }
     }
 
@@ -575,49 +575,49 @@ namespace bit_operations
     //the first bit in the list is LSB
     list<bool> SignificantBitsOf(unsigned char _value)
     {
-        return bit_operations::BitsOf(_value).TrimBegin(0);
+        return BitsOf(_value).TrimBegin(0);
     }
 
     //the first bit in the list is LSB
     list<bool> SignificantBitsOf(unsigned short _value)
     {
-        return bit_operations::BitsOf(_value).TrimBegin(0);
+        return BitsOf(_value).TrimBegin(0);
     }
 
     //the first bit in the list is LSB
     list<bool> SignificantBitsOf(unsigned int _value)
     {
-        return bit_operations::BitsOf(_value).TrimBegin(0);
+        return BitsOf(_value).TrimBegin(0);
     }
 
     //the first bit in the list is LSB
     list<bool> SignificantBitsOf(unsigned long long _value)
     {
-        return bit_operations::BitsOf(_value).TrimBegin(0);
+        return BitsOf(_value).TrimBegin(0);
     }
 
     //the first bit in the list is MSB
     list<bool> SignificantBitsOfR(unsigned char _value)
     {
-        return bit_operations::BitsOfR(_value).TrimBegin(0);
+        return BitsOfR(_value).TrimBegin(0);
     }
 
     //the first bit in the list is MSB
     list<bool> SignificantBitsOfR(unsigned short _value)
     {
-        return bit_operations::BitsOfR(_value).TrimBegin(0);
+        return BitsOfR(_value).TrimBegin(0);
     }
 
     //the first bit in the list is MSB
     list<bool> SignificantBitsOfR(unsigned int _value)
     {
-        return bit_operations::BitsOfR(_value).TrimBegin(0);
+        return BitsOfR(_value).TrimBegin(0);
     }
 
     //the first bit in the list is MSB
     list<bool> SignificantBitsOfR(unsigned long long _value)
     {
-        return bit_operations::BitsOfR(_value).TrimBegin(0);
+        return BitsOfR(_value).TrimBegin(0);
     }
 
 	//returns the number of bits needed for the binary representation of _number
