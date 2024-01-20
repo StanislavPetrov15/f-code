@@ -2851,7 +2851,7 @@ struct DateTime:
 
   DateTime() = default
 
-  DateTime(int _day, int _month, int _year, int _hour, int _minute, int _second, int _timezone_ = 0)
+  DateTime(int _year, int _month, int _day, int _hour, int _minute, int _second, int _timezone_ = 0)
 
   DateTime(const DateTime&amp;) = default
 
@@ -2900,14 +2900,15 @@ long MINUTES_IN_A_DAY = 1440
 
 # FUNCTIONS:
 
+# DayOfYear({ 2024, 2, 5, 0, 0, 0, 0 }) => 36
 int DayOfYear(const DateTime&amp; _datetime)
 
 # number of seconds since 01.01.1970 00:00:00 UTC
 long long Elapsed()
 
-# returns the number of seconds between _datetime and _datetime_
+# returns the number of seconds between _datetime1 and _datetime2
 # _datetime and/or _datetime_ is not valid =&gt; -1
-unsigned long long IntervalOf(const DateTime&amp; _datetime, const DateTime&amp; _datetime_)
+unsigned long long IntervalOf(const DateTime&amp; _datetime1, const DateTime&amp; _datetime2)
 
 # _year &gt;= 1 -&gt;
 bool IsLeap(int _year)
