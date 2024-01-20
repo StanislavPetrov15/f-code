@@ -13,24 +13,24 @@ bit_operations.cpp - line 2447
 byte_operations.cpp - line 2616
 unicode.cpp - line 2668
 time.cpp - line 2827
-filesystem.cpp - line 2909
-event.cpp - line 3302
-timer.cpp - line 3326
-chronometer.cpp - line 3365
+filesystem.cpp - line 2910
+event.cpp - line 3305
+timer.cpp - line 3329
+chronometer.cpp - line 3368
 
 -----------------------------------------------------------------------------------------
 
 array.cpp:
 
 struct array:
-  # FIELDS:
-  T* pointer
-  int length
+    # FIELDS:
+    T* pointer
+    int length
 
 struct range:
-  # FIELDS:
-  int begin
-  int end
+    # FIELDS:
+    int begin
+    int end
 
 # NON-MUTATING FUNCTIONS:
 
@@ -1084,103 +1084,103 @@ range.cpp:
 # <T> is built-in integral type
 struct Range<T>:
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  Range()
+    Range()
 
-  # _end >= _begin ->
-  Range(T _begin, T _end)
+    # _end >= _begin ->
+    Range(T _begin, T _end)
 
-  Range(const Range&)
+    Range(const Range&)
 
-  # OPERATORS:
+    # OPERATORS:
 
-  Range& operator=(const Range&)
+    Range& operator=(const Range&)
 
-  bool operator==(const Range&)
+    bool operator==(const Range&)
 
-  bool operator!=(const Range&)
+    bool operator!=(const Range&)
 
-  # determines if the beginning of &this is before the beginning of _range
-  # Range(29, 38) < Range(27, 35) => false
-  # Range(29, 38) < Range(29, 35) => false
-  # Range(29, 38) < Range(30, 35) => true
-  bool operator<(const Range&)
+    # determines if the beginning of &this is before the beginning of _range
+    # Range(29, 38) < Range(27, 35) => false
+    # Range(29, 38) < Range(29, 35) => false
+    # Range(29, 38) < Range(30, 35) => true
+    bool operator<(const Range&)
 
-  # determines if the beginning of &this is after the beginning of _range
-  # Range(29, 38) > Range(29, 35) => false
-  # Range(29, 38) > Range(30, 35) => false
-  # Range(29, 38) > Range(27, 35) => true
-  bool operator>(const Range&)
+    # determines if the beginning of &this is after the beginning of _range
+    # Range(29, 38) > Range(29, 35) => false
+    # Range(29, 38) > Range(30, 35) => false
+    # Range(29, 38) > Range(27, 35) => true
+    bool operator>(const Range&)
 
-  # generates new range with beginning (the beginning of &this) and end (the end of _range)
-  # the two ranges must be neighboring
-  # if the two ranges are not neighboring the function returns {}
-  # Range(22, 40) & Range(41, 53) => (22, 53)
-  # Range(41, 53) & Range(22, 40) => (22, 53)
-  Range operator&(Range&)
+    # generates new range with beginning (the beginning of &this) and end (the end of _range)
+    # the two ranges must be neighboring
+    # if the two ranges are not neighboring the function returns {}
+    # Range(22, 40) & Range(41, 53) => (22, 53)
+    # Range(41, 53) & Range(22, 40) => (22, 53)
+    Range operator&(Range&)
 
-  # FIELDS:
+    # FIELDS:
 
-  int begin()
+    int begin()
 
-  int end()
+    int end()
 
-  int length()
+    int length()
 
-  Functions:
+    Functions:
 
-  bool IsSet()
+    bool IsSet()
 
-  # Range(21, 30).IsAdjacentTo(Range(32, 37)) => false
-  # Range(21, 30).IsAdjacentTo(Range(31, 37)) => true
-  # Range(31, 37).IsAdjacentTo(Range(21, 30)) => true
-  bool IsAdjacentTo(const Range&)
+    # Range(21, 30).IsAdjacentTo(Range(32, 37)) => false
+    # Range(21, 30).IsAdjacentTo(Range(31, 37)) => true
+    # Range(31, 37).IsAdjacentTo(Range(21, 30)) => true
+    bool IsAdjacentTo(const Range&)
 
-  # Range(21, 30).IsBefore(Range(30, 35)) => false
-  # Range(21, 30).IsBefore(Range(31, 37)) => true
-  # Range(21, 30).IsBefore(Range(35, 37)) => true
-  bool IsBefore(const Range&)
+    # Range(21, 30).IsBefore(Range(30, 35)) => false
+    # Range(21, 30).IsBefore(Range(31, 37)) => true
+    # Range(21, 30).IsBefore(Range(35, 37)) => true
+    bool IsBefore(const Range&)
 
-  # Range(30, 35).IsAfter(Range(21, 30)) => false
-  # Range(33, 37).IsAfter(Range(21, 30)) => true
-  bool IsAfter(const Range)
+    # Range(30, 35).IsAfter(Range(21, 30)) => false
+    # Range(33, 37).IsAfter(Range(21, 30)) => true
+    bool IsAfter(const Range)
 
-  # Range(21, 30).IsRightBefore(Range(32, 35)) => false
-  # Range(21, 30).IsRightBefore(Range(31, 35)) => true
-  bool IsRightBefore(const Range&)
+    # Range(21, 30).IsRightBefore(Range(32, 35)) => false
+    # Range(21, 30).IsRightBefore(Range(31, 35)) => true
+    bool IsRightBefore(const Range&)
 
-  # Range(32, 35).IsRightAfter(Range(21, 30)) => false
-  # Range(31, 35).IsRightAfter(Range(21, 30)) => true
-  bool IsRightAfter(const Range&)
+    # Range(32, 35).IsRightAfter(Range(21, 30)) => false
+    # Range(31, 35).IsRightAfter(Range(21, 30)) => true
+    bool IsRightAfter(const Range&)
 
-  # Range(21, 30).AlignWith(Range(21, 50)) => true
-  # Range(21, 30).AlignWith(Range(22, 50)) => false
-  bool AlignWith(const Range&)
+    # Range(21, 30).AlignWith(Range(21, 50)) => true
+    # Range(21, 30).AlignWith(Range(22, 50)) => false
+    bool AlignWith(const Range&)
 
-  # Range(76, 81).Contains(82) => false
-  # Range(76, 81).Contains(81) => true
-  bool Contains(const T&)
+    # Range(76, 81).Contains(82) => false
+    # Range(76, 81).Contains(81) => true
+    bool Contains(const T&)
 
-  # Range(73, 90).Contains(Range(78, 91)) => false
-  # Range(73, 90).Contains(Range(78, 90)) => true
-  bool Contains(const Range&)
+    # Range(73, 90).Contains(Range(78, 91)) => false
+    # Range(73, 90).Contains(Range(78, 90)) => true
+    bool Contains(const Range&)
 
-  # Range(73, 90).Intersects(Range(78, 90)) => false
-  # Range(73, 90).Intersects(Range(78, 92)) => true
-  bool Intersects(const Range&)
+    # Range(73, 90).Intersects(Range(78, 90)) => false
+    # Range(73, 90).Intersects(Range(78, 92)) => true
+    bool Intersects(const Range&)
 
-  # DisplacementOf(Range(23, 30), Range(35, 40)) => 12
-  # DisplacementOf(Range(23, 30), Range(14, 40)) => 9
-  # DisplacementOf(Range(-5, 8), Range(20, 23)) => 25
-  # DisplacementOf(Range(-119, -108), Range(-105, 92)) => 14
-  template<typename T> int DisplacementOf(const Range<T>&, const Range<T>&)
+# DisplacementOf(Range(23, 30), Range(35, 40)) => 12
+# DisplacementOf(Range(23, 30), Range(14, 40)) => 9
+# DisplacementOf(Range(-5, 8), Range(20, 23)) => 25
+# DisplacementOf(Range(-119, -108), Range(-105, 92)) => 14
+template<typename T> int DisplacementOf(const Range<T>&, const Range<T>&)
 
-  # IntervalOf(Range(23, 30), Range(35, 40)) => 4
-  # IntervalOf(Range(35, 40), Range(23, 30)) => 4
-  # IntervalOf(Range(-5, 8), Range(20, 23)) => 11
-  # IntervalOf(Range(-119, -108), Range(-105, 92)) => 2
-  template<typename T> int IntervalOf(const Range<T>&, const Range<T>&)
+# IntervalOf(Range(23, 30), Range(35, 40)) => 4
+# IntervalOf(Range(35, 40), Range(23, 30)) => 4
+# IntervalOf(Range(-5, 8), Range(20, 23)) => 11
+# IntervalOf(Range(-119, -108), Range(-105, 92)) => 2
+template<typename T> int IntervalOf(const Range<T>&, const Range<T>&)
 
 -----------------------------------------------------------------------------------------
 
@@ -1207,435 +1207,435 @@ enum class ReleaseMode = IMMEDIATE | FUTURE
 # (!) the size(accessed by size()) of a segment is equal to the size of the list that the segment refers to
 struct list<T>:
 
-  # VARIABLES:
+    # VARIABLES:
 
-  TraversalMode TraversalMode = TraversalMode::BOUNDED;
+    TraversalMode TraversalMode = TraversalMode::BOUNDED;
 
-  # when an instance of this type is about to be destructed the elements (are freed automatically and immediately
-    (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future moment (when FUTURE is used)) #
-  ReleaseMode ReleaseMode
+    # when an instance of this type is about to be destructed the elements (are freed automatically and immediately
+      (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future moment (when FUTURE is used)) #
+    ReleaseMode ReleaseMode
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  list()
+    list()
 
-  # _extendCount is needed in cases where the allocated slots must be treated as existing elements (without being added first through another operation);
-    if that parameter is true then &Count equals &Size #
-  explicit list(int _size, bool _extendCount)
+    # _extendCount is needed in cases where the allocated slots must be treated as existing elements (without being added first through another operation);
+      if that parameter is true then &Count equals &Size #
+    explicit list(int _size, bool _extendCount)
 
-  list(const list<T>&, bool _isMutable = true)
+    list(const list<T>&, bool _isMutable = true)
 
-  list(const std::initializer_list<T>& _list, bool _isMutable = true)
+    list(const std::initializer_list<T>& _list, bool _isMutable = true)
 
-  # it generates a segment
-  list(const list<T>& _source, int _begin, int _end, bool _isMutable = true)
+    # it generates a segment
+    list(const list<T>& _source, int _begin, int _end, bool _isMutable = true)
 
-  # it generates a segment
-  list(const list<T>& _source, const Range<int>& _range, bool _isMutable = true)
+    # it generates a segment
+    list(const list<T>& _source, const Range<int>& _range, bool _isMutable = true)
 
-  # it generates a segment
-  list(const T* _source, int _elementsCount, int _begin, int _end, bool _isMutable = true)
+    # it generates a segment
+    list(const T* _source, int _elementsCount, int _begin, int _end, bool _isMutable = true)
 
-  # it generates a segment
-  list(const T* _source, int _elementsCount, const Range<int>& _range, bool _isMutable = true)
+    # it generates a segment
+    list(const T* _source, int _elementsCount, const Range<int>& _range, bool _isMutable = true)
 
-  # OPERATORS:
+    # OPERATORS:
 
-  bool operator==(const list<T>&) const
+    bool operator==(const list<T>&) const
 
-  bool operator!=(const list<T>&) const
+    bool operator!=(const list<T>&) const
 
-  # [5, 0, 9] == [[5, 1, 3], [5, 1, 9], [5, 0, 0]] => false
-  # [5, 0, 9] == [[5, 1, 0], [5, 0, 9], [4, 3, 1]] => true
-  bool operator==(const list<list<T>>& _values) const
+    # [5, 0, 9] == [[5, 1, 3], [5, 1, 9], [5, 0, 0]] => false
+    # [5, 0, 9] == [[5, 1, 0], [5, 0, 9], [4, 3, 1]] => true
+    bool operator==(const list<list<T>>& _values) const
 
-  # [5, 0, 9] == [[5, 1, 0], [5, 0, 9], [4, 3, 1]] => false
-  # [5, 0, 9] == [[5, 1, 3], [5, 1, 9], [5, 0, 0]] => true
-  bool operator!=(const list<list<T>>& _values) const
+    # [5, 0, 9] == [[5, 1, 0], [5, 0, 9], [4, 3, 1]] => false
+    # [5, 0, 9] == [[5, 1, 3], [5, 1, 9], [5, 0, 0]] => true
+    bool operator!=(const list<list<T>>& _values) const
 
-  list<T>& operator=(const list<T>&)
+    list<T>& operator=(const list<T>&)
 
-  list<T> operator+(const T&) const
+    list<T> operator+(const T&) const
 
-  list<T> operator+(const list<T>&) const
+    list<T> operator+(const list<T>&) const
 
-  list<T>& operator+=(const T&)
+    list<T>& operator+=(const T&)
 
-  list<T>& operator+=(const list<T>&)
+    list<T>& operator+=(const list<T>&)
 
-  # _index is in the range of list ->
-  T& operator[](int)
+    # _index is in the range of list ->
+    T& operator[](int)
 
-  # _index is in the range of list ->
-  T& operator[](int) const
+    # _index is in the range of list ->
+    T& operator[](int) const
 
-  # FIELDS:
+    # FIELDS:
 
-  int count() const
+    int count() const
 
-  int size() const
+    int size() const
 
-  int position() const
+    int position() const
 
-  T* elements()
+    T* elements()
 
-  const T* elements() const
+    const T* elements() const
 
-  # TRAVERSAL FUNCTIONS
+    # TRAVERSAL FUNCTIONS
 
-  bool can_reverse() const
+    bool can_reverse() const
 
-  bool can_advance() const
+    bool can_advance() const
 
-  # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
-  # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
-  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) count() = 19, position() = 4, back(9) >> position() = 14
-  list<T>& back(int _value)
+    # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+    # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+    # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) count() = 19, position() = 4, back(9) >> position() = 14
+    list<T>& back(int _value)
 
-  # traversalMode() == BOUNDED && position() + _value >= count() >> position() = position()
-  # traversalMode() == BOUNDED && position() + _value < count() - 1 >> position() = position() + _value
-  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 21, position() = 16, advance(10) >> position() = 5
-  list<T>& advance(int _value)
+    # traversalMode() == BOUNDED && position() + _value >= count() >> position() = position()
+    # traversalMode() == BOUNDED && position() + _value < count() - 1 >> position() = position() + _value
+    # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 21, position() = 16, advance(10) >> position() = 5
+    list<T>& advance(int _value)
 
-  # position() > 0 => [position() - 1]
-  # traversalMode() == BOUNDED && position() == 0 => [0]
-  # traversalMode() == CIRCULAR && position() == 0 => [count() - 1]
-  T& previous() const
+    # position() > 0 => [position() - 1]
+    # traversalMode() == BOUNDED && position() == 0 => [0]
+    # traversalMode() == CIRCULAR && position() == 0 => [count() - 1]
+    T& previous() const
 
-  # count() > 0 ->
-  T& current() const
+    # count() > 0 ->
+    T& current() const
 
-  # position() < count() - 1 => [position() + 1]
-  # traversalMode() == BOUNDED && position() == count() - 1 => [position()]
-  # traversalMode() == CIRCULAR && position() == count() - 1 => [0]
-  T& next() const
+    # position() < count() - 1 => [position() + 1]
+    # traversalMode() == BOUNDED && position() == count() - 1 => [position()]
+    # traversalMode() == CIRCULAR && position() == count() - 1 => [0]
+    T& next() const
 
-  # _position < -1 || _position > count() - 1 => -1
-  int set_position(int _position)
+    # _position < -1 || _position > count() - 1 => -1
+    int set_position(int _position)
 
-  # MUTATION FUNCTIONS:
+    # MUTATION FUNCTIONS:
 
-  # acquire ownership of _array
-  void Acquire(T* _array, int _arrayLength)
+    # acquire ownership of _array
+    void Acquire(T* _array, int _arrayLength)
 
-  # acquire ownership of _list; after the operation is completed _list becomes invalid
-  void Acquire(list<T>& _list)
+    # acquire ownership of _list; after the operation is completed _list becomes invalid
+    void Acquire(list<T>& _list)
 
-  list<T>& Append(const T& _value)
+    list<T>& Append(const T& _value)
 
-  list<T>& Append(const T& _value, int _times)
+    list<T>& Append(const T& _value, int _times)
 
-  list<T>& Append(const list<T>& _value)
+    list<T>& Append(const list<T>& _value)
 
-  # the contents of _data are copied inside the list
-  list<T>& BuiltFromArray(const T* _data, int _dataLength)
+    # the contents of _data are copied inside the list
+    list<T>& BuiltFromArray(const T* _data, int _dataLength)
 
-  # _size < 0 -> state of the list doesn't change
-  list<T>& Clear(int _size = 0)
+    # _size < 0 -> state of the list doesn't change
+    list<T>& Clear(int _size = 0)
 
-  # [1, 2, 10].FillLeft(5, 7) => [5, 5, 5, 5, 1, 2, 10]
-  list<T>& FillLeft(const T& _value, int _length)
+    # [1, 2, 10].FillLeft(5, 7) => [5, 5, 5, 5, 1, 2, 10]
+    list<T>& FillLeft(const T& _value, int _length)
 
-  # [1, 2, 10].FillRight(5, 7) => [1, 2, 10, 5, 5, 5, 5]
-  list<T>& FillRight(const T& _value, int _length)
+    # [1, 2, 10].FillRight(5, 7) => [1, 2, 10, 5, 5, 5, 5]
+    list<T>& FillRight(const T& _value, int _length)
 
-  # (count() > 0 && _index > 0 && _index < count()) ->
-  list<T>& Insert(const T& _value, int _index)
+    # (count() > 0 && _index > 0 && _index < count()) ->
+    list<T>& Insert(const T& _value, int _index)
 
-  # (count() > 0 && _index > 0 && _index < count()) ->
-  list<T>& Insert(const list<T>& _value, int _index)
+    # (count() > 0 && _index > 0 && _index < count()) ->
+    list<T>& Insert(const list<T>& _value, int _index)
 
-  # [1, 2, 3, 4, 5].Move(2, 4) => [1, 2, 4, 5, 3]
-  list<T>& Move(int _sourceIndex, int _destinationIndex)
+    # [1, 2, 3, 4, 5].Move(2, 4) => [1, 2, 4, 5, 3]
+    list<T>& Move(int _sourceIndex, int _destinationIndex)
 
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(2) => [10, 5, 4, 18, 9, 5]
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-  list<T>& Reduce(int _reducer)
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(2) => [10, 5, 4, 18, 9, 5]
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
+    list<T>& Reduce(int _reducer)
 
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(4) => [4, 18, 9, 5, 0, 3]
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-  list<T>& ReduceLeft(int _reducer)
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(4) => [4, 18, 9, 5, 0, 3]
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
+    list<T>& ReduceLeft(int _reducer)
 
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(4) => [11, 2, 10, 5, 4, 18]
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-  list<T>& ReduceRight(int _reducer)
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(4) => [11, 2, 10, 5, 4, 18]
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
+    list<T>& ReduceRight(int _reducer)
 
-  list<T>& Remove(int _begin, int _end)
+    list<T>& Remove(int _begin, int _end)
 
-  list<T>& RemoveAt(int _index, int _length = 1)
+    list<T>& RemoveAt(int _index, int _length = 1)
 
-  # removes the elements that match _value
-  # [1, 25, 4, 3, 4, 6, 5, 2, 41, 4, 52, 7, 8, 9].RemoveAll(4) => [1, 25, 3, 6, 5, 2, 41, 52, 7, 8, 9]
-  list<T>& RemoveAll(const T& _value)
+    # removes the elements that match _value
+    # [1, 25, 4, 3, 4, 6, 5, 2, 41, 4, 52, 7, 8, 9].RemoveAll(4) => [1, 25, 3, 6, 5, 2, 41, 52, 7, 8, 9]
+    list<T>& RemoveAll(const T& _value)
 
-  # removes the elements that match an element in _set
-  # [1, 2, 3, 4, 5, 6, 5, 2, 7, 8, 9].RemoveAll(2, 4, 5, 8) => [1, 3, 6, 7, 8, 9]
-  list<T>& RemoveAll(const list<T>& _set)
+    # removes the elements that match an element in _set
+    # [1, 2, 3, 4, 5, 6, 5, 2, 7, 8, 9].RemoveAll(2, 4, 5, 8) => [1, 3, 6, 7, 8, 9]
+    list<T>& RemoveAll(const list<T>& _set)
 
-  list<T>& RemoveIf(const std::function<bool(const T&)>& _predicate)
+    list<T>& RemoveIf(const std::function<bool(const T&)>& _predicate)
 
-  # [9, 2, 7].Repeat(2) => [9, 2, 7, 9, 2, 7, 9, 2, 7]
-  list<T>& Repeat(int _times)
+    # [9, 2, 7].Repeat(2) => [9, 2, 7, 9, 2, 7, 9, 2, 7]
+    list<T>& Repeat(int _times)
 
-  # [5, 9, 0, 3, 7, 18, 4, 2, 6].Replace(4, 7, [2, 6, 1]) => [5, 9, 0, 3, 2, 6, 1, 6]
-  list<T>& Replace(int _begin, int _end, const list<T>& _replacement)
+    # [5, 9, 0, 3, 7, 18, 4, 2, 6].Replace(4, 7, [2, 6, 1]) => [5, 9, 0, 3, 2, 6, 1, 6]
+    list<T>& Replace(int _begin, int _end, const list<T>& _replacement)
 
-  # replace every occurrence of _replaced with _replacement
-  list<T>& Replace(const T& _replaced, const T& _replacement)
+    # replace every occurrence of _replaced with _replacement
+    list<T>& Replace(const T& _replaced, const T& _replacement)
 
-  # replace every occurrence of _replaced with _replacement
-  list<T>& Replace(const list<T>& _replaced, const list<T>& _replacement)
+    # replace every occurrence of _replaced with _replacement
+    list<T>& Replace(const list<T>& _replaced, const list<T>& _replacement)
 
-  # [9, 7, 2, 5, 9, 0, 6, 2, 8, 4].Reverse() => [4, 8, 2, 6, 0, 9, 5, 2, 7, 9]
-  list<T>& Reverse()
+    # [9, 7, 2, 5, 9, 0, 6, 2, 8, 4].Reverse() => [4, 8, 2, 6, 0, 9, 5, 2, 7, 9]
+    list<T>& Reverse()
 
-  # [1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
-  list<T>& RotateLeft(int _positions = 1)
+    # [1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
+    list<T>& RotateLeft(int _positions = 1)
 
-  # [1, 2, 3, 4, 5].RotateRight(3) => [3, 4, 5, 1, 2]
-  list<T>& RotateRight(int _positions = 1)
+    # [1, 2, 3, 4, 5].RotateRight(3) => [3, 4, 5, 1, 2]
+    list<T>& RotateRight(int _positions = 1)
 
-  # <T> implements o:< or it is a primitive numerical type ->
-  list<T>& SelectionSort(bool _ascending = true)
+    # <T> implements o:< or it is a primitive numerical type ->
+    list<T>& SelectionSort(bool _ascending = true)
 
-  list<T>& SelectionSort(const std::function<bool(const T&, const T&)>& _predicate, bool _ascending = true)
+    list<T>& SelectionSort(const std::function<bool(const T&, const T&)>& _predicate, bool _ascending = true)
 
-  # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
-  list<T>& Set(int _begin, int _end, const T& _value)
+    # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
+    list<T>& Set(int _begin, int _end, const T& _value)
 
-  # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
-  list<T>& Set(int _begin, const list<bool>& _value)
+    # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
+    list<T>& Set(int _begin, const list<bool>& _value)
 
-  list<T>& Swap(int _index1, int _index2)
+    list<T>& Swap(int _index1, int _index2)
 
-  # _element1 and _element2 are pointers to elements of the list ->
-  list<T>& Swap(T* _element1, T* _element2)
+    # _element1 and _element2 are pointers to elements of the list ->
+    list<T>& Swap(T* _element1, T* _element2)
 
-  # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].Trim(2) => [5, 9, 0, 6]
-  list<T>& Trim(const T& _value)
+    # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].Trim(2) => [5, 9, 0, 6]
+    list<T>& Trim(const T& _value)
 
-  # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimBegin(2) => [5, 9, 0, 6, 2, 2, 2, 2, 2]
-  list<T>& TrimBegin(const T& _value)
+    # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimBegin(2) => [5, 9, 0, 6, 2, 2, 2, 2, 2]
+    list<T>& TrimBegin(const T& _value)
 
-  # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimEnd(2) => [2, 2, 2, 5, 9, 0, 6]
-  list<T>& TrimEnd(const T& _value)
+    # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimEnd(2) => [2, 2, 2, 5, 9, 0, 6]
+    list<T>& TrimEnd(const T& _value)
 
-  # NON-MUTATING FUNCTIONS:
+    # NON-MUTATING FUNCTIONS:
 
-  bool BeginsWith(const list<T>& _value) const
+    bool BeginsWith(const list<T>& _value) const
 
-  # returns 'true' if &this begins with atleast one of the sequences in _value
-  # [8, 2, 5, 10, 7, 15, 12, 9, 1].BeginsWith([[5, 9, 1], [8, 1, 5], [9, 12, 0]]) => false
-  # [8, 2, 5, 10, 7, 15, 12, 9, 1].BeginsWith([[5, 9, 1], [8, 2, 5], [9, 12, 0]]) => true
-  bool BeginsWith(const list<list<T>>& _values) const
+    # returns 'true' if &this begins with atleast one of the sequences in _value
+    # [8, 2, 5, 10, 7, 15, 12, 9, 1].BeginsWith([[5, 9, 1], [8, 1, 5], [9, 12, 0]]) => false
+    # [8, 2, 5, 10, 7, 15, 12, 9, 1].BeginsWith([[5, 9, 1], [8, 2, 5], [9, 12, 0]]) => true
+    bool BeginsWith(const list<list<T>>& _values) const
 
-  # returns copy of &this
-  list<T> Clone() const
+    # returns copy of &this
+    list<T> Clone() const
 
-  bool Contains(const T& _value) const
+    bool Contains(const T& _value) const
 
-  # [1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
-  bool Contains(const list<T>& _value) const
+    # [1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
+    bool Contains(const list<T>& _value) const
 
-  bool Contains(const std::function<bool(const T&)>& _predicate) const
+    bool Contains(const std::function<bool(const T&)>& _predicate) const
 
-  bool ContainsAll(const list<T>& _set) const
+    bool ContainsAll(const list<T>& _set) const
 
-  # [9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([21, 8, 5, 1]) => false
-  # [9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([6, 30, 3, 1]) => true
-  bool ContainsAny(const list<T>& _set) const
+    # [9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([21, 8, 5, 1]) => false
+    # [9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([6, 30, 3, 1]) => true
+    bool ContainsAny(const list<T>& _set) const
 
-  bool ContainsOnly(const T& _value) const
+    bool ContainsOnly(const T& _value) const
 
-  # [9, 1, 0, 3, 1, 5, 9, 1, 15, 3, 7, 5, 9, 1, 1].ContainsOnly([1, 9, 10]) => false
-  # [9, 1, 0, 3, 1, 5, 9, 1, 15, 3, 7, 5, 9, 1, 1].ContainsOnly([5, 9, 1, 0, 7, 3, 15]) => true
-  bool ContainsOnly(const list<T>& _set) const
+    # [9, 1, 0, 3, 1, 5, 9, 1, 15, 3, 7, 5, 9, 1, 1].ContainsOnly([1, 9, 10]) => false
+    # [9, 1, 0, 3, 1, 5, 9, 1, 15, 3, 7, 5, 9, 1, 1].ContainsOnly([5, 9, 1, 0, 7, 3, 15]) => true
+    bool ContainsOnly(const list<T>& _set) const
 
-  bool ContainsOnly(const std::function<bool(const T&)>& _predicate) const
+    bool ContainsOnly(const std::function<bool(const T&)>& _predicate) const
 
-  int CountOf(const T& _value) const
+    int CountOf(const T& _value) const
 
-  # [5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1]) => 4
-  # [5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1, 7]) => 0
-  int CountOf(const list<T>& _value) const
+    # [5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1]) => 4
+    # [5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1, 7]) => 0
+    int CountOf(const list<T>& _value) const
 
-  int CountOf(const std::function<bool(const T&)>& _predicate) const
+    int CountOf(const std::function<bool(const T&)>& _predicate) const
 
-  # [7, 8, 3, 19, 20, 71, 15, 71, 3, 31, 108, 3]).Duplicates() => [3, 71]
-  list<T> Duplicates() const
+    # [7, 8, 3, 19, 20, 71, 15, 71, 3, 31, 108, 3]).Duplicates() => [3, 71]
+    list<T> Duplicates() const
 
-  bool EndsWith(const list<T>& _value) const
+    bool EndsWith(const list<T>& _value) const
 
-  bool EndsWith(const list<list<T>>& _values) const
+    bool EndsWith(const list<list<T>>& _values) const
 
-  # [2, 9, 0, 1, 4, 9, 7, 3].Except(9) => [2, 0, 1, 4, 7, 3]
-  list<T> Except(const T& _value) const
+    # [2, 9, 0, 1, 4, 9, 7, 3].Except(9) => [2, 0, 1, 4, 7, 3]
+    list<T> Except(const T& _value) const
 
-  # [2, 9, 0, 1, 4, 9, 7, 3].Except([9, 7, 0]) => [2, 1, 4, 3]
-  list<T> Except(const list<T>& _set) const
+    # [2, 9, 0, 1, 4, 9, 7, 3].Except([9, 7, 0]) => [2, 1, 4, 3]
+    list<T> Except(const list<T>& _set) const
 
-  list<T> Except(const std::function<bool(const T&)>& _predicate) const
+    list<T> Except(const std::function<bool(const T&)>& _predicate) const
 
-  # (if the element specified by the predicate is present in the list) the function returns a pointer to it
-  # (if the element specified by the predicate is not present in the list) the functions returns a null pointer
-  T* First(const std::function<bool(const T&)>& _predicate) const
+    # (if the element specified by the predicate is present in the list) the function returns a pointer to it
+    # (if the element specified by the predicate is not present in the list) the functions returns a null pointer
+    T* First(const std::function<bool(const T&)>& _predicate) const
 
-  # there is an implicit conversion from <T> to <A> ->
-  template<typename A> list<A> Generate() const
+    # there is an implicit conversion from <T> to <A> ->
+    template<typename A> list<A> Generate() const
 
-  # struct Item { int Price; Item() = default; Item(int _price): Price(_price) {} };
-    Item a(5);
-    Item b(2);
-    Item c(35);
-    list<Item> items { a, b, c };
-    list<int> l = items.Generate<int>([](const Item& _item) { return _item.Price * 2; }); => [10, 4, 70] #
-  template<typename A> list<A> Generate(const std::function<A(const T&)>& _generator) const
+    # struct Item { int Price; Item() = default; Item(int _price): Price(_price) {} };
+      Item a(5);
+      Item b(2);
+      Item c(35);
+      list<Item> items { a, b, c };
+      list<int> l = items.Generate<int>([](const Item& _item) { return _item.Price * 2; }); => [10, 4, 70] #
+    template<typename A> list<A> Generate(const std::function<A(const T&)>& _generator) const
 
-  # it checks whether the list contains an element with the specified index
-  bool Has(int _index) const
+    # it checks whether the list contains an element with the specified index
+    bool Has(int _index) const
 
-  bool HasDuplicates() const
+    bool HasDuplicates() const
 
-  # the specified element does not exist or _begin is outside the range of list => -1
-  int IndexOf(const T& _value, int _begin = 0) const
+    # the specified element does not exist or _begin is outside the range of list => -1
+    int IndexOf(const T& _value, int _begin = 0) const
 
-  # the specified element does not exist or _begin is outside the range of list => -1
-  int IndexOf(const list<T>& _value, int _begin = 0) const
+    # the specified element does not exist or _begin is outside the range of list => -1
+    int IndexOf(const list<T>& _value, int _begin = 0) const
 
-  # the specified element does not exist or _begin is outside the range of list => -1
-  int IndexOf(const std::function<bool(const T&)>& _predicate, int _begin = 0) const
+    # the specified element does not exist or _begin is outside the range of list => -1
+    int IndexOf(const std::function<bool(const T&)>& _predicate, int _begin = 0) const
 
-  # the specified element does not exist or _begin is outside the range of list => -1
-  int IndexOfAny(const list<T>& _set, int _begin = 0) const
+    # the specified element does not exist or _begin is outside the range of list => -1
+    int IndexOfAny(const list<T>& _set, int _begin = 0) const
 
-  # _begin is outside the range of list => -2
-  # [].IndexOf(4) => -1
-  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
-  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
-  int IndexOfNot(const T& _value, int _begin = 0) const
+    # _begin is outside the range of list => -2
+    # [].IndexOf(4) => -1
+    # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
+    # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
+    int IndexOfNot(const T& _value, int _begin = 0) const
 
-  # _begin is outside the range of list => -2
-  # [].IndexOf(4) => -1
-  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
-  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
-  int IndexOfNot(const std::function<bool(const T&)>& _predicate, int _begin = 0) const
+    # _begin is outside the range of list => -2
+    # [].IndexOf(4) => -1
+    # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
+    # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
+    int IndexOfNot(const std::function<bool(const T&)>& _predicate, int _begin = 0) const
 
-  # A = [5, 0, 3, 6]
-    B = [3, 2, 4, 5, 9]
-    IntersectionOf(A, B) => [3, 5] #
-  static list<T> IntersectionOf(const list<T>& _list1, const list<T>& _list2)
+    # A = [5, 0, 3, 6]
+      B = [3, 2, 4, 5, 9]
+      IntersectionOf(A, B) => [3, 5] #
+    static list<T> IntersectionOf(const list<T>& _list1, const list<T>& _list2)
 
-  # count() > 1 ->
-  bool IsHeterogeneous() const
+    # count() > 1 ->
+    bool IsHeterogeneous() const
 
-  # count() > 1 ->
-  bool IsHomogeneous() const
+    # count() > 1 ->
+    bool IsHomogeneous() const
 
-  # the specified value does not exist => -1
-  int LastIndexOf(const T& _value) const
+    # the specified value does not exist => -1
+    int LastIndexOf(const T& _value) const
 
-  # the specified value does not exist => -1
-  int LastIndexOf(const list<T>& _value) const
+    # the specified value does not exist => -1
+    int LastIndexOf(const list<T>& _value) const
 
-  # the specified value does not exist => -1
-  int LastIndexOf(const std::function<bool(const T&)>& _predicate) const
+    # the specified value does not exist => -1
+    int LastIndexOf(const std::function<bool(const T&)>& _predicate) const
 
-  # count() == 0 => nullptr
-  # _sindex is outside the range of list => nullptr
-  # <T> implements operator '>' or it is a primitive numerical type ->
-  T* Max(int _sindex = 0) const
+    # count() == 0 => nullptr
+    # _sindex is outside the range of list => nullptr
+    # <T> implements operator '>' or it is a primitive numerical type ->
+    T* Max(int _sindex = 0) const
 
-  # count() == 0 => nullptr
-  # _sindex is outside the range of list => nullptr
-  # <T> implements operator '>' or it is a primitive numerical type ->
-  T* Min(int _sindex = 0) const
+    # count() == 0 => nullptr
+    # _sindex is outside the range of list => nullptr
+    # <T> implements operator '>' or it is a primitive numerical type ->
+    T* Min(int _sindex = 0) const
 
-  # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
-  # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [41, 56, 3, 7, 18, 5, 19, 76, 15].Multisplit([353, 12]) => []
-  # [41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 20, 5].Multisplit([56, 9]) => [[41], [3, 7, 18, 5, 19, 76, 15], [20, 5]]
-  # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9]) => [[41, 56, 3], [18, 5, 19, 76, 15], [], [20]]
-  # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9], true) => [[41, 56, 3], [18, 5, 19, 76, 15], [20]]
-  list<list<T>> Multisplit(const list<T>& _set, bool _ignoreEmptyValues = false) const
+    # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+    # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+    # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+    # [41, 56, 3, 7, 18, 5, 19, 76, 15].Multisplit([353, 12]) => []
+    # [41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 20, 5].Multisplit([56, 9]) => [[41], [3, 7, 18, 5, 19, 76, 15], [20, 5]]
+    # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9]) => [[41, 56, 3], [18, 5, 19, 76, 15], [], [20]]
+    # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9], true) => [[41, 56, 3], [18, 5, 19, 76, 15], [20]]
+    list<list<T>> Multisplit(const list<T>& _set, bool _ignoreEmptyValues = false) const
 
-  # returns the range of a sequence consisting of certain set of values (it is not mandatory for the sequence to contain each value in the set)
-  # [3, 10, 15, 12, 8, 5, 7, 5, 5, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
-  # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
-  # [3, 10, 15, 12, 0, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (4, 4)
-  # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (-1, -1)
-  Range<int> RangeOf(const list<T>& _set, int _sindex = 0) const
+    # returns the range of a sequence consisting of certain set of values (it is not mandatory for the sequence to contain each value in the set)
+    # [3, 10, 15, 12, 8, 5, 7, 5, 5, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
+    # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
+    # [3, 10, 15, 12, 0, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (4, 4)
+    # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (-1, -1)
+    Range<int> RangeOf(const list<T>& _set, int _sindex = 0) const
 
-  # returns the range of a sequence not consisting of certain set of values (it is mandatory for the sequence to not contain any of the values in the set)
-  # [5, 7, 5, 5, 7, 7, 3, 10, 15, 12, 8, 2, 9].RangeOfNot([2, 5, 7]) => (6, 10)
-  # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOfNot([2, 5, 7]) => (0, 4)
-  # [5, 7, 2, 2, 7, 7, 5, 4, 2, 7, 5].RangeOfNot([2, 5, 7]) => (7, 7)
-  # [4, 0, 0, 1, 1, 4, 0, 1, 4, 4, 1].RangeOfNot([4, 0, 1]) => (-1, -1)
-  Range<int> RangeOfNot(const list<T>& _set, int _sindex = 0) const
+    # returns the range of a sequence not consisting of certain set of values (it is mandatory for the sequence to not contain any of the values in the set)
+    # [5, 7, 5, 5, 7, 7, 3, 10, 15, 12, 8, 2, 9].RangeOfNot([2, 5, 7]) => (6, 10)
+    # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOfNot([2, 5, 7]) => (0, 4)
+    # [5, 7, 2, 2, 7, 7, 5, 4, 2, 7, 5].RangeOfNot([2, 5, 7]) => (7, 7)
+    # [4, 0, 0, 1, 1, 4, 0, 1, 4, 4, 1].RangeOfNot([4, 0, 1]) => (-1, -1)
+    Range<int> RangeOfNot(const list<T>& _set, int _sindex = 0) const
 
-  # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
-  # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [3, 7, 18, 5, 19, 76, 15].Split(353) => []
-  # [18, 5, 19, 76, 15, 9, 20, 5].Split(9) => [[18, 5, 19, 76, 15], [20, 5]]
-  # [56, 3, 7, 18, 5, 19, 76, 7].Split(7) => [[56, 3], [18, 5, 19, 76]]
-  # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7) => [[56], [], [18, 5, 19, 76, 15, 9]]
-  # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7, true) => [[56], [18, 5, 19, 76, 15, 9]]
-  # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split(7) => [[41, 56], [18, 76, 15, 9]]
-  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7) => [[41, 56], [], [], [18, 5, 15]]
-  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7, true) => [[41, 56], [18, 5, 15]]
-  list<list<T>> Split(const T& _separator, bool _ignoreEmptyValues = false) const
+    # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+    # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+    # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+    # [3, 7, 18, 5, 19, 76, 15].Split(353) => []
+    # [18, 5, 19, 76, 15, 9, 20, 5].Split(9) => [[18, 5, 19, 76, 15], [20, 5]]
+    # [56, 3, 7, 18, 5, 19, 76, 7].Split(7) => [[56, 3], [18, 5, 19, 76]]
+    # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7) => [[56], [], [18, 5, 19, 76, 15, 9]]
+    # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7, true) => [[56], [18, 5, 19, 76, 15, 9]]
+    # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split(7) => [[41, 56], [18, 76, 15, 9]]
+    # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7) => [[41, 56], [], [], [18, 5, 15]]
+    # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7, true) => [[41, 56], [18, 5, 15]]
+    list<list<T>> Split(const T& _separator, bool _ignoreEmptyValues = false) const
 
-  # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
-  # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [41, 56, 3, 5, 7, 18, 5, 19, 76, 15].Split([3, 8]) => []
-  # [41, 56, 3, 5, 7, 18, 5, 19, 9, 7, 76, 15, 9].Split([9, 7]) => [[41, 56, 3, 5, 7, 18, 5, 19], [76, 15, 9]]
-  # [41, 56, 3, 9, 7, 18, 5, 19, 76, 15, 9, 20, 9, 7].Split([9, 7]) => [[41, 56, 3], [18, 5, 19, 76, 15, 9, 20]]
-  # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7]) => [[41, 56], [], [18, 5, 19, 76, 15, 9, 20, 3]]
-  # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7], true) => [[41, 56], [18, 5, 19, 76, 15, 9, 20, 3]]
-  # [9, 7, 41, 56, 9, 9, 7, 18, 76, 15, 9, 20, 3, 9, 7].Split([9, 7]) => [[41, 56, 9], [18, 76, 15, 9, 20, 3]]
-  # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7]) => [[41, 56], [], [], [18]]
-  # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7], true) => [[41, 56], [18]]
-  list<list<T>> Split(const list<T>& _separator, bool _ignoreEmptyValues = false) const
+    # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+    # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+    # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+    # [41, 56, 3, 5, 7, 18, 5, 19, 76, 15].Split([3, 8]) => []
+    # [41, 56, 3, 5, 7, 18, 5, 19, 9, 7, 76, 15, 9].Split([9, 7]) => [[41, 56, 3, 5, 7, 18, 5, 19], [76, 15, 9]]
+    # [41, 56, 3, 9, 7, 18, 5, 19, 76, 15, 9, 20, 9, 7].Split([9, 7]) => [[41, 56, 3], [18, 5, 19, 76, 15, 9, 20]]
+    # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7]) => [[41, 56], [], [18, 5, 19, 76, 15, 9, 20, 3]]
+    # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7], true) => [[41, 56], [18, 5, 19, 76, 15, 9, 20, 3]]
+    # [9, 7, 41, 56, 9, 9, 7, 18, 76, 15, 9, 20, 3, 9, 7].Split([9, 7]) => [[41, 56, 9], [18, 76, 15, 9, 20, 3]]
+    # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7]) => [[41, 56], [], [], [18]]
+    # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7], true) => [[41, 56], [18]]
+    list<list<T>> Split(const list<T>& _separator, bool _ignoreEmptyValues = false) const
 
-  # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
-  # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [3, 7, 18, 5, 19, 76, 15].Split([](int x) { return x == 353; }) => []
-  # [18, 5, 19, 76, 15, 9, 20, 5].Split([](int x) { return x == 9; }) => [[18, 5, 19, 76, 15], [20, 5]]
-  # [56, 3, 7, 18, 5, 19, 76, 7].Split([](int x) { return x == 7; }) => [[56, 3], [18, 5, 19, 76]]
-  # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }) => [[56], [], [18, 5, 19, 76, 15, 9]]
-  # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }, true) => [[56], [18, 5, 19, 76, 15, 9]]
-  # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split([](int x) { return x == 7; }) => [[41, 56], [18, 76, 15, 9]]
-  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }) => [[41, 56], [], [], [18, 5, 15]]
-  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }, true) => [[41, 56], [18, 5, 15]]
-  list<list<T>> Split(const std::function<bool(const T&)>& _predicate, bool _ignoreEmptyValues = false) const
+    # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+    # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+    # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+    # [3, 7, 18, 5, 19, 76, 15].Split([](int x) { return x == 353; }) => []
+    # [18, 5, 19, 76, 15, 9, 20, 5].Split([](int x) { return x == 9; }) => [[18, 5, 19, 76, 15], [20, 5]]
+    # [56, 3, 7, 18, 5, 19, 76, 7].Split([](int x) { return x == 7; }) => [[56, 3], [18, 5, 19, 76]]
+    # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }) => [[56], [], [18, 5, 19, 76, 15, 9]]
+    # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }, true) => [[56], [18, 5, 19, 76, 15, 9]]
+    # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split([](int x) { return x == 7; }) => [[41, 56], [18, 76, 15, 9]]
+    # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }) => [[41, 56], [], [], [18, 5, 15]]
+    # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }, true) => [[41, 56], [18, 5, 15]]
+    list<list<T>> Split(const std::function<bool(const T&)>& _predicate, bool _ignoreEmptyValues = false) const
 
-  # _length = 0 => [_begin..]
-  # (_begin + _length) > count() => {}
-  list<T> Sublist(int _begin, int _length = 0) const
+    # _length = 0 => [_begin..]
+    # (_begin + _length) > count() => {}
+    list<T> Sublist(int _begin, int _length = 0) const
 
-  # [5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange(2, 5) => [4, 1, 9, 6]
-  list<T> Subrange(int _begin, int _end) const
+    # [5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange(2, 5) => [4, 1, 9, 6]
+    list<T> Subrange(int _begin, int _end) const
 
-  list<T> Where(const std::function<bool(const T&)>& _predicate) const
+    list<T> Where(const std::function<bool(const T&)>& _predicate) const
 
-  # A = [8, 19, 2, 5, 5, 0, 2, 7, 10, 4]
-    B = [23, 21, 4, 7, 5, 19, 17, 26]
-    UnionOf(A, B) => [8, 19, 2, 5, 0, 7, 10, 4, 23, 21, 17, 26] #
-  static list<T> UnionOf(const string& _string1, const string& _string2)
+    # A = [8, 19, 2, 5, 5, 0, 2, 7, 10, 4]
+      B = [23, 21, 4, 7, 5, 19, 17, 26]
+      UnionOf(A, B) => [8, 19, 2, 5, 0, 7, 10, 4, 23, 21, 17, 26] #
+    static list<T> UnionOf(const string& _string1, const string& _string2)
 
-  static list<T> UnionOf(const list<T>& _list1, const list<T>& _list2)
+    static list<T> UnionOf(const list<T>& _list1, const list<T>& _list2)
 
-  # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Unique() => [21, 35, 2, 9, 40, 31, 24, 18]
+    # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Unique() => [21, 35, 2, 9, 40, 31, 24, 18]
 
-  # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Until(52) => [21, 35, 2, 9, 40, 31, 52, 9, 24]
-  list<T> Until(const T& _value) const
+    # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Until(52) => [21, 35, 2, 9, 40, 31, 52, 9, 24]
+    list<T> Until(const T& _value) const
 
-  #
+    #
 
-  void resize(int _size = -1)
+    void resize(int _size = -1)
 
 -----------------------------------------------------------------------------------------
 
@@ -1711,602 +1711,602 @@ Encoding DefaultStorageEncoding = UTF8
 # (!) the size(accessed by size()) of a segment is equal to the size of the list that the segment refers to
 struct String:
 
-  VARIABLES:
+    VARIABLES:
 
-  # this variable plays a role for the speed of string generation; the larger the final size of the string is (i.e. the size after
-	ending of the generation process), the larger the value of this variable must be; it needs to be increased by 1 every 2kb;
-	if the string is very large and it's final size is known before the construction, then it is better to set the binary size before
-	the start of the generation process - in such a way there wouldn't be need for (potentialy multiple) resize operations #
-  int Extensor = 50 # in bytes
+    # this variable plays a role for the speed of string generation; the larger the final size of the string is (i.e. the size after
+	  ending of the generation process), the larger the value of this variable must be; it needs to be increased by 1 every 2kb;
+	  if the string is very large and it's final size is known before the construction, then it is better to set the binary size before
+	  the start of the generation process - in such a way there wouldn't be need for (potentialy multiple) resize operations #
+    int Extensor = 50 # in bytes
 
-  TraversalMode TraversalMode = TraversalMode::BOUNDED
+    TraversalMode TraversalMode = TraversalMode::BOUNDED
 
-  # when an instance of this type is about to be destructed the elements (are freed automatically and immediately
-    (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future
-	moment (when FUTURE is used)) #
-  ReleaseMode ReleaseMode = ReleaseMode::IMMEDIATE
+    # when an instance of this type is about to be destructed the elements (are freed automatically and immediately
+      (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future
+       moment (when FUTURE is used)) #
+    ReleaseMode ReleaseMode = ReleaseMode::IMMEDIATE
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  string() = default
+    string() = default
 
-  explicit string(int _size, size)
+    explicit string(int _size, size)
 
-  # _array is an ASCII string with an available terminating character ->
-  string(const char* _array)
+    # _array is an ASCII string with an available terminating character ->
+    string(const char* _array)
 
-  # _array is an ASCII|UTF-8|UTF-16|UTF-32 string with an available terminating character ->
-  string(const unsigned char* _array)
+    # _array is an ASCII|UTF-8|UTF-16|UTF-32 string with an available terminating character ->
+    string(const unsigned char* _array)
 
-  # _array is an ASCII string with an available terminating character ->
-  string(const char* _array, ASCII, Encoding _storageEncoding)
+    # _array is an ASCII string with an available terminating character ->
+    string(const char* _array, ASCII, Encoding _storageEncoding)
 
-  # _array is an ASCII string with an available terminating character ->
-  string(const char* _array, ASCII) -> string(_array, ascii, DefaultStorageEncoding)
+    # _array is an ASCII string with an available terminating character ->
+    string(const char* _array, ASCII) -> string(_array, ascii, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is an ASCII string ->
-  string(const char* _array, ASCII, unsigned int _length, Encoding _storageEncoding)
+    # _length specifies the length of _array
+    # _array is an ASCII string ->
+    string(const char* _array, ASCII, unsigned int _length, Encoding _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is an ASCII string ->
-  string(const char* _array, ASCII, unsigned int _length) -> string(_array, ascii, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is an ASCII string ->
+    string(const char* _array, ASCII, unsigned int _length) -> string(_array, ascii, _length, DefaultStorageEncoding)
 
-  # _array is a UTF-8 string with an available terminating character ->
-  string(const unsigned char* _array, U8, Encoding _storageEncoding)
+    # _array is a UTF-8 string with an available terminating character ->
+    string(const unsigned char* _array, U8, Encoding _storageEncoding)
 
-  # _array is a UTF-8 string with an available terminating character ->
-  string(const unsigned char*_array, U8) -> string(_array, u8, DefaultStorageEncoding)
+    # _array is a UTF-8 string with an available terminating character ->
+    string(const unsigned char*_array, U8) -> string(_array, u8, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-8 string ->
-  string(const unsigned char* _array, U8, unsigned int _length, Encoding _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-8 string ->
+    string(const unsigned char* _array, U8, unsigned int _length, Encoding _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-8 string ->
-  string(const unsigned char* _array, U8, unsigned int _length) -> string(_array, u8, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-8 string ->
+    string(const unsigned char* _array, U8, unsigned int _length) -> string(_array, u8, _length, DefaultStorageEncoding)
 
-  # _array is a UTF-16 string with an available terminating character ->
-  string(const unsigned char* _array, U16, Endianity _endianity, Encoding _storageEncoding)
+    # _array is a UTF-16 string with an available terminating character ->
+    string(const unsigned char* _array, U16, Endianity _endianity, Encoding _storageEncoding)
 
-  # _array is a UTF-16 string with an available terminating character ->
-  string(const unsigned char* _array, U16, Endianity _endianity) -> string(_array, u16, _endianity, DefaultStorageEncoding)
+    # _array is a UTF-16 string with an available terminating character ->
+    string(const unsigned char* _array, U16, Endianity _endianity) -> string(_array, u16, _endianity, DefaultStorageEncoding)
 
-  # _array is a UTF-16 string with an available terminating character ->
-  string(const unsigned char* _array, U16, Encoding _storageEncoding) -> string(_array, u16, DefaultEndianity, _storageEncoding)
+    # _array is a UTF-16 string with an available terminating character ->
+    string(const unsigned char* _array, U16, Encoding _storageEncoding) -> string(_array, u16, DefaultEndianity, _storageEncoding)
 
-  # _array is a UTF-16 string with an available terminating character ->
-  string(const unsigned char*_array, U16) -> string(_array, u16, DefaultEndianity, DefaultStorageEncoding)
+    # _array is a UTF-16 string with an available terminating character ->
+    string(const unsigned char*_array, U16) -> string(_array, u16, DefaultEndianity, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-16 string ->
-  string(const unsigned char* _array, U16, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-16 string ->
+    string(const unsigned char* _array, U16, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-16 string ->
-  string(const unsigned char* _array, U16, Endianity _endianity, unsigned int _length) -> string(_array, u16, _endianity, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-16 string ->
+    string(const unsigned char* _array, U16, Endianity _endianity, unsigned int _length) -> string(_array, u16, _endianity, _length, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-16 string ->
-  string(const unsigned char* _array, U16, unsigned int _length, Encoding _storageEncoding) -> string(_array, u16, DefaultEndianity, _length, _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-16 string ->
+    string(const unsigned char* _array, U16, unsigned int _length, Encoding _storageEncoding) -> string(_array, u16, DefaultEndianity, _length, _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-16 string ->
-  string(const unsigned char* _array, U16, unsigned int _length) -> string(_array, u16, DefaultEndianity, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-16 string ->
+    string(const unsigned char* _array, U16, unsigned int _length) -> string(_array, u16, DefaultEndianity, _length, DefaultStorageEncoding)
 
-  # _array is a UTF-32 string with an available terminating character ->
-  string(const unsigned char* _array, U32, Endianity _endianity, Encoding _storageEncoding)
+    # _array is a UTF-32 string with an available terminating character ->
+    string(const unsigned char* _array, U32, Endianity _endianity, Encoding _storageEncoding)
 
-  # _array is a UTF-32 string with an available terminating character ->
-  string(const unsigned char*_array, U32, Endianity _endianity) -> string(_array, u32, _endianity, DefaultStorageEncoding)
+    # _array is a UTF-32 string with an available terminating character ->
+    string(const unsigned char*_array, U32, Endianity _endianity) -> string(_array, u32, _endianity, DefaultStorageEncoding)
 
-  # _array is a UTF-32 string with an available terminating character ->
-  string(const unsigned char* _array, U32, Encoding _storageEncoding) -> string(_array, u32, DefaultEndianity, _storageEncoding)
+    # _array is a UTF-32 string with an available terminating character ->
+    string(const unsigned char* _array, U32, Encoding _storageEncoding) -> string(_array, u32, DefaultEndianity, _storageEncoding)
 
-  # _array is a UTF-32 string with an available terminating character ->
-  string(const unsigned char* _array, U32) -> string(_array, u32, DefaultEndianity, DefaultStorageEncoding)
+    # _array is a UTF-32 string with an available terminating character ->
+    string(const unsigned char* _array, U32) -> string(_array, u32, DefaultEndianity, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-32 string ->
-  string(const unsigned char* _array, U32, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-32 string ->
+    string(const unsigned char* _array, U32, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-32 string ->
-  string(const unsigned char* _array, U32, Endianity _endianity, unsigned int _length) -> string(_array, u32, _endianity, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-32 string ->
+    string(const unsigned char* _array, U32, Endianity _endianity, unsigned int _length) -> string(_array, u32, _endianity, _length, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-32 string ->
-  string(const unsigned char* _array, U32, unsigned int _length, Encoding _storageEncoding) -> string(_array, u32, DefaultEndianity, _length, _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-32 string ->
+    string(const unsigned char* _array, U32, unsigned int _length, Encoding _storageEncoding) -> string(_array, u32, DefaultEndianity, _length, _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-32 string ->
-  string(const unsigned char* _array, U32, unsigned int _length) -> string(_array, u32, DefaultEndianity, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-32 string ->
+    string(const unsigned char* _array, U32, unsigned int _length) -> string(_array, u32, DefaultEndianity, _length, DefaultStorageEncoding)
 
-  # _array is a UTF-16 string with an available terminating character ->
-  string(const utf16* _array, Endianity _endianity, Encoding _storageEncoding)
+    # _array is a UTF-16 string with an available terminating character ->
+    string(const utf16* _array, Endianity _endianity, Encoding _storageEncoding)
 
-  # _array is a UTF-16 string with an available terminating character ->
-  string(const utf16* _array, Endianity _endianity) -> string(_array, _endianity, DefaultStorageEncoding)
+    # _array is a UTF-16 string with an available terminating character ->
+    string(const utf16* _array, Endianity _endianity) -> string(_array, _endianity, DefaultStorageEncoding)
 
-  # _array is a UTF-16 string ->
-  string(const utf16* _array, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _storageEncoding)
+    # _array is a UTF-16 string ->
+    string(const utf16* _array, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _storageEncoding)
 
-  # _array is a UTF-16 string ->
-  string(const utf16* _array) -> string(_array, DefaultEndianity, DefaultStorageEncoding)
+    # _array is a UTF-16 string ->
+    string(const utf16* _array) -> string(_array, DefaultEndianity, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-16 string ->
-  string(const utf16* _array, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-16 string ->
+    string(const utf16* _array, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-16 string ->
-  string(const utf16*_array, Endianity _endianity, unsigned int _length) -> string(_array, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-16 string ->
+    string(const utf16*_array, Endianity _endianity, unsigned int _length) -> string(_array, _length, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-16 string ->
-  string(const utf16*_array, unsigned int _length, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _length, _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-16 string ->
+    string(const utf16*_array, unsigned int _length, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _length, _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-16 string ->
-  string(const utf16*_array, unsigned int _length) -> string(_array, DefaultEndianity, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-16 string ->
+    string(const utf16*_array, unsigned int _length) -> string(_array, DefaultEndianity, _length, DefaultStorageEncoding)
 
-  # _array is a UTF-32 string with an available terminating character ->
-  string(const utf32*_array, Endianity _endianity, Encoding _storageEncoding)
+    # _array is a UTF-32 string with an available terminating character ->
+    string(const utf32*_array, Endianity _endianity, Encoding _storageEncoding)
 
-  # _array is a UTF-32 string with an available terminating character ->
-  string(const utf32* _array, Endianity _endianity) -> string(_array, _endianity, DefaultStorageEncoding)
+    # _array is a UTF-32 string with an available terminating character ->
+    string(const utf32* _array, Endianity _endianity) -> string(_array, _endianity, DefaultStorageEncoding)
 
-  # _array is a UTF-32 string ->
-  string(const utf32*_array, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _storageEncoding)
+    # _array is a UTF-32 string ->
+    string(const utf32*_array, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _storageEncoding)
 
-  # _array is a UTF-32 string ->
-  string(const utf32*_array) -> string(_array, DefaultEndianity, DefaultStorageEncoding)
+    # _array is a UTF-32 string ->
+    string(const utf32*_array) -> string(_array, DefaultEndianity, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-32 string ->
-  string(const utf32*_array, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-32 string ->
+    string(const utf32*_array, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-32 string ->
-  string(const utf32*_array, Endianity _endianity, unsigned int _length) -> string(_array, _endianity, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-32 string ->
+    string(const utf32*_array, Endianity _endianity, unsigned int _length) -> string(_array, _endianity, _length, DefaultStorageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-32 string ->
-  string(const utf32*_array, unsigned int _length, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _length, _storageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-32 string ->
+    string(const utf32*_array, unsigned int _length, Encoding _storageEncoding) -> string(_array, DefaultEndianity, _length, _storageEncoding)
 
-  # _length specifies the length of _array
-  # _array is a UTF-32 string ->
-  string(const utf32*_array, unsigned int _length) -> string(_array, DefaultEndianity, _length, DefaultStorageEncoding)
+    # _length specifies the length of _array
+    # _array is a UTF-32 string ->
+    string(const utf32*_array, unsigned int _length) -> string(_array, DefaultEndianity, _length, DefaultStorageEncoding)
 
-  string(const wchar_t* _string, Encoding _storageEncoding) -> string(reinterpret_cast<const utf16*>(_string), LE, _storageEncoding)
+    string(const wchar_t* _string, Encoding _storageEncoding) -> string(reinterpret_cast<const utf16*>(_string), LE, _storageEncoding)
 
-  string(const wchar_t* _string) -> string(reinterpret_cast<const utf16*>(_string), LE, DefaultStorageEncoding) {}
+    string(const wchar_t* _string) -> string(reinterpret_cast<const utf16*>(_string), LE, DefaultStorageEncoding) {}
 
-  string(const string& _string)
+    string(const string& _string)
 
-  # it generates a segment
-  string(const string& _source, int _begin, int _end)
+    # it generates a segment
+    string(const string& _source, int _begin, int _end)
 
-  # it generates a segment
-  string(const string& _source, const Range<int>& _range)
+    # it generates a segment
+    string(const string& _source, const Range<int>& _range)
 
-  string(char _character)
+    string(char _character)
 
-  string(wchar_t _character)
+    string(wchar_t _character)
 
-  string(CodePoint _codePoint)
+    string(CodePoint _codePoint)
 
-  # OPERATORS:
+    # OPERATORS:
 
-  # this operator does not compare the fields of the two objects; it compares only the character content
-  bool operator==(const string&) const
+    # this operator does not compare the fields of the two objects; it compares only the character content
+    bool operator==(const string&) const
 
-  # this operator does not compare the fields of the two objects; it compares only the character content
-  bool operator!=(const string&) const
+    # this operator does not compare the fields of the two objects; it compares only the character content
+    bool operator!=(const string&) const
 
-  # "East" == ["North", "South", "Left", "Right"] => false
-  # "East" == ["North", "South", "East", "West"] => true
-  bool operator==(const list<string>& _values) const
+    # "East" == ["North", "South", "Left", "Right"] => false
+    # "East" == ["North", "South", "East", "West"] => true
+    bool operator==(const list<string>& _values) const
 
-  # "East" == ["North", "South", "East", "West"] => false
-  # "East" == ["North", "South", "Left", "Right"] => true
-  bool operator!=(const list<string>& _values) const
+    # "East" == ["North", "South", "East", "West"] => false
+    # "East" == ["North", "South", "Left", "Right"] => true
+    bool operator!=(const list<string>& _values) const
 
-  string& operator=(const string&)
+    string& operator=(const string&)
 
-  string operator+(CodePoint) const
+    string operator+(CodePoint) const
 
-  string operator+(const string&) const
+    string operator+(const string&) const
 
-  string& operator+=(CodePoint)
+    string& operator+=(CodePoint)
 
-  string& operator+=(const string&)
+    string& operator+=(const string&)
 
-  # _index is in the range of list ->
-  CodePoint operator[](int _index)
+    # _index is in the range of list ->
+    CodePoint operator[](int _index)
 
-  # _index is in the range of list ->
-  CodePoint operator[](int _index) const
+    # _index is in the range of list ->
+    CodePoint operator[](int _index) const
 
-  # FIELDS:
+    # FIELDS:
 
-  int byteCount() const
+    int byteCount() const
 
-  int characterCount() const
+    int characterCount() const
 
-  int codeUnitCount() const
+    int codeUnitCount() const
 
-  int size() const
+    int size() const
 
-  int position() const
+    int position() const
 
-  Encoding storageEncoding() const
+    Encoding storageEncoding() const
 
-  const unsigned char* elements() const
+    const unsigned char* elements() const
 
-  #
+    #
 
-  # "205" => false
-  # "205." => false
-  # "205.0" => true
-  # "205.12" => true
-  bool IsFractional() const
+    # "205" => false
+    # "205." => false
+    # "205.0" => true
+    # "205.12" => true
+    bool IsFractional() const
 
-  # _index is outside the range of list => -1
-  # <T> is utf8, utf16 or utf32 ->
-  template<typename T> T codeUnitAt(int _index) const
+    # _index is outside the range of list => -1
+    # <T> is utf8, utf16 or utf32 ->
+    template<typename T> T codeUnitAt(int _index) const
 
-  TRAVERSAL FUNCTIONS:
+    TRAVERSAL FUNCTIONS:
 
-  bool can_reverse() const
+    bool can_reverse() const
 
-  bool can_advance() const
+    bool can_advance() const
 
-  # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
-  # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
-  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) characterCount() = 19, position() = 4, back(9) >> position() = 14
-  string& back(int _value)
+    # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+    # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+    # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) characterCount() = 19, position() = 4, back(9) >> position() = 14
+    string& back(int _value)
 
-  # traversalMode() == BOUNDED && position() + _value >= characterCount() >> position() = position()
-  # traversalMode() == BOUNDED && position() + _value < characterCount() - 1 >> position() = position() + _value
-  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) characterCount() = 21, position() = 16, advance(10) >> position() = 5
-  string& advance(int _value)
+    # traversalMode() == BOUNDED && position() + _value >= characterCount() >> position() = position()
+    # traversalMode() == BOUNDED && position() + _value < characterCount() - 1 >> position() = position() + _value
+    # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) characterCount() = 21, position() = 16, advance(10) >> position() = 5
+    string& advance(int _value)
 
-  CodePoint& previous() const
+    CodePoint& previous() const
 
-  # characterCount() > 0 ->
-  CodePoint current() const
+    # characterCount() > 0 ->
+    CodePoint current() const
 
-  CodePoint& next() const
+    CodePoint& next() const
 
-  # the string has atleast one value ->
-  CodePoint& last() const
+    # the string has atleast one value ->
+    CodePoint& last() const
 
-  int set_position(int _position)
+    int set_position(int _position)
 
-  # MUTATION FUNCTIONS:
+    # MUTATION FUNCTIONS:
 
-  # acquire ownership of _string; after the operation is completed _string becomes invalid
-  void Acquire(string& _string)
+    # acquire ownership of _string; after the operation is completed _string becomes invalid
+    void Acquire(string& _string)
 
-  # the bytes in _value represent a single character (in a specific encoding) and (are appended to &elements() in the same order as they are in _value)
-  string& Append(const list<unsigned char>& _value)
+    # the bytes in _value represent a single character (in a specific encoding) and (are appended to &elements() in the same order as they are in _value)
+    string& Append(const list<unsigned char>& _value)
 
-  string& Append(CodePoint _value)
+    string& Append(CodePoint _value)
 
-  string& Append(CodePoint _value, int _times)
+    string& Append(CodePoint _value, int _times)
 
-  string& Append(const list<CodePoint>& _value)
+    string& Append(const list<CodePoint>& _value)
 
-  string& Append(const string& _value)
+    string& Append(const string& _value)
 
-  # _size < 0 -> state of the list doesn't change
-  string& Clear(int _size = 0)
+    # _size < 0 -> state of the list doesn't change
+    string& Clear(int _size = 0)
 
-  # [1, 2, 10].FillLeft(5, 7) => [5, 5, 5, 5, 1, 2, 10]
-  string& FillLeft(CodePoint _value, int _length)
+    # [1, 2, 10].FillLeft(5, 7) => [5, 5, 5, 5, 1, 2, 10]
+    string& FillLeft(CodePoint _value, int _length)
 
-  # [1, 2, 10].FillRight(5, 7) => [1, 2, 10, 5, 5, 5, 5]
-  string& FillRight(CodePoint _value, int _length)
+    # [1, 2, 10].FillRight(5, 7) => [1, 2, 10, 5, 5, 5, 5]
+    string& FillRight(CodePoint _value, int _length)
 
-  # (count() > 0 && _index > 0 && _index < characterCount()) ->
-  string& Insert(CodePoint _value, int _index)
+    # (count() > 0 && _index > 0 && _index < characterCount()) ->
+    string& Insert(CodePoint _value, int _index)
 
-  # (count() > 0 && _index > 0 && (_index <= characterCount())) ->
-  string& Insert(const string& _value, int _index)
+    # (count() > 0 && _index > 0 && (_index <= characterCount())) ->
+    string& Insert(const string& _value, int _index)
 
-  # [1, 2, 3, 4, 5].Move(2, 4) => [1, 2, 4, 5, 3]
-  string& Move(int _sourceIndex, int _destinationIndex)
+    # [1, 2, 3, 4, 5].Move(2, 4) => [1, 2, 4, 5, 3]
+    string& Move(int _sourceIndex, int _destinationIndex)
 
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(2) => [10, 5, 4, 18, 9, 5]
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-  string Reduce(int _reducer)
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(2) => [10, 5, 4, 18, 9, 5]
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
+    string Reduce(int _reducer)
 
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(4) => [4, 18, 9, 5, 0, 3]
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-  string ReduceLeft(int _reducer)
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(4) => [4, 18, 9, 5, 0, 3]
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
+    string ReduceLeft(int _reducer)
 
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(4) => [11, 2, 10, 5, 4, 18]
-  # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-  string ReduceRight(int _reducer)
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(4) => [11, 2, 10, 5, 4, 18]
+    # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
+    string ReduceRight(int _reducer)
 
-  string& Remove(int _begin, int _end)
+    string& Remove(int _begin, int _end)
 
-  string& RemoveAt(int _index, int _length = 1)
+    string& RemoveAt(int _index, int _length = 1)
 
-  # removes the elements that match _value
-  # [1, 25, 4, 3, 4, 6, 5, 2, 41, 4, 52, 7, 8, 9].RemoveAll(4) => [1, 25, 3, 6, 5, 2, 41, 52, 7, 8, 9]
-  string RemoveAll(CodePoint _value)
+    # removes the elements that match _value
+    # [1, 25, 4, 3, 4, 6, 5, 2, 41, 4, 52, 7, 8, 9].RemoveAll(4) => [1, 25, 3, 6, 5, 2, 41, 52, 7, 8, 9]
+    string RemoveAll(CodePoint _value)
 
-  # removes the elements that match an element elements of _set
-  # [1, 2, 3, 4, 5, 6, 5, 2, 7, 8, 9].RemoveAll(2, 4, 5, 8) => [1, 3, 6, 7, 8, 9]
-  string RemoveAll(const string& _set)
+    # removes the elements that match an element elements of _set
+    # [1, 2, 3, 4, 5, 6, 5, 2, 7, 8, 9].RemoveAll(2, 4, 5, 8) => [1, 3, 6, 7, 8, 9]
+    string RemoveAll(const string& _set)
 
-  string RemoveIf(const std::function<bool(CodePoint)>& _predicate)
+    string RemoveIf(const std::function<bool(CodePoint)>& _predicate)
 
-  # [9, 2, 7].Repeat(2) => [9, 2, 7, 9, 2, 7, 9, 2, 7]
-  string Repeat(int _times)
+    # [9, 2, 7].Repeat(2) => [9, 2, 7, 9, 2, 7, 9, 2, 7]
+    string Repeat(int _times)
 
-  # [5, 9, 0, 3, 7, 18, 4, 2, 6].Replace(4, 7, [2, 6, 1]) => [5, 9, 0, 3, 2, 6, 1, 6]
-  string Replace(int _begin, int _end, const string& _replacement)
+    # [5, 9, 0, 3, 7, 18, 4, 2, 6].Replace(4, 7, [2, 6, 1]) => [5, 9, 0, 3, 2, 6, 1, 6]
+    string Replace(int _begin, int _end, const string& _replacement)
 
-  # replace every occurrence of _replaced with _replacement
-  string& Replace(CodePoint _replaced, CodePoint _replacement)
+    # replace every occurrence of _replaced with _replacement
+    string& Replace(CodePoint _replaced, CodePoint _replacement)
 
-  # replace every occurrence of _replaced with _replacement
-  string& Replace(const string& _replaced, const string& _replacement)
+    # replace every occurrence of _replaced with _replacement
+    string& Replace(const string& _replaced, const string& _replacement)
 
-  # [9, 7, 2, 5, 9, 0, 6, 2, 8, 4].Reverse() => [4, 8, 2, 6, 0, 9, 5, 2, 7, 9]
-  string& Reverse()
+    # [9, 7, 2, 5, 9, 0, 6, 2, 8, 4].Reverse() => [4, 8, 2, 6, 0, 9, 5, 2, 7, 9]
+    string& Reverse()
 
-  # [1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
-  string& RotateLeft(int _positions = 1)
+    # [1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
+    string& RotateLeft(int _positions = 1)
 
-  # [1, 2, 3, 4, 5].RotateRight(3) => [3, 4, 5, 1, 2]
-  string& RotateRight(int _positions = 1)
+    # [1, 2, 3, 4, 5].RotateRight(3) => [3, 4, 5, 1, 2]
+    string& RotateRight(int _positions = 1)
 
-  string& Set(int _index, CodePoint _value)
+    string& Set(int _index, CodePoint _value)
 
-  # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
-  string& Set(int _begin, int _end, CodePoint _value)
+    # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
+    string& Set(int _begin, int _end, CodePoint _value)
 
-  # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
-  string& Set(int _begin, const list<bool>& _value)
+    # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
+    string& Set(int _begin, const list<bool>& _value)
 
-  string& Swap(int _index1, int _index2)
+    string& Swap(int _index1, int _index2)
 
-  # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].Trim(2) => [5, 9, 0, 6]
-  string& Trim(CodePoint _value)
+    # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].Trim(2) => [5, 9, 0, 6]
+    string& Trim(CodePoint _value)
 
-  # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimBegin(2) => [5, 9, 0, 6, 2, 2, 2, 2, 2]
-  string& TrimBegin(CodePoint _value)
+    # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimBegin(2) => [5, 9, 0, 6, 2, 2, 2, 2, 2]
+    string& TrimBegin(CodePoint _value)
 
-  # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimEnd(2) => [2, 2, 2, 5, 9, 0, 6]
-  string& TrimEnd(CodePoint _value)
+    # [2, 2, 2, 5, 9, 0, 6, 2, 2, 2, 2, 2].TrimEnd(2) => [2, 2, 2, 5, 9, 0, 6]
+    string& TrimEnd(CodePoint _value)
 
-  # NON-MUTATING FUNCTIONS:
+    # NON-MUTATING FUNCTIONS:
 
-  # T is a pointer type ->
-  template<typename T> list<T*> As() const
+    # T is a pointer type ->
+    template<typename T> list<T*> As() const
 
-  bool BeginsWith(const string& _value) const
+    bool BeginsWith(const string& _value) const
 
-  # returns 'true' if &this begins with atleast one of the sequences in _value
-  # [8, 2, 5, 10, 7, 15, 12, 9, 1].BeginsWith([[5, 9, 1], [8, 1, 5], [9, 12, 0]]) => false
-  # [8, 2, 5, 10, 7, 15, 12, 9, 1].BeginsWith([[5, 9, 1], [8, 2, 5], [9, 12, 0]]) => true
-  bool BeginsWith(const list<string>& _values) const
+    # returns 'true' if &this begins with atleast one of the sequences in _value
+    # [8, 2, 5, 10, 7, 15, 12, 9, 1].BeginsWith([[5, 9, 1], [8, 1, 5], [9, 12, 0]]) => false
+    # [8, 2, 5, 10, 7, 15, 12, 9, 1].BeginsWith([[5, 9, 1], [8, 2, 5], [9, 12, 0]]) => true
+    bool BeginsWith(const list<string>& _values) const
 
-  # returns copy of &this
-  string Clone() const
+    # returns copy of &this
+    string Clone() const
 
-  bool Contains(CodePoint _value) const
+    bool Contains(CodePoint _value) const
 
-  # [1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
-  bool Contains(const string& _value) const
+    # [1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
+    bool Contains(const string& _value) const
 
-  bool Contains(const std::function<bool(CodePoint)>& _predicate) const
+    bool Contains(const std::function<bool(CodePoint)>& _predicate) const
 
-  bool ContainsAll(const string& _set) const
+    bool ContainsAll(const string& _set) const
 
-  # [9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([21, 8, 5, 1]) => false
-  # [9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([6, 30, 3, 1]) => true
-  bool ContainsAny(const list<CodePoint>& _set) const
+    # [9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([21, 8, 5, 1]) => false
+    # [9, 7, 3, 20, 15, 18, 4, 7].ContainsAny([6, 30, 3, 1]) => true
+    bool ContainsAny(const list<CodePoint>& _set) const
 
-  bool ContainsOnly(CodePoint _value) const
+    bool ContainsOnly(CodePoint _value) const
 
-  # [9, 1, 0, 3, 1, 5, 9, 1, 15, 3, 7, 5, 9, 1, 1].ContainsOnly([1, 9, 10]) => false
-  # [9, 1, 0, 3, 1, 5, 9, 1, 15, 3, 7, 5, 9, 1, 1].ContainsOnly([5, 9, 1, 0, 7, 3, 15]) => true
-  bool ContainsOnly(const list<CodePoint>& _set) const
+    # [9, 1, 0, 3, 1, 5, 9, 1, 15, 3, 7, 5, 9, 1, 1].ContainsOnly([1, 9, 10]) => false
+    # [9, 1, 0, 3, 1, 5, 9, 1, 15, 3, 7, 5, 9, 1, 1].ContainsOnly([5, 9, 1, 0, 7, 3, 15]) => true
+    bool ContainsOnly(const list<CodePoint>& _set) const
 
-  bool ContainsOnly(const std::function<bool(CodePoint)>& _predicate) const
+    bool ContainsOnly(const std::function<bool(CodePoint)>& _predicate) const
 
-  int CountOf(CodePoint _value) const
+    int CountOf(CodePoint _value) const
 
-  # [5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1]) => 4
-  # [5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1, 7]) => 0
-  int CountOf(const string& _value) const
+    # [5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1]) => 4
+    # [5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1, 7]) => 0
+    int CountOf(const string& _value) const
 
-  int CountOf(const std::function<bool(CodePoint)>& _predicate) const
+    int CountOf(const std::function<bool(CodePoint)>& _predicate) const
 
-  # [7, 8, 3, 19, 20, 71, 15, 71, 3, 31, 108, 3]).Duplicates() => [3, 71]
-  string Duplicates() const
+    # [7, 8, 3, 19, 20, 71, 15, 71, 3, 31, 108, 3]).Duplicates() => [3, 71]
+    string Duplicates() const
 
-  bool EndsWith(const string& _value) const
+    bool EndsWith(const string& _value) const
 
-  bool EndsWithWith(const list<string>& _values) const
+    bool EndsWithWith(const list<string>& _values) const
 
-  # [2, 9, 0, 1, 4, 9, 7, 3].Except(9) => [2, 0, 1, 4, 7, 3]
-  string Except(CodePoint _value) const
+    # [2, 9, 0, 1, 4, 9, 7, 3].Except(9) => [2, 0, 1, 4, 7, 3]
+    string Except(CodePoint _value) const
 
-  # [2, 9, 0, 1, 4, 9, 7, 3].Except([9, 7, 0]) => [2, 1, 4, 3]
-  string Except(const list<CodePoint>& _set) const
+    # [2, 9, 0, 1, 4, 9, 7, 3].Except([9, 7, 0]) => [2, 1, 4, 3]
+    string Except(const list<CodePoint>& _set) const
 
-  string Except(const std::function<bool(CodePoint)>& _predicate) const
+    string Except(const std::function<bool(CodePoint)>& _predicate) const
 
-  bool HasDuplicates() const
+    bool HasDuplicates() const
 
-  # the specified element does not exist or _begin is outside the range of string => -1
-  int IndexOf(CodePoint _value, int _begin = 0) const
+    # the specified element does not exist or _begin is outside the range of string => -1
+    int IndexOf(CodePoint _value, int _begin = 0) const
 
-  # the specified element does not exist or _begin is outside the range of string => -1
-  int IndexOf(const string& _value, int _begin = 0) const
+    # the specified element does not exist or _begin is outside the range of string => -1
+    int IndexOf(const string& _value, int _begin = 0) const
 
-  # the specified element does not exist or _begin is outside the range of string => -1
-  int IndexOf(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
+    # the specified element does not exist or _begin is outside the range of string => -1
+    int IndexOf(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
 
-  # the specified value does not exist or _begin is outside the range of string => -1
-  int IndexOfAny(const list<CodePoint>& _set, int _begin = 0) const
+    # the specified value does not exist or _begin is outside the range of string => -1
+    int IndexOfAny(const list<CodePoint>& _set, int _begin = 0) const
 
-  # _begin is outside the range of list => -2
-  # [].IndexOf(4) => -1
-  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
-  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
-  int IndexOfNot(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
+    # _begin is outside the range of list => -2
+    # [].IndexOf(4) => -1
+    # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
+    # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
+    int IndexOfNot(const std::function<bool(CodePoint)>& _predicate, int _begin = 0) const
 
-  # _begin is outside the range of list => -2
-  # [].IndexOf(4) => -1
-  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
-  # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
-  int IndexOfNot(CodePoint _value, int _begin = 0) const
+    # _begin is outside the range of list => -2
+    # [].IndexOf(4) => -1
+    # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(9) => 3
+    # [9, 9, 9, 5, 8, 10, 2, 7].IndexOfNot(4) => 0
+    int IndexOfNot(CodePoint _value, int _begin = 0) const
 
-  # A = [5, 0, 3, 6]
-    B = [3, 2, 4, 5, 9]
-    IntersectionOf(A, B) => [3, 5] #
-  static list<CodePoint> IntersectionOf(const string& _string1, const string& _string2)
+    # A = [5, 0, 3, 6]
+      B = [3, 2, 4, 5, 9]
+      IntersectionOf(A, B) => [3, 5] #
+    static list<CodePoint> IntersectionOf(const string& _string1, const string& _string2)
 
-  # the specified value does not exist => -1
-  int LastIndexOf(CodePoint _value) const
+    # the specified value does not exist => -1
+    int LastIndexOf(CodePoint _value) const
 
-  # the specified value does not exist => -1
-  int LastIndexOf(const string& _value) const
+    # the specified value does not exist => -1
+    int LastIndexOf(const string& _value) const
 
-  # the specified value does not exist => -1
-  int LastIndexOf(const std::function<bool(CodePoint)>& _predicate) const
+    # the specified value does not exist => -1
+    int LastIndexOf(const std::function<bool(CodePoint)>& _predicate) const
 
-  # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
-  # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [41, 56, 3, 7, 18, 5, 19, 76, 15].Multisplit([353, 12]) => []
-  # [41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 20, 5].Multisplit([56, 9]) => [[41], [3, 7, 18, 5, 19, 76, 15], [20, 5]]
-  # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9]) => [[41, 56, 3], [18, 5, 19, 76, 15], [], [20]]
-  # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9], true) => [[41, 56, 3], [18, 5, 19, 76, 15], [20]]
-  list<string> Multisplit(const list<CodePoint>& _set, bool _ignoreEmptyValues = false) const
+    # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+    # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+    # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+    # [41, 56, 3, 7, 18, 5, 19, 76, 15].Multisplit([353, 12]) => []
+    # [41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 20, 5].Multisplit([56, 9]) => [[41], [3, 7, 18, 5, 19, 76, 15], [20, 5]]
+    # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9]) => [[41, 56, 3], [18, 5, 19, 76, 15], [], [20]]
+    # [9, 41, 56, 3, 7, 18, 5, 19, 76, 15, 9, 9, 20, 7].Multisplit([7, 9], true) => [[41, 56, 3], [18, 5, 19, 76, 15], [20]]
+    list<string> Multisplit(const list<CodePoint>& _set, bool _ignoreEmptyValues = false) const
 
-  # returns the range of a sequence consisting of certain set of values (it is not mandatory for the sequence to contain each value in the set)
-  # [3, 10, 15, 12, 8, 5, 7, 5, 5, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
-  # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
-  # [3, 10, 15, 12, 0, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (4, 4)
-  # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (-1, -1)
-  Range<int> RangeOf(const list<CodePoint>& _set, int _sindex = 0) const
+    # returns the range of a sequence consisting of certain set of values (it is not mandatory for the sequence to contain each value in the set)
+    # [3, 10, 15, 12, 8, 5, 7, 5, 5, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
+    # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
+    # [3, 10, 15, 12, 0, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (4, 4)
+    # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (-1, -1)
+    Range<int> RangeOf(const list<CodePoint>& _set, int _sindex = 0) const
 
-  # returns the range of a sequence not consisting of certain set of values (it is mandatory for the sequence to not contain any of the values in the set)
-  # [5, 7, 5, 5, 7, 7, 3, 10, 15, 12, 8, 2, 9].RangeOfNot([2, 5, 7]) => (6, 10)
-  # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOfNot([2, 5, 7]) => (0, 4)
-  # [5, 7, 2, 2, 7, 7, 5, 4, 2, 7, 5].RangeOfNot([2, 5, 7]) => (7, 7)
-  # [4, 0, 0, 1, 1, 4, 0, 1, 4, 4, 1].RangeOfNot([4, 0, 1]) => (-1, -1)
-  Range<int> RangeOfNot(const list<CodePoint>& _set, int _sindex = 0) const
+    # returns the range of a sequence not consisting of certain set of values (it is mandatory for the sequence to not contain any of the values in the set)
+    # [5, 7, 5, 5, 7, 7, 3, 10, 15, 12, 8, 2, 9].RangeOfNot([2, 5, 7]) => (6, 10)
+    # [3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOfNot([2, 5, 7]) => (0, 4)
+    # [5, 7, 2, 2, 7, 7, 5, 4, 2, 7, 5].RangeOfNot([2, 5, 7]) => (7, 7)
+    # [4, 0, 0, 1, 1, 4, 0, 1, 4, 4, 1].RangeOfNot([4, 0, 1]) => (-1, -1)
+    Range<int> RangeOfNot(const list<CodePoint>& _set, int _sindex = 0) const
 
-  # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
-  # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [3, 7, 18, 5, 19, 76, 15].Split(353) => []
-  # [18, 5, 19, 76, 15, 9, 20, 5].Split(9) => [[18, 5, 19, 76, 15], [20, 5]]
-  # [56, 3, 7, 18, 5, 19, 76, 7].Split(7) => [[56, 3], [18, 5, 19, 76]]
-  # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7) => [[56], [], [18, 5, 19, 76, 15, 9]]
-  # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7, true) => [[56], [18, 5, 19, 76, 15, 9]]
-  # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split(7) => [[41, 56], [18, 76, 15, 9]]
-  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7) => [[41, 56], [], [], [18, 5, 15]]
-  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7, true) => [[41, 56], [18, 5, 15]]
-  list<string> Split(CodePoint _separator, bool _ignoreEmptyValues = false) const
+    # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+    # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+    # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+    # [3, 7, 18, 5, 19, 76, 15].Split(353) => []
+    # [18, 5, 19, 76, 15, 9, 20, 5].Split(9) => [[18, 5, 19, 76, 15], [20, 5]]
+    # [56, 3, 7, 18, 5, 19, 76, 7].Split(7) => [[56, 3], [18, 5, 19, 76]]
+    # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7) => [[56], [], [18, 5, 19, 76, 15, 9]]
+    # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split(7, true) => [[56], [18, 5, 19, 76, 15, 9]]
+    # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split(7) => [[41, 56], [18, 76, 15, 9]]
+    # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7) => [[41, 56], [], [], [18, 5, 15]]
+    # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split(7, true) => [[41, 56], [18, 5, 15]]
+    list<string> Split(CodePoint _separator, bool _ignoreEmptyValues = false) const
 
-  # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
-  # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [41, 56, 3, 5, 7, 18, 5, 19, 76, 15].Split([3, 8]) => []
-  # [41, 56, 3, 5, 7, 18, 5, 19, 9, 7, 76, 15, 9].Split([9, 7]) => [[41, 56, 3, 5, 7, 18, 5, 19], [76, 15, 9]]
-  # [41, 56, 3, 9, 7, 18, 5, 19, 76, 15, 9, 20, 9, 7].Split([9, 7]) => [[41, 56, 3], [18, 5, 19, 76, 15, 9, 20]]
-  # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7]) => [[41, 56], [], [18, 5, 19, 76, 15, 9, 20, 3]]
-  # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7], true) => [[41, 56], [18, 5, 19, 76, 15, 9, 20, 3]]
-  # [9, 7, 41, 56, 9, 9, 7, 18, 76, 15, 9, 20, 3, 9, 7].Split([9, 7]) => [[41, 56, 9], [18, 76, 15, 9, 20, 3]]
-  # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7]) => [[41, 56], [], [], [18]]
-  # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7], true) => [[41, 56], [18]]
-  list<string> Split(const string& _separator, bool _ignoreEmptyValues = false) const
+    # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+    # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+    # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+    # [41, 56, 3, 5, 7, 18, 5, 19, 76, 15].Split([3, 8]) => []
+    # [41, 56, 3, 5, 7, 18, 5, 19, 9, 7, 76, 15, 9].Split([9, 7]) => [[41, 56, 3, 5, 7, 18, 5, 19], [76, 15, 9]]
+    # [41, 56, 3, 9, 7, 18, 5, 19, 76, 15, 9, 20, 9, 7].Split([9, 7]) => [[41, 56, 3], [18, 5, 19, 76, 15, 9, 20]]
+    # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7]) => [[41, 56], [], [18, 5, 19, 76, 15, 9, 20, 3]]
+    # [41, 56, 9, 7, 9, 7, 18, 5, 19, 76, 15, 9, 20, 3].Split([9, 7], true) => [[41, 56], [18, 5, 19, 76, 15, 9, 20, 3]]
+    # [9, 7, 41, 56, 9, 9, 7, 18, 76, 15, 9, 20, 3, 9, 7].Split([9, 7]) => [[41, 56, 9], [18, 76, 15, 9, 20, 3]]
+    # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7]) => [[41, 56], [], [], [18]]
+    # [9, 7, 41, 56, 9, 7, 9, 7, 9, 7, 18].Split([9, 7], true) => [[41, 56], [18]]
+    list<string> Split(const string& _separator, bool _ignoreEmptyValues = false) const
 
-  # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
-  # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
-  # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
-  # [3, 7, 18, 5, 19, 76, 15].Split([](int x) { return x == 353; }) => []
-  # [18, 5, 19, 76, 15, 9, 20, 5].Split([](int x) { return x == 9; }) => [[18, 5, 19, 76, 15], [20, 5]]
-  # [56, 3, 7, 18, 5, 19, 76, 7].Split([](int x) { return x == 7; }) => [[56, 3], [18, 5, 19, 76]]
-  # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }) => [[56], [], [18, 5, 19, 76, 15, 9]]
-  # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }, true) => [[56], [18, 5, 19, 76, 15, 9]]
-  # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split([](int x) { return x == 7; }) => [[41, 56], [18, 76, 15, 9]]
-  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }) => [[41, 56], [], [], [18, 5, 15]]
-  # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }, true) => [[41, 56], [18, 5, 15]]
-  list<string> Split(const std::function<bool(CodePoint)>& _predicate, bool _ignoreEmptyValues = false) const
+    # returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
+    # empty sequences are generated (and eventually are appended to the result) only if they are between two separators
+    # _ignoreEmptyValues = true -> empty sequences (if there are any) are not appended to the result
+    # [3, 7, 18, 5, 19, 76, 15].Split([](int x) { return x == 353; }) => []
+    # [18, 5, 19, 76, 15, 9, 20, 5].Split([](int x) { return x == 9; }) => [[18, 5, 19, 76, 15], [20, 5]]
+    # [56, 3, 7, 18, 5, 19, 76, 7].Split([](int x) { return x == 7; }) => [[56, 3], [18, 5, 19, 76]]
+    # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }) => [[56], [], [18, 5, 19, 76, 15, 9]]
+    # [56, 7, 7, 18, 5, 19, 76, 15, 9].Split([](int x) { return x == 7; }, true) => [[56], [18, 5, 19, 76, 15, 9]]
+    # [7, 41, 56, 7, 18, 76, 15, 9, 7].Split([](int x) { return x == 7; }) => [[41, 56], [18, 76, 15, 9]]
+    # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }) => [[41, 56], [], [], [18, 5, 15]]
+    # [7, 41, 56, 7, 7, 7, 18, 5, 15].Split([](int x) { return x == 7; }, true) => [[41, 56], [18, 5, 15]]
+    list<string> Split(const std::function<bool(CodePoint)>& _predicate, bool _ignoreEmptyValues = false) const
 
-  # _length = 0 => [_begin..]
-  # (_begin + _length) > characterCount() => {}
-  string Sublist(int _begin, int _length = 0) const
+    # _length = 0 => [_begin..]
+    # (_begin + _length) > characterCount() => {}
+    string Sublist(int _begin, int _length = 0) const
 
-  # [5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange(2, 5) => [4, 1, 9, 6]
-  string Subrange(int _begin, int _end) const
+    # [5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange(2, 5) => [4, 1, 9, 6]
+    string Subrange(int _begin, int _end) const
 
-  string Where(const std::function<bool(CodePoint)>& _predicate) const
+    string Where(const std::function<bool(CodePoint)>& _predicate) const
 
-  # A = [8, 19, 2, 5, 5, 0, 2, 7, 10, 4]
-    B = [23, 21, 4, 7, 5, 19, 17, 26]
-    UnionOf(A, B) => [8, 19, 2, 5, 0, 7, 10, 4, 23, 21, 17, 26] #
-  static list<CodePoint> UnionOf(const string& _string1, const string& _string2)
+    # A = [8, 19, 2, 5, 5, 0, 2, 7, 10, 4]
+      B = [23, 21, 4, 7, 5, 19, 17, 26]
+      UnionOf(A, B) => [8, 19, 2, 5, 0, 7, 10, 4, 23, 21, 17, 26] #
+    static list<CodePoint> UnionOf(const string& _string1, const string& _string2)
 
-  # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Until(52) => [21, 35, 2, 9, 40, 31, 52, 9, 24]
-  string Until(CodePoint _value) const
+    # [21, 35, 2, 9, 40, 31, 52, 9, 24, 52, 35, 18].Until(52) => [21, 35, 2, 9, 40, 31, 52, 9, 24]
+    string Until(CodePoint _value) const
 
-  # OTHER FUNCTIONS:
+    # OTHER FUNCTIONS:
 
-  # *this == "true" | "false" ->
-  bool ToBool() const
+    # *this == "true" | "false" ->
+    bool ToBool() const
 
-  static string FromBool(bool _value)
+    static string FromBool(bool _value)
 
-  # the value of the number is outside the valid range for (long long) => incorrect value
-  # the string is valid decimal value in the valid range for (long long) ->
-  long long ToInteger(BINARY_, BitOrder _bitOrder) const
+    # the value of the number is outside the valid range for (long long) => incorrect value
+    # the string is valid decimal value in the valid range for (long long) ->
+    long long ToInteger(BINARY_, BitOrder _bitOrder) const
 
-  # the value of the number is outside the valid range for (long long) => incorrect value
-  # the string is valid decimal value in the valid range for (long long) ->
-  long long ToInteger(DECIMAL_) const
+    # the value of the number is outside the valid range for (long long) => incorrect value
+    # the string is valid decimal value in the valid range for (long long) ->
+    long long ToInteger(DECIMAL_) const
 
-  # the value of the number is outside the valid range for (unsigned long long) => incorrect value
-  # the string is valid decimal value in the valid range for (unsigned long long) ->
-  unsigned long long ToIntegerU(DECIMAL_) const
+    # the value of the number is outside the valid range for (unsigned long long) => incorrect value
+    # the string is valid decimal value in the valid range for (unsigned long long) ->
+    unsigned long long ToIntegerU(DECIMAL_) const
 
-  # the value of the number is outside the valid range for (unsigned long long) => incorrect value
-  # the string is valid hexadecimal value in the valid range for (unsigned long long) ->
-  long long ToInteger(HEX_) const
+    # the value of the number is outside the valid range for (unsigned long long) => incorrect value
+    # the string is valid hexadecimal value in the valid range for (unsigned long long) ->
+    long long ToInteger(HEX_) const
 
-  # _number < 1 quadrillion ->
-  static string FromInteger(long long _number)
+    # _number < 1 quadrillion ->
+    static string FromInteger(long long _number)
 
-  float ToFloat() const
+    float ToFloat() const
 
-  double ToDouble() const
+    double ToDouble() const
 
-  # the current value of the string contains only ASCII characters ->
-  const char* ToASCII() const
+    # the current value of the string contains only ASCII characters ->
+    const char* ToASCII() const
 
-  # returns a list of UTF-32 characters
-  # the string does not contain composite characters ->
-  const char32_t* ToChar32() const
+    # returns a list of UTF-32 characters
+    # the string does not contain composite characters ->
+    const char32_t* ToChar32() const
 
-  # the string does not contain composite characters ->
-  const wchar_t* ToWide() const
+    # the string does not contain composite characters ->
+    const wchar_t* ToWide() const
 
-  list<char> ToBytes() const
+    list<char> ToBytes() const
 
-  #
+    #
 
-  void resize(int _size = -1)
+    void resize(int _size = -1)
 
 # the value of _string contains only ASCII characters ->
 void print(const string& _string)
@@ -2454,31 +2454,31 @@ bit_operations.cpp:
 
 struct BitSet:
 
-   BitSet() = default
+     BitSet() = default
 
-   BitSet(unsigned short _bitCount) -> the value of each bit is 0
+     BitSet(unsigned short _bitCount) -> the value of each bit is 0
 
-   BitSet(unsigned long long _value)
+     BitSet(unsigned long long _value)
 
-   BitSet(const BitSet&)
+     BitSet(const BitSet&)
 
-   BitSet& operator=(const BitSet&)
+     BitSet& operator=(const BitSet&)
 
-   int bitCount() const
+     int bitCount() const
 
-   int byteCount() const
+     int byteCount() const
 
-   unsigned char* byteSequence() const
+     unsigned char* byteSequence() const
 
-   void SetBit(int _index, bool _value)
+     void SetBit(int _index, bool _value)
 
-   bool GetBit(int _index) const
+     bool GetBit(int _index) const
 
-   # (0000000000).SetBits((111001), 3) => 0111001000
-   void SetBits(const list<bool>& _bits, int _begin)
+     # (0000000000).SetBits((111001), 3) => 0111001000
+     void SetBits(const list<bool>& _bits, int _begin)
 
-   # (0000000000).SetBits((111001), 3) => 0100111000
-   void SetBitsReversed(const list<bool>& _bits, int _begin)
+     # (0000000000).SetBits((111001), 3) => 0100111000
+     void SetBitsReversed(const list<bool>& _bits, int _begin)
 
 # Reverse<unsigned char>(01001010) => 01010010
 # Reverse<unsigned short>(0000000001001010) => 0101001000000000
@@ -2630,7 +2630,7 @@ unsigned char ByteOf(unsigned int _value, int _index)
 # _index = 0..7 ->
 unsigned char ByteOf(unsigned long long _value, int _index)
 
-# (!) always returns 2 bytes (not just the significant bytes)
+# (!) always returns 2 bytes (not just the significant byte)
 # (!) the first byte in the list is LSB
 list<unsigned char> BytesOf(unsigned short _value)
 
@@ -2834,48 +2834,48 @@ TimeUnit = MILLISECONDS | SECOND
 
 struct DateTime:
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  DateTime() = default
+    DateTime() = default
 
-  DateTime(int _day, int _month, int _year, int _hour, int _minute, int _second, int _timezone_ = 0)
+    DateTime(int _year, int _month, int _day, int _hour, int _minute, int _second, int _timezone_ = 0)
 
-  DateTime(const DateTime&) = default
+    DateTime(const DateTime&) = default
 
-  # OPERATORS:
+    # OPERATORS:
 
-  DateTime& operator=(const DateTime&) = default
+    DateTime& operator=(const DateTime&) = default
 
-  bool operator==(const DateTime& _datetime) const
+    bool operator==(const DateTime& _datetime) const
 
-  bool operator!=(const DateTime& _datetime) const
+    bool operator!=(const DateTime& _datetime) const
 
-  # FIELDS:
+    # FIELDS:
 
-  int year() const
+    int year() const
 
-  int month() const
+    int month() const
 
-  int day() const
+    int day() const
 
-  int hour() const
+    int hour() const
 
-  int minute() const
+    int minute() const
 
-  int second() const
+    int second() const
 
-  int timezone() const
+    int timezone() const
 
-  # FUNCTIONS:
+    # FUNCTIONS:
 
-  # 23-5-2009 09:51:07 +3 -> ToTimezone(7) => 23-5-2009 13:51:07 7
-  # 23-5-2009 09:51:07 +3 -> ToTimezone(-8) => 22-5-2009 22:51:07 -8
-  # _timezone_ >= -11 & _timezone_ <= 14 ->
-  void ToTimezone(int _timezone_)
+    # 23-5-2009 09:51:07 +3 -> ToTimezone(7) => 23-5-2009 13:51:07 7
+    # 23-5-2009 09:51:07 +3 -> ToTimezone(-8) => 22-5-2009 22:51:07 -8
+    # _timezone_ >= -11 & _timezone_ <= 14 ->
+    void ToTimezone(int _timezone_)
 
-  bool IsAfter(const DateTime& _datetime) const
+    bool IsAfter(const DateTime& _datetime) const
 
-  bool IsBefore(const DateTime& _datetime) const
+    bool IsBefore(const DateTime& _datetime) const
 
 # CONSTANTS:
 
@@ -2887,14 +2887,15 @@ long MINUTES_IN_A_DAY = 1440
 
 # FUNCTIONS:
 
+# DayOfYear({ 2024, 2, 5, 0, 0, 0, 0 }) => 36
 int DayOfYear(const DateTime& _datetime)
 
 # number of seconds since 01.01.1970 00:00:00 UTC
 long long Elapsed()
 
-# returns the number of seconds between _datetime and _datetime_
-# _datetime and/or _datetime_ is not valid => -1
-unsigned long long IntervalOf(const DateTime& _datetime, const DateTime& _datetime_)
+# returns the number of seconds between _datetime1 and _datetime2
+# _datetime1 and/or _datetime2 is not valid => -1
+unsigned long long IntervalOf(const DateTime& _datetime1, const DateTime& _datetime2)
 
 # _year >= 1 ->
 bool IsLeap(int _year)
@@ -3008,216 +3009,218 @@ string ParentDirectoryOf(const string& _path)
       call Close() explicitly; when calling Close() explicitly no other operations should be performed on the object afterwards #
 struct File:
 
-  # VARIABLES:
+    # VARIABLES:
 
-  TraversalMode TraversalMode = TraversalMode::BOUNDED
+    TraversalMode TraversalMode = TraversalMode::BOUNDED
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  File() = default
+    File() = default
 
-  # if the file is successfully opened then &Path and &Name will have a set value
-  # _path is ASCII value ->
-  explicit File(const string& _path)
+    # if the file is successfully opened then &Path and &Name will have a set value
+    # _path is ASCII value ->
+    explicit File(const string& _path)
 
-  File(const File&) = delete
+    File(const File&) = delete
 
-  # OPERATORS:
+    # OPERATORS:
 
-  # if the function returns UNSUCCESSFUL_OPERATION then it is recommended to check field &os_
-  # _index is in the range of file ->
-  unsigned char operator[](int _index)
+    # if the function returns UNSUCCESSFUL_OPERATION then it is recommended to check field &os_
+    # _index is in the range of file ->
+    unsigned char operator[](int _index)
 
-  # if the function returns UNSUCCESSFUL_OPERATION then it is recommended to check field &os_
-  # _index is in the range of file ->
-  unsigned char operator[](int _index) const
+    # if the function returns UNSUCCESSFUL_OPERATION then it is recommended to check field &os_
+    # _index is in the range of file ->
+    unsigned char operator[](int _index) const
 
-  # assignment is performed only on uncostructed object, i.e. if *this is not associated with a physical file
-  # after the operation is completed the old object becomes invalid
-  # field &os is not copied
-  File& operator=(const File& _file)
+    # assignment is performed only on uncostructed object, i.e. if *this is not associated with a physical file
+    # after the operation is completed the old object becomes invalid
+    # field &os is not copied
+    File& operator=(const File& _file)
 
-  # FIELDS:
+    # FIELDS:
 
-  int size() const
+    int size() const
 
-  int position() const
+    int position() const
 
-  const string& path() const
+    const string& path() const
 
-  const string& name() const
+    const string& name() const
 
-  const string& extension() const
+    const string& extension() const
 
-  char os_() const
+    char os_() const
 
-  # OTHER FUNCTIONS:
+    # OTHER FUNCTIONS:
 
-  bool IsBound() const
+    bool IsBound() const
 
-  void Close()
+    void Close()
 
-  # TRAVERSAL FUNCTIONS:
+    # TRAVERSAL FUNCTIONS:
 
-  bool can_reverse() const
+    bool can_reverse() const
 
-  bool can_advance() const
+    bool can_advance() const
 
-  # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
-  # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
-  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 19, position() = 4, back(9) >> position() = 14
-  File& back()
+    # traversalMode() == BOUNDED && position() - _value < 0 >> position() = position()
+    # traversalMode() == BOUNDED && position() - _value > -1 >> position() = position() - _value
+    # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 19, position() = 4, back(9) >> position() = 14
+    File& back()
 
-  # traversalMode() == BOUNDED && position() + _value >= size() >> position() = position()
-  # traversalMode() == BOUNDED && position() + _value < size() - 1 >> position() = position() + _value
-  # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 21, position() = 16, advance(10) >> position() = 5
-  File& advance()
+    # traversalMode() == BOUNDED && position() + _value >= size() >> position() = position()
+    # traversalMode() == BOUNDED && position() + _value < size() - 1 >> position() = position() + _value
+    # traversalMode() == CIRCULAR -> circular addition; (EXAMPLE) size() = 21, position() = 16, advance(10) >> position() = 5
+    File& advance()
 
-  # position() > 0 => [position() - 1]
-  # traversalMode() == BOUNDED && position() == 0 => [0]
-  # traversalMode() == CIRCULAR && position() == 0 => [size() - 1]
-  unsigned char previous() const
+    # position() > 0 => [position() - 1]
+    # traversalMode() == BOUNDED && position() == 0 => [0]
+    # traversalMode() == CIRCULAR && position() == 0 => [size() - 1]
+    unsigned char previous() const
 
-  # size() > 0 ->
-  unsigned char current() const
+    # size() > 0 ->
+    unsigned char current() const
 
-  # position() < size() - 1 => [position() + 1]
-  # traversalMode() == BOUNDED && position() == size() - 1 => [position()]
-  # traversalMode() == CIRCULAR && position() == size() - 1 => [0]
-  unsigned char next() const
+    # position() < size() - 1 => [position() + 1]
+    # traversalMode() == BOUNDED && position() == size() - 1 => [position()]
+    # traversalMode() == CIRCULAR && position() == size() - 1 => [0]
+    unsigned char next() const
 
-  # the list has atleast one value ->
-  T& last() const
+    # the list has atleast one value ->
+    T& last() const
 
-  # _position < -1 || _possition > size() - 1 => -1
-  int set_position(int _position)
+    # _position < -1 || _possition > size() - 1 => -1
+    int set_position(int _position)
 
-  # NON-MUTATING FUNCTIONS:
+    # NON-MUTATING FUNCTIONS:
 
-  bool BeginsWith(const list<unsigned char>& _value) const
+    bool BeginsWith(const list<unsigned char>& _value) const
 
-  bool Contains(unsigned char _value) const
+    bool Contains(unsigned char _value) const
 
-  # [1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
-  bool Contains(const list<unsigned char>& _value) const
+    # [1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
+    bool Contains(const list<unsigned char>& _value) const
 
-  bool Contains(std::function<bool(unsigned char)> _predicate) const
+    bool Contains(std::function<bool(unsigned char)> _predicate) const
 
-  bool EndsWith(const list<unsigned char>& _value) const
+    bool EndsWith(const list<unsigned char>& _value) const
 
-  # the specified value does not exist => -1
-  int IndexOf(unsigned char _value, int _begin = 0) const
+    # the specified value does not exist => -1
+    int IndexOf(unsigned char _value, int _begin = 0) const
 
-  # the specified value does not exist => -1
-  int IndexOf(const list<unsigned char>& _value, int _begin = 0) const
+    # the specified value does not exist => -1
+    int IndexOf(const list<unsigned char>& _value, int _begin = 0) const
 
-  # the specified value does not exist or _begin is outside the range of list => -1
-  int IndexOf(std::function<bool(unsigned char)> _predicate, int _begin = 0) const
+    # the specified value does not exist or _begin is outside the range of list => -1
+    int IndexOf(std::function<bool(unsigned char)> _predicate, int _begin = 0) const
 
-  # the specified value does not exist => -1
-  int LastIndexOf(unsigned char _value) const
+    # the specified value does not exist => -1
+    int LastIndexOf(unsigned char _value) const
 
-  # the specified value does not exist => -1
-  int LastIndexOf(const list<unsigned char>& _value) const
+    # the specified value does not exist => -1
+    int LastIndexOf(const list<unsigned char>& _value) const
 
-  # the specified value does not exist => -1
-  int LastIndexOf(std::function<bool(unsigned char)> _predicate) const
+    # the specified value does not exist => -1
+    int LastIndexOf(std::function<bool(unsigned char)> _predicate) const
 
-  # buffered read-operation; reads a block at the current position
-  # _size + position() < (size() + 1) ->
-  void ReadBlock(unsigned char* _array, int _size, bool _advancePosition) const
+    # buffered read-operation; reads a block at the current position
+    # _size + position() < (size() + 1) ->
+    void ReadBlock(unsigned char* _array, int _size, bool _advancePosition) const
 
-  # position() + 1 < (size() + 1) ->
-  unsigned char ReadI8(bool _advancePosition) const
+    # position() + 1 < (size() + 1) ->
+    unsigned char ReadI8(bool _advancePosition) const
 
-  # (!) _endianity is the endianity of the source-integral
-  # reads a 16-bit unsigned integral value at the current position
-  # position() + 2 < (size() + 1) ->
-  unsigned short ReadI16(Endianity _endianity, bool _advancePosition) const
+    # (!) _endianity is the endianity of the source-integral
+    # reads a 16-bit unsigned integral value at the current position
+    # position() + 2 < (size() + 1) ->
+    unsigned short ReadI16(Endianity _endianity, bool _advancePosition) const
 
-  # (!) _endianity is the endianity of the source-integral
-  # reads a 32-bit unsigned integral value at the current position
-  # position() + 4 < (size() + 1) ->
-  unsigned int ReadI32(Endianity _endianity, bool _advancePosition) const
+    # (!) _endianity is the endianity of the source-integral
+    # reads a 32-bit unsigned integral value at the current position
+    # position() + 4 < (size() + 1) ->
+    unsigned int ReadI32(Endianity _endianity, bool _advancePosition) const
 
-  # (!) _endianity is the endianity of the source-integral
-  # reads a 64-bit unsigned integral value at the current position
-  # position() + 8 < (size() + 1) ->
-  unsigned long long ReadI64(Endianity _endianity, bool _advancePosition) const
+    # (!) _endianity is the endianity of the source-integral
+    # reads a 64-bit unsigned integral value at the current position
+    # position() + 8 < (size() + 1) ->
+    unsigned long long ReadI64(Endianity _endianity, bool _advancePosition) const
 
-  # _length = 0 => [_begin..]
-  # (_begin + _length) >= size() => []
-  list<unsigned char> Sublist(int _begin, int _length = 0) const
+    # _length = 0 => [_begin..]
+    # (_begin + _length) >= size() => []
+    list<unsigned char> Sublist(int _begin, int _length = 0) const
 
-  # [5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange(2, 5) => [4, 1, 9, 6]
-  list<unsigned char> Subrange(int _begin, int _end) const
+    # [5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange(2, 5) => [4, 1, 9, 6]
+    list<unsigned char> Subrange(int _begin, int _end) const
 
-  # MUTATION FUNCTIONS:
+    # MUTATION FUNCTIONS:
 
-  File& Append(unsigned char _value)
+    File& Append(unsigned char _value)
 
-  File& Append(const list<unsigned char>& _value)
+    File& Append(const list<unsigned char>& _value)
 
-  File& Append(const unsigned char* _value, int _length)
+    File& Append(const unsigned char* _value, int _length)
 
-  File& Clear()
+    File& Clear()
 
-  # (size() > 0 && _index > 0 && (_index <= size())) =>
-  File& Insert(unsigned char _value, int _index)
+    # (size() > 0 && _index > 0 && (_index <= size())) =>
+    File& Insert(unsigned char _value, int _index)
 
-  # (size() > 0 && _index > 0 && (_index <= size())) =>
-  File& Insert(const list<unsigned char>& _list, int _index)
+    # (size() > 0 && _index > 0 && (_index <= size())) =>
+    File& Insert(const list<unsigned char>& _list, int _index)
 
-  File& RemoveAt(int _index, int _length = 1)
+    File& RemoveAt(int _index, int _length = 1)
 
-  File& Remove(int _begin, int _end)
+    File& Remove(int _begin, int _end)
 
-  File& SetAt(int _index, unsigned char _value)
+    File& SetAt(int _index, unsigned char _value)
 
-  # _index1 <= _index2 ->
-  File& Swap(int _index1, int _index2)
+    # _index1 <= _index2 ->
+    File& Swap(int _index1, int _index2)
 
-  # buffered write-operation; overwrites the block at the current position; if the current position is at the end of the file then it appends data
-  # (!) it cannot insert data
-  # _size + position() < (size() + 1) ->
-  File& WriteBlock(const unsigned char* _array, int _size, bool _advancePosition)
+    # buffered write-operation; overwrites the block at the current position; if the current position is at the end of the file then it appends data
+    # (!) it cannot insert data
+    # _size + position() < (size() + 1) ->
+    File& WriteBlock(const unsigned char* _array, int _size, bool _advancePosition)
 
-  # writes a 8-bit unsigned integral value ath the current position
-  # position() + 1 < (size() + 1) ->
-  File& WriteI18(unsigned short _value, bool _advancePosition)
+    # writes a 8-bit unsigned integral value ath the current position
+    # position() + 1 < (size() + 1) ->
+    File& WriteI18(unsigned short _value, bool _advancePosition)
 
-  # (!) _endianity is the endianity of the source-integral
-  # writes a 16-bit unsigned integral value ath the current position
-  # position() + 2 < (size() + 1) ->
-  File& WriteI16(unsigned short _value, Endianity _endianity, bool _advancePosition)
+    # (!) _endianity is the endianity of the source-integral
+    # writes a 16-bit unsigned integral value ath the current position
+    # position() + 2 < (size() + 1) ->
+    File& WriteI16(unsigned short _value, Endianity _endianity, bool _advancePosition)
 
-  # (!) _endianity is the endianity of the source-integral
-  # writes a 32-bit unsigned integral value at the current position
-  # position() + 4 < (size() + 1) ->
-  File& WriteI32(unsigned int _value, Endianity _endianity, bool _advancePosition)
+    # (!) _endianity is the endianity of the source-integral
+    # writes a 32-bit unsigned integral value at the current position
+    # position() + 4 < (size() + 1) ->
+    File& WriteI32(unsigned int _value, Endianity _endianity, bool _advancePosition)
 
 # if the directory exists then &Path and &Name will have a set value
 struct Directory:
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  Directory() = default
+    Directory() = default
 
-  explicit Directory(const string& _path)
+    explicit Directory(const string& _path)
 
-  Directory(const Directory&) = delete
+    Directory(const Directory&) = delete
 
-  Directory& operator=(const Directory&) = default
+    Directory& operator=(const Directory&) = default
 
-  # OPERATORS:
+    # OPERATORS:
 
-  bool operator==(const Directory& _directory) const
+    bool operator==(const Directory& _directory) const
 
-  bool operator!=(const Directory& _directory) const
+    bool operator!=(const Directory& _directory) const
 
-  const string &path() const
+    # FIELDS:
 
-  const string &name() const
+    const string &path() const
+
+    const string &name() const
 
 # returns the paths of all subdirectories in the specified directory
 # (!) shows the hidden directories as well
@@ -3303,23 +3306,23 @@ event.cpp:
 
 template<typename... args> struct event:
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  event() = default
+    event() = default
 
-  # OPERATORS:
+    # OPERATORS:
 
-  event& operator=(const event&) = default
+    event& operator=(const event&) = default
 
-  # adds a subscriber to the list of subscribers
-  void operator+= (void(*_subscriber)(args...))
+    # adds a subscriber to the list of subscribers
+    void operator+= (void(*_subscriber)(args...))
 
-  # notifies each subscriber when the event occurs
-  void operator()(args... _parameters) const
+    # notifies each subscriber when the event occurs
+    void operator()(args... _parameters) const
 
-  # FIELDS:
+    # FIELDS:
 
-  const list<void(*)(args...)>& subscribers() const
+    const list<void(*)(args...)>& subscribers() const
 
 -----------------------------------------------------------------------------------------
 
@@ -3327,38 +3330,38 @@ timer.cpp:
 
 struct Timer:
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  Timer() = default
+    Timer() = default
 
-  # the interval is set in microseconds
-  # _repeat specifies whether the period is repeated after the previous one ends
-  # _data is an optional data
-  Timer(int _interval, bool _repeat, void* _data = nullptr)
+    # the interval is set in microseconds
+    # _repeat specifies whether the period is repeated after the previous one ends
+    # _data is an optional data
+    Timer(int _interval, bool _repeat, void* _data = nullptr)
 
-  Timer(const Timer&) = delete
+    Timer(const Timer&) = delete
 
-  # OPERATORS:
+    # OPERATORS:
 
-  Timer& operator=(const Timer&) = delete
+    Timer& operator=(const Timer&) = delete
 
-  # FIELDS:
+    # FIELDS:
 
-  bool Repeat = false
+    bool Repeat = false
 
-  event<Timer*, void*> OnTick
+    event<Timer*, void*> OnTick
 
-  int interval()
+    int interval()
 
-  # FUNCTIONS:
+    # FUNCTIONS:
 
-  bool IsRunning()
+    bool IsRunning()
 
-  void Restart()
+    void Restart()
 
-  void Start()
+    void Start()
 
-  void Stop()
+    void Stop()
 
 -----------------------------------------------------------------------------------------
 
@@ -3369,25 +3372,25 @@ chronometer.cpp:
 # !c.Running -> Elapsed() => -1
 struct Chronometer
 
-  # CONSTRUCTORS:
+    # CONSTRUCTORS:
 
-  Chronometer() = default
+    Chronometer() = default
 
-  Chronometer(const Chronometer&) = delete
+    Chronometer(const Chronometer&) = delete
 
-  # OPERATORS:
+    # OPERATORS:
 
-  Chronometer& operator=(const Chronometer&) = delete
+    Chronometer& operator=(const Chronometer&) = delete
 
-  # FIELDS:
+    # FIELDS:
 
-  # FUNCTIONS:
+    # FUNCTIONS:
 
-  # in microseconds
-  int Elapsed() const
+    # in microseconds
+    int Elapsed() const
 
-  bool IsRunning() const
+    bool IsRunning() const
 
-  void Start()
+    void Start()
 
-  void Reset()
+    void Reset()
