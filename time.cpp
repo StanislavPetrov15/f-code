@@ -1,10 +1,10 @@
 namespace time_
 {
-	const long SECONDS_IN_AN_HOUR = 3600;
+	const int SECONDS_IN_AN_HOUR = 3600;
 
-	const long SECONDS_IN_A_DAY = 86400;
+	const int SECONDS_IN_A_DAY = 86400;
 
-	const long MINUTES_IN_A_DAY = 1440;
+	const int MINUTES_IN_A_DAY = 1440;
 
 	//the length of months in a non-leap year
 	const list<int> MONTH_LENGTHS { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
@@ -33,7 +33,7 @@ namespace time_
 
 		DateTime() = default;
 
-		DateTime(int _day, int _month, int _year, int _hour, int _minute, int _second, int _timezone_ = 0) :
+		DateTime(int _year, int _month, int _day, int _hour, int _minute, int _second, int _timezone_ = 0) :
 			Year(_year),
 			Month(_month),
 			Day(_day),
@@ -256,10 +256,19 @@ namespace time_
 		}
 	};
 
+    int Year = 0;
+    int Month = 0;
+    int Day = 0;
+    int Hour = 0;
+    int Minute = 0;
+    int Second = 0;
+    int Timezone = 0;
+
 	bool IsValidDateTime(const DateTime&);
+	//DayOfYear({ 2024, 2, 5, 0, 0, 0, 0 }) => 36
 	int DayOfYear(const DateTime& _datetime)
 	{
-		if (!IsValidDateTime(_datetime)) return -1;
+	    if (!IsValidDateTime(_datetime)) return -1;
 
 		int day = 0;
 
@@ -279,19 +288,19 @@ namespace time_
     }
 
     //returns the number of seconds between _datetime and _datetime_
-	//_datetime and/or _datetime_ is not valid => -1
-	unsigned long long IntervalOf(const DateTime& _datetime, const DateTime& _datetime_)
+	//_datetime1 and/or _datetime2 is not valid => -1
+	unsigned long long IntervalOf(const DateTime& _datetime1, const DateTime& _datetime2)
 	{
-		if (!IsValidDateTime(_datetime) || !IsValidDateTime(_datetime_)) return -1;
+		if (!IsValidDateTime(_datetime1) || !IsValidDateTime(_datetime2)) return -1;
 
-		DateTime datetime = _datetime;
-		DateTime datetime_ = _datetime_;
+		DateTime datetime = _datetime1;
+		DateTime datetime_ = _datetime2;
 
 		datetime.ToTimezone(0);
 		datetime_.ToTimezone(0);
 
-		DateTime& earlierDate = _datetime.IsBefore(datetime_) ? datetime : datetime_;
-		DateTime& laterDate = _datetime.IsAfter(datetime_) ? datetime : datetime_;
+		DateTime& earlierDate = datetime.IsBefore(datetime_) ? datetime : datetime_;
+		DateTime& laterDate = datetime_.IsAfter(datetime_) ? datetime : datetime_;
 
 		int earlierDateSOY = (earlierDate.hour() * SECONDS_IN_AN_HOUR) + (earlierDate.minute() * 60) + earlierDate.second();
 		int laterDateSOY = (laterDate.hour() * SECONDS_IN_AN_HOUR) + (laterDate.minute() * 60) + laterDate.second();
@@ -415,7 +424,7 @@ namespace time_
         month++;
     }
 
-		int dayOfMonth = (seconds / SECONDS_IN_A_DAY);
+		int dayOfMonth = (seconds / SECONDS_IN_A_DAY) + 1;
 
 		int secondOfDay = numeric::Mod(seconds, SECONDS_IN_A_DAY);
 
@@ -427,6 +436,6 @@ namespace time_
 
 		int secondOfMinute = numeric::Mod(secondOfHour, 60);
 
-		return DateTime(dayOfMonth, month, year, hour, minutes, secondOfMinute);
+		return { year, month, dayOfMonth, hour, minutes, secondOfMinute };
 	}
 }
