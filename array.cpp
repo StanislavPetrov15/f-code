@@ -1,11 +1,7 @@
-// This file contains low-level functions for manipulation of byte arrays
+//this file contains low-level functions for manipulation of byte arrays
 
 /* (!) The functions in this file are non-validating - in other words one have to be sure that the arguments passed to
        the functions are correct */
-
-//These two values are defined in minwindef.h
-//FALSE = 0
-//TRUE = 1
 
 template<typename T> struct array
 {
@@ -23,7 +19,7 @@ struct range
 
 //_length specifies the length of _array
 //_length_ specifies the length of _value
-template<typename T> bool beginsWith(const T* _array, int _length, const T* _value, int _length_)
+template<typename T> bool beginsWith(const T* _array, const T* _value, int _length, int _length_)
 {
       if (_length_ > _length) return false;
 
@@ -40,7 +36,7 @@ template<typename T> bool beginsWith(const T* _array, int _length, const T* _val
 
 //_length specifies the length of _array
 //_length_ specifies the length of _value
-template<typename T> bool endsWith(const T* _array, int _length, const T* _value, int _length_)
+template<typename T> bool endsWith(const T* _array, const T* _value, int _length, int _length_)
 {
     if (_length_ > _length) return false;
 
@@ -63,16 +59,16 @@ template<typename T> bool contains(const T* _array, int _length, T _value)
     {
         if (_array[i] == _value)
         {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 //_length specifies the length of _array
 //_length_ specifies the length of _value
-template<typename T> bool contains(const T* _array, int _length, const T* _value, int _length_)
+template<typename T> bool contains(const T* _array, const T* _value, int _length, int _length_)
 {
     int matches = 0;
 
@@ -91,11 +87,11 @@ template<typename T> bool contains(const T* _array, int _length, const T* _value
 
         if (matches == _length_)
         {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 template<typename T> void resize(T*&, int, int);
@@ -121,7 +117,10 @@ template<typename T> array<T> except(const T* _array, int _length, T _value)
     return { accumulator, matchCount };
 } //-> delete [] <array>.pointer
 
-template<typename T> array<T> except(const T* _array, int _length, const T* _set, int _length_)
+//_length is the length of _array
+//_length_ is the length of _set
+//except([2, 9, 0, 1, 4, 9, 7, 3], [9, 7, 0], 8, 3) => array([2, 1, 4, 3], 4)
+template<typename T> array<T> except(const T* _array, const T* _set, int _length, int _length_)
 {
     T* accumulator = new T[_length];
 
@@ -138,34 +137,34 @@ template<typename T> array<T> except(const T* _array, int _length, const T* _set
     resize(accumulator, _length, matchCount);
 
     return { accumulator, matchCount };
-}
+} //-> delete [] <array.pointer>
 
 //_length1 specifies the length of _array1
 //_length2 specifies the length of _array2
-//_array1 == _array2 => TRUE
-//equality(nullptr, nullptr, x, x) => TRUE
-//equality([5, 0, 9], [5, 0, 9, 5], 3, 4) => FALSE
-//equality([5, 0, 9], [6, 4, 1], 3, 3) => FALSE
-//equality([5, 0, 9], [5, 9, 0], 3, 3) => FALSE
-//equality([5, 0, 9], [5, 0, 9], 3, 3) => TRUE
+//_array1 == _array2 => true
+//equality(nullptr, nullptr, x, x) => true
+//equality([5, 0, 9], [5, 0, 9, 5], 3, 4) => false
+//equality([5, 0, 9], [6, 4, 1], 3, 3) => false
+//equality([5, 0, 9], [5, 9, 0], 3, 3) => false
+//equality([5, 0, 9], [5, 0, 9], 3, 3) => true
 template<typename T> bool equality(const T* _array1, const T* _array2, int _length1, int _length2)
 {
-    if (_array1 == _array2) return TRUE;
-    else if (_array1 == nullptr && _array2 != nullptr) return FALSE;
-    else if (_array1 != nullptr && _array2 == nullptr) return FALSE;
-    else if (_length1 != _length2) return FALSE;
+    if (_array1 == _array2) return true;
+    else if (_array1 == nullptr && _array2 != nullptr) return false;
+    else if (_array1 != nullptr && _array2 == nullptr) return false;
+    else if (_length1 != _length2) return false;
 
-    //(S) both arrays are non-null and have the same length
+    //(STATE) both arrays are non-null and have the same length
 
     for (int i = 0; i < _length1; i ++)
     {
         if (_array1[i] != _array2[i])
         {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 //_length specifies the length of _array
@@ -225,32 +224,32 @@ template<typename T> int indexOfNot(const T* _array, int _length, T _value)
     return 0;
 }
 
-// _length specifies the length of _array
+//_length specifies the length of _array
 template<typename T> bool isHeterogenous(const T* _array, int _length)
 {
     for (int i = 1; i < _length; i++)
     {
         if (_array[i - 1] != _array[i])
         {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
-// _length specifies the length of _array
+//_length specifies the length of _array
 template<typename T> bool isHomogenous(const T* _array, int _length)
 {
     for (int i = 1; i < _length; i++)
     {
         if (_array[i - 1] != _array[i])
         {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 //_length specifies the length of _array
@@ -268,6 +267,50 @@ template<typename T> int lastIndexOf(const T* _array, int _length, T _value)
     return -1;
 }
 
+//return the maximum element in the range (begin, end)
+//_length == 0 => nullptr
+//<T> implements operator '>' or it is a primitive numerical type ->
+template<typename T> const T* max_(const T* _array, int _length, int _begin, int _end)
+{
+    if (_length == 0) return nullptr;
+
+    const T* max = _array + _begin;
+
+    for (int i = _begin; i <= _end; i++)
+    {
+        const T* element = _array + i;
+
+        if (*element > *max)
+        {
+            max = element;
+        }
+    }
+
+    return max;
+}
+
+//return the minimum element in the range (begin, end)
+//_length == 0 => nullptr
+//<T> implements operator '>' or it is a primitive numerical type ->
+template<typename T> const T* min_(const T* _array, int _length, int _begin, int _end)
+{
+    if (_length == 0) return nullptr;
+
+    const T* min = _array + _begin;
+
+    for (int i = _begin; i <= _end; i++)
+    {
+        const T* element = _array + i;
+
+        if (*element < *min)
+        {
+            min = element;
+        }
+    }
+
+    return min;
+}
+
 //returns the range of a sequence consisting of certain set of values (it is not mandatory for the sequence to contain each value in the set)
 //_length specifies the length of _array
 //_length_ specifies the length of _set
@@ -275,7 +318,7 @@ template<typename T> int lastIndexOf(const T* _array, int _length, T _value)
 //[3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
 //[3, 10, 15, 12, 0, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (4, 4)
 //[3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (-1, -1)
-template<typename T> range rangeOf(const T* _array, int _length, const T* _set, int _length_)
+template<typename T> range rangeOf(const T* _array, const T* _set, int _length, int _length_)
 {
     for (int i = 0, n = -1; i < _length; i++)
     {
@@ -298,11 +341,29 @@ template<typename T> range rangeOf(const T* _array, int _length, const T* _set, 
     return { -1, -1 };
 }
 
-/* - the first two elements returned by this function are meta-markers
-   - the elements between (the first two) and (the last four) elements represent (a sequence of pointer pairs where each pair
-     is representing either (an empty sequence) or (non-empty sequence)); an empty sequence is indicated by (array[1], array[0])
-     and non-empty sequence is indicated by  (<begin-pointer>, <end-pointer>)
-   - the last four elements indicate the end of the pointer array; the value of the sequence is (array[0], array[1], array[0], array[1]) */
+//_length specifies the length of _array
+template<typename T> array<T> where(const T* _array, int _length, const std::function<bool(T)>& _predicate)
+{
+    T* accumulator = new T[_length];
+    int matchCount = 0;
+
+    for (int i = 0; i < _length; i ++)
+    {
+        if (_predicate(_array[i]))
+        {
+            accumulator[matchCount++] = _array[i];
+        }
+    }
+
+    resize(accumulator, _length, matchCount);
+
+    return { accumulator, matchCount };
+} //-> delete [] <array>.pointer
+
+/* - the first element represent the number of matches in the sequence
+   - the elements after the first are (begin, end) pairs for each match in the sequence; therefore a sequence with 2 matches will consist of
+     5 elements with the following values: [0]=2, [1]=Match1_Begin, [2]=Match1_End, [3]=Match2_Begin, [4]=Match2_End;
+     non-empty match is described by (begin <= end) and an empty match is described by (begin > end) */
 //returns only values that are (between the beginning and a separator), (between separator and the end) or (between two separators)
 //empty sequences are generated (and eventually are appended to the result) only if they are between two separators
 //_length specifies the length of _array
@@ -315,17 +376,15 @@ template<typename T> range rangeOf(const T* _array, int _length, const T* _set, 
 //split([7, 41, 56, 7, 18, 76, 15, 9, 7], 9,7 ) => [[41, 56], [18, 76, 15, 9]]
 //split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7) => [[41, 56], [], [], [18, 5, 15]]
 //split([7, 41, 56, 7, 7, 7, 18, 5, 15], 9, 7, true) => [[41, 56], [18, 5, 15]]
-template<typename T> T** split(T* _array, int _length, T _separator, bool _ignoreEmptyValues = false)
+template<typename T> int* split(T* _array, int _length, T _separator, bool _ignoreEmptyValues = false)
 {
-    T** accumulator = new T*[5];
-
-    //adding meta-markers
-    accumulator[0] = &_array[0];
-    accumulator[1] = &_array[_length - 1];
+    int* accumulator = new int[10];
 
     int size = 5;
     int extensor = 5;
-    int count = 2;
+    int count = 1;
+
+    accumulator[0] = 0;
 
     for (int i = 0; i < _length;)
     {
@@ -342,9 +401,8 @@ template<typename T> T** split(T* _array, int _length, T _separator, bool _ignor
                 size += extensor;
             }
 
-            accumulator[count++] = accumulator[1];
-            accumulator[count++] = accumulator[0];
             i++;
+
             continue;
         }
         //[separator, !separator]
@@ -354,7 +412,7 @@ template<typename T> T** split(T* _array, int _length, T _separator, bool _ignor
             continue;
         }
 
-        //(S) the current element is not a separator
+        //(STATE) the current element is not a separator
 
         int index = indexOf<T>(_array + i, _length - i, _separator);
 
@@ -375,11 +433,12 @@ template<typename T> T** split(T* _array, int _length, T _separator, bool _ignor
                 size += extensor;
             }
 
-            accumulator[count++] = &(_array[i]);
-            accumulator[count++] = &(_array[index - 1]);
+            accumulator[0]++;
+            accumulator[count++] = i;
+            accumulator[count++] = index - 1;
             i = index;
         }
-        //[!separator...]
+            //[!separator...]
         else if (!currentIsMatched && index == -1)
         {
             //extending the accumulator if needed
@@ -389,8 +448,9 @@ template<typename T> T** split(T* _array, int _length, T _separator, bool _ignor
                 size += extensor;
             }
 
-            accumulator[count++] = &(_array[i]);
-            accumulator[count++] = &(_array[_length - 1]);
+            accumulator[0]++;
+            accumulator[count++] = i;
+            accumulator[count++] = _length - 1;
             break;
         }
     }
@@ -401,32 +461,7 @@ template<typename T> T** split(T* _array, int _length, T _separator, bool _ignor
         resize(accumulator, size, size + 4);
     }
 
-    //adding the end marker sequence
-    accumulator[count++] = accumulator[0];
-    accumulator[count++] = accumulator[1];
-    accumulator[count++] = accumulator[0];
-    accumulator[count] = accumulator[1];
-
     return accumulator;
-} //-> delete [] <array>.pointer
-
-//_length specifies the length of _array
-template<typename T> array<T> where(const T* _array, int _length, const std::function<bool(T)>& _predicate)
-{
-    T* accumulator = new T[_length];
-    int matchCount = 0;
-
-    for (int i = 0; i < _length; i ++)
-    {
-        if (_predicate(_array[i]))
-        {
-            accumulator[matchCount++] = _array[i];
-        }
-    }
-
-    resize(accumulator, _length, matchCount);
-
-    return { accumulator, matchCount };
 } //-> delete [] <array>.pointer
 
 ///MUTATION FUNCTIONS
@@ -464,7 +499,7 @@ template<typename T> void copy(const T* _source, T* _destination, int _sourceLen
 template<typename T> void copyRange(const T* _source, T* _destination, int _sourceLength, int _destinationLength,
 int _sourceBegin, int _sourceEnd, int _destinationBegin)
 {
-    for (int n = 0; ; n ++)
+    for (int n = 0; ; n++)
     {
         if (_destinationBegin + n == _destinationLength)
         {
@@ -721,6 +756,7 @@ template<typename T> void trimBegin(T*& _array, int _length, T _value)
 template<typename T> void trimEnd(T*& _array, int _length, T _value)
 {
     int end = _length - 1;
+
     for (int i = end; i > - 1; i--)
     {
         if (_array[i] != _value)
