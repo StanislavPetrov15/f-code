@@ -20,6 +20,12 @@ enum class TraversalMode { BOUNDED, CIRCULAR };
 	 (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future moment (when FUTURE is used)) */
 enum class ReleaseMode { IMMEDIATE, FUTURE };
 
+//(INTERNAL)
+const int EXCLUDED_BLOCK_BEGIN = INT_MIN + 1;
+
+//(INTERNAL)
+const int EXCLUDED_BLOCK_END = INT_MAX - 1;
+
 //(!) the size(accessed by size()) of a segment is equal to the size of the list that the segment refers to
 template<typename T> struct list
 {
@@ -58,7 +64,7 @@ template<typename T> struct list
 
         for (int i = 0; i < _source.count(); i++)
         {
-            Elements[i] = _source[i]; //(TODO) write 4/8 bytes at once instead of one
+            Elements[i] = _source[i];
         }
 
         Size = _source.Size;
@@ -91,7 +97,7 @@ template<typename T> struct list
 
     list(const list<T>& _value)
     {
-       if (this == &_value) return;
+        if (this == &_value) return;
 
         Size = _value.Size;
         Count = _value.Count;
@@ -224,7 +230,7 @@ template<typename T> struct list
 
     bool operator==(const list<T>& _value) const
     {
-        if (Count != _value.count())
+        if (Count != _value.Count)
         {
             return false;
         }
@@ -242,7 +248,7 @@ template<typename T> struct list
 
     bool operator!=(const list<T>& _value) const
     {
-        if (Count != _value.count())
+        if (Count != _value.Count)
         {
             return true;
         }
@@ -548,6 +554,54 @@ template<typename T> struct list
 		return *this;
 	}
 
+    //<T> implements operator '<' or it is a primitive numerical type ->
+    list<T>& BubbleSort(bool _ascending = true)
+    {
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
+
+        while (true)
+        {
+            bool isSorted = true;
+
+            for (int i = 0; i < Count - 1; i++)
+            {
+                if (Elements[i + 1] < Elements[i])
+                {
+                    isSorted = false;
+                    Swap(i, i + 1);
+                }
+            }
+
+            if (isSorted) break;
+        }
+
+        return _ascending ? *this : Reverse();
+    }
+
+    //<T> implements operator '<' or it is a primitive numerical type ->
+    list<T>& BubbleSort(const std::function<bool(const T&, const T&)>& _predicate, bool _ascending = true)
+    {
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
+
+        while (true)
+        {
+            bool isSorted = true;
+
+            for (int i = 0; i < Count - 1; i++)
+            {
+                if (_predicate(Elements[i + 1], Elements[i]))
+                {
+                    isSorted = false;
+                    Swap(i, i + 1);
+                }
+            }
+
+            if (isSorted) break;
+        }
+
+        return _ascending ? *this : Reverse();
+    }
+
     //the contents of _data are copied inside the list
 	list<T>& BuiltFromArray(const T* _data, int _dataLength)
     {
@@ -580,6 +634,165 @@ template<typename T> struct list
         return *this;
     }
 
+    /* - this function marks certain memory block as 'excluded', which means that the data in the excluded block wouldn't
+         be used anymore; the reason for using this function is performance (in some cases, not all) - the alternative is deleting
+         the specific element(s) which would cause deletion of &Elements, assigning new array to &Elements and copying the old data
+         into the new array which would slow down the program, so using exclusion instead of real deletion can increase the performance
+         in some cases
+       - a memory block is excluded by using the following 4 markers:
+         - an exclusion marker for the beginning of the block (at position 0 in the block)
+         - integer value (following the beginning marker) that specifies the length of the block (in number of elements, not bytes)
+         - an exclusion marker at the end of the block (at position (length - sizeof(int)))
+         - integer value (before the end marker) that specifies the length of the block (in number of elements, not bytes)
+         (EXAMPLE) begin marker, length...length, end marker
+       - the programmer can determine the beginning and the end of an excluded block by detecting the two exclusion markers; by default
+         the function uses the constants EXCLUDED_BLOCK_BEGIN as a begin marker, and EXCLUDED_BLOCK_END as an end marker, but other values
+         can be used if desired
+        /* <T> must be compound type and must have (two <int> fields at the beginning of the declaration) and (two <int> fields at the end of the declaration)
+           (EXAMPLE) struct S { int a; int b; ...other fields... int c; int d; } */
+        //(_end > _begin) & (sizeof(T) > (sizeof(int) * 4)) ->
+		list<T>& Exclude(int _begin, int _end, int _excludedBlockBeginMarker = EXCLUDED_BLOCK_BEGIN, int _excludedBlockEndMarker = EXCLUDED_BLOCK_END)
+		{
+			if (_begin >= _end) return *this;
+
+			//a pointer to the first <int> element of the current excluded block
+			int* currentBlockBegin = reinterpret_cast<int*>(&(*this)[_begin]);
+
+			//a pointer to the last <int> element of the current excluded block
+			int* currentBlockEnd = (reinterpret_cast<int*>(&(*this)[_end]) + (sizeof(T) / sizeof(int))) - 1;
+
+            //specifies if there is an excluded block to the left of the current excluded block
+			bool leftAdjacent = _begin > 0 && *(currentBlockBegin - 1) == _excludedBlockEndMarker;
+
+			//specifies if there is an excluded block to the right of the current excluded block
+			bool rightAdjacent = _end < Count - 1 && *(reinterpret_cast<int*>(&(*this)[_end + 1])) == _excludedBlockBeginMarker;
+
+			//if there is no other adjacent excluded block to the left or right of the current block (there is no need for merging the two blocks)
+			if ((!leftAdjacent && !rightAdjacent))
+			{
+				//a begin marker
+                *currentBlockBegin = _excludedBlockBeginMarker;
+
+				//(length of the block) after the first marker
+				*(currentBlockBegin + 1) = (_end - _begin) + 1;
+
+				//(length of the block) before the end marker
+				*(currentBlockEnd - 1) = (_end - _begin) + 1;
+
+				//an end marker
+				*currentBlockEnd = _excludedBlockEndMarker;
+			}
+			//if there is an adjacent excluded block to the left of the current block (the two blocks must be merged)
+			else if (leftAdjacent && !rightAdjacent)
+			{
+				//length of the previous block
+				int previousBlockLength = *(currentBlockBegin - 2);
+
+				//new length of the previous block
+				*(currentBlockBegin + 1) = (_end - _begin) + previousBlockLength + 1;
+
+				//length of the current block
+				int currentBlockLength = (_end - _begin) + 1;
+
+                //(length of the block) before the end marker
+				*(currentBlockEnd - 1) = previousBlockLength + currentBlockLength;
+
+				//an end marker
+				*currentBlockEnd = _excludedBlockEndMarker;
+
+				//zeroing the last two <int> fields of the previous block
+				*(currentBlockBegin - 1) = 0;
+				*(currentBlockBegin - 2) = 0;
+			}
+            //if there is an adjacent excluded block to the right of the current block (the two blocks must be merged)
+			else if (!leftAdjacent && rightAdjacent)
+			{
+				//begin marker
+				*currentBlockBegin = _excludedBlockBeginMarker;
+
+                //(length of the block) after the begin marker
+				*(currentBlockBegin + 1) = (_end - _begin) + 1;
+
+				//a pointer to the first <int> element of the next block
+				int* nextBlockBegin = reinterpret_cast<int*>(&(*this)[_end + 1]);
+
+				//length of the next block
+				int nextBlockLength = *(nextBlockBegin + 1);
+
+				//a pointer to the last <int> element of the next block
+				int* nextBlockEnd = (reinterpret_cast<int*>(&(*this)[_end + nextBlockLength]) + (sizeof(T) / sizeof(int))) - 1;
+
+				//length of the current block
+				int currentBlockLength = (_end - _begin) + 1;
+
+                //new length of the next block
+				*(nextBlockEnd - 1) = currentBlockLength + nextBlockLength;
+
+                //zeroing the last two <int> fields of the previous block
+				*(nextBlockBegin) = 0;
+				*(nextBlockBegin + 1) = 0;
+			}
+            //if there are adjacent excluded blocks to the left and right of the current block (the three blocks must be merged)
+			else if (leftAdjacent && rightAdjacent)
+			{
+				//a pointer to the first <int> element of the next block
+				int* nextBlockBegin = reinterpret_cast<int*>(&(*this)[_end + 1]);
+
+				//length of the previous block
+				int previousBlockLength = *(currentBlockBegin - 2);
+
+				//length of the current block
+				int currentBlockLength = (_end - _begin) + 1;
+
+				//length of the next block
+				int nextBlockLength = *(nextBlockBegin + 1);
+
+				//a pointer to the first <int> element of the previous block
+				int* previousBlockBegin = reinterpret_cast<int*>(&(*this)[_begin - previousBlockLength]);
+
+				//a pointer to the last <int> element of the next block
+				int* nextBlockEnd = (reinterpret_cast<int*>(&(*this)[_end + nextBlockLength]) + (sizeof(T) / sizeof(int))) - 1;
+
+				//new length of the previous block
+				*(previousBlockBegin + 1) = previousBlockLength + currentBlockLength + nextBlockLength;
+
+				//new length of the next block
+                *(nextBlockEnd - 1) = previousBlockLength + currentBlockLength + nextBlockLength;
+
+                //zeroing the last two <int> fields of the previous block
+				*(currentBlockBegin - 1) = 0;
+				*(currentBlockBegin - 2) = 0;
+
+                //zeroing the first two <int> fields of the next block
+				*(nextBlockBegin) = 0;
+				*(nextBlockBegin + 1) = 0;
+			}
+
+			return *this;
+		}
+
+    /* - this function marks certain memory block as 'excluded', which means that the data in the excluded block wouldn't
+             be used anymore; the reason for using this function is performance (in some cases, not all) - the alternative is deleting
+             the specific element(s) which would cause deletion of &Elements, assigning new array to &Elements and copying the old data
+             into the new array which would slow down the program, so using exclusion instead of real deletion can increase the performance
+             in some cases
+           - a memory block is excluded by using the following 4 markers:
+             - an exclusion marker for the beginning of the block (at position 0 in the block)
+             - integer value (following the beginning marker) that specifies the length of the block (in number of elements, not bytes)
+             - an exclusion marker at the end of the block (at position (length - sizeof(int)))
+             - integer value (before the end marker) that specifies the length of the block (in number of elements, not bytes)
+             (EXAMPLE) begin marker, length...length, end marker
+           - the programmer can determine the beginning and the end of an excluded block by detecting the two exclusion markers; by default
+             the function uses the constants EXCLUDED_BLOCK_BEGIN as a begin marker, and EXCLUDED_BLOCK_END as an end marker, but other values
+             can be used if desired
+            /* <T> must be compound type and must have (two <int> fields at the beginning of the declaration) and (two <int> fields at the end of the declaration)
+               (EXAMPLE) struct S { int a; int b; ...other fields... int c; int d; } */
+    //(_end > _begin) & (sizeof(T) > (sizeof(int) * 4)) ->
+    list<T>& Exclude(const Range<int>& _range, int _excludedBlockBeginMarker = EXCLUDED_BLOCK_BEGIN, int _excludedBlockEndMarker = EXCLUDED_BLOCK_END)
+    {
+            return Exclude(_range.begin(), _range.end());
+    }
+
     //[1, 2, 10].FillLeft(5, 7) => [5, 5, 5, 5, 1, 2, 10]
     list<T>& FillLeft(const T& _value, int _length)
     {
@@ -590,7 +803,7 @@ template<typename T> struct list
             Insert(_value, 0);
         }
 
-        return *this;
+        return *this; this();
     }
 
     //[1, 2, 10].FillRight(5, 7) => [1, 2, 10, 5, 5, 5, 5]
@@ -639,7 +852,7 @@ template<typename T> struct list
         else if (count() == 0) return *this;
         else if (_index < 0 || _index >= count()) return *this;
 
-        list<T> accumulator(Size + _value.count());
+        list<T> accumulator(Size + _value.Count);
 
         //copying of the (elements to the left of _index)
         for (int i = 0; i < _index; i++)
@@ -648,7 +861,7 @@ template<typename T> struct list
         }
 
         //copying of the elements of _value
-        for (int i = 0; i < _value.count(); i++)
+        for (int i = 0; i < _value.Count; i++)
         {
             accumulator[_index + i] = _value[i];
         }
@@ -656,10 +869,10 @@ template<typename T> struct list
         //copying of the (elements to the right of _index)
         for (int i = _index; i < Count; i++)
         {
-            accumulator[_value.count() + i] = Elements[i];
+            accumulator[_value.Count + i] = Elements[i];
         }
 
-        accumulator.Count = Count + _value.count(); //->
+        accumulator.Count = Count + _value.Count; //->
         copy(accumulator);
 
         return *this;
@@ -745,6 +958,11 @@ template<typename T> struct list
         copy(accumulator);
 
         return *this;
+    }
+
+    list<T>& Remove(const Range<int>& _range)
+    {
+        return Remove(_range.begin(), _range.end());
     }
 
     list<T>& RemoveAt(int _index, int _length = 1)
@@ -868,6 +1086,12 @@ template<typename T> struct list
         return *this;
     }
 
+    //[5, 9, 0, 3, 7, 18, 4, 2, 6].Replace((4, 7), [2, 6, 1]) => [5, 9, 0, 3, 2, 6, 1, 6]
+    list<T>& Replace(const Range<int>& _range, const list<T>& _replacement)
+    {
+        return Replace(_range.begin(), _range.end(), _replacement);
+    }
+
     //replace every occurrence of _replaced with _replacement
     list<T>& Replace(const T& _replaced, const T& _replacement)
     {
@@ -975,7 +1199,8 @@ template<typename T> struct list
 		return *this;
 	}
 
-    //<T> implements o:< or it is a primitive numerical type ->
+    //performs an unstable sorting
+    //<T> implements operator '<' or it is a primitive numerical type ->
     list<T>& SelectionSort(bool _ascending = true)
     {
         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
@@ -988,6 +1213,8 @@ template<typename T> struct list
         return _ascending ? *this : Reverse();
     }
 
+    //performs an unstable sorting
+    //<T> implements operator '<' or it is a primitive numerical type ->
     list<T>& SelectionSort(const std::function<bool(const T&, const T&)>& _predicate, bool _ascending = true)
     {
         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
@@ -1015,15 +1242,21 @@ template<typename T> struct list
     //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, 5, 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
     list<T>& Set(int _begin, int _end, const T& _value)
     {
-            if (MutabilityKind == MutabilityKind::IMMUTABLE)  return *this;
-            else if (!InRange(_begin) || !InRange(_end)) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE)  return *this;
+        else if (!InRange(_begin) || !InRange(_end)) return *this;
 
-		    for (int i = _begin; i <= _end; i++)
-            {
-                Elements[i] = _value;
-            }
+        for (int i = _begin; i <= _end; i++)
+        {
+            Elements[i] = _value;
+        }
 
-		    return *this;
+        return *this;
+    }
+
+    //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set((3, 5), 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
+    list<T>& Set(const Range<int>& _range, const T& _value)
+    {
+        return Set(_range.begin(), _range.end(), _value);
     }
 
     //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
@@ -1031,9 +1264,9 @@ template<typename T> struct list
     {
         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_begin)) return *this;
-        else if (!InRange(_begin + (_value.count()) - 1)) return *this;
+        else if (!InRange(_begin + (_value.Count) - 1)) return *this;
 
-        for (int i = 0; i < _value.count(); i++)
+        for (int i = 0; i < _value.Count; i++)
         {
             Elements[_begin + i] = _value[i];
         }
@@ -1089,10 +1322,10 @@ template<typename T> struct list
                 break;
             }
 
-	    if (i == Count - 1)
-	    {
-	        Clear();
-	    }
+            if (i == Count - 1)
+            {
+                Clear();
+            }
         }
 
         return *this;
@@ -1111,10 +1344,10 @@ template<typename T> struct list
                 break;
             }
 
-		if (i == 0)
-		{
-	            Clear();
-		}
+            if (i == 0)
+            {
+                Clear();
+            }
         }
 
         return *this;
@@ -1122,6 +1355,7 @@ template<typename T> struct list
 
     ///NON-MUTATING FUNCTIONS
 
+    //[2, 9, 1].As()<float>() => [2.0, 9.0, 1.0]
     //T is a pointer type ->
     template<typename T> list<T*> As() const
     {
@@ -1137,11 +1371,11 @@ template<typename T> struct list
 
     bool BeginsWith(const list<T>& _value) const
     {
-        if (Count < _value.count()) return false;
+        if (Count < _value.Count) return false;
 
         int counter = 0;
 
-        for (int i = 0; i < _value.count(); i++)
+        for (int i = 0; i < _value.Count; i++)
         {
             if (Elements[i] == _value[i])
             {
@@ -1149,7 +1383,7 @@ template<typename T> struct list
             }
         }
 
-        return _value.count() == counter;
+        return _value.Count == counter;
     }
 
     //returns 'true' if &this begins with atleast one of the sequences in _value
@@ -1166,6 +1400,65 @@ template<typename T> struct list
         }
 
         return false;
+    }
+
+    //returns the index of the specified element (if the elements exists)
+    //the specified value does not exist => -1
+    //the list is sorted in ascending order ->
+    int BinarySearch(const T& _value) const
+    {
+        int segmentBegin = 0;
+        int middleIndex = Count / 2;
+        int segmentEnd = Count - 1;
+
+        while (true)
+        {
+            if (middleIndex == Count)
+            {
+                return -1;
+            }
+
+            T& element = Elements[middleIndex];
+
+            if (element == _value)
+            {
+                return middleIndex;
+            }
+            //(STATE) no match; check if the search must continue in the left segment
+            else if (_value < Elements[middleIndex])
+            {
+                 segmentEnd = middleIndex;
+
+                int segmentLength = segmentEnd - segmentBegin;
+
+                if (segmentLength >= 2)
+                {
+                    middleIndex = segmentBegin + (segmentLength / 2);
+                }
+                else
+                {
+                    middleIndex--;
+                }
+            }
+            //(STATE) the search must continue in the right segment
+            else
+            {
+                segmentBegin = middleIndex;
+
+                int segmentLength = segmentEnd - segmentBegin;
+
+                if (segmentLength >= 2)
+                {
+                    middleIndex = segmentBegin + (segmentLength / 2);
+                }
+                else
+                {
+                    middleIndex++;
+                }
+            }
+        }
+
+        return -1;
     }
 
     //returns copy of &this
@@ -1190,7 +1483,7 @@ template<typename T> struct list
     //[1, 2, 3, 4, 5, 6, 7, 8, 9].Contains([2, 3, 4]) => true
     bool Contains(const list<T>& _value) const
     {
-        for (int i = 0, matches = 0; i < Size - _value.count();)
+        for (int i = 0, matches = 0; i < Size - _value.Count;)
         {
             if ((*this)[i + matches] == _value[matches])
             {
@@ -1202,7 +1495,7 @@ template<typename T> struct list
                 i++;
             }
 
-            if (matches == _value.count())
+            if (matches == _value.Count)
             {
                 return true;
             }
@@ -1319,15 +1612,15 @@ template<typename T> struct list
     //[5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1, 7]) => 0
     int CountOf(const list<T>& _value) const
     {
-        if (_value.count() == 0) return 0;
+        if (_value.Count == 0) return 0;
 
         int count = 0;
 
         for (int i = 0; i < Count; i++)
         {
-            if (Subrange(i, (i + _value.count()) - 1) == _value)
+            if (Subrange(i, (i + _value.Count) - 1) == _value)
             {
-                i += _value.count() - 1;
+                i += _value.Count - 1;
                 count++;
             }
         }
@@ -1371,10 +1664,10 @@ template<typename T> struct list
 
     bool EndsWith(const list<T>& _value) const
     {
-        if (Count < _value.count()) return false;
+        if (Count < _value.Count) return false;
 
         int counter = 0;
-        for (int i = Count - 1, n = _value.count() - 1; (i > - 1) && (n > - 1); i--, n--)
+        for (int i = Count - 1, n = _value.Count - 1; (i > - 1) && (n > - 1); i--, n--)
         {
             if (Elements[i] == _value[n])
             {
@@ -1382,7 +1675,7 @@ template<typename T> struct list
             }
         }
 
-        return _value.count() == counter;
+        return _value.Count == counter;
     }
 
     bool EndsWith(const list<list<T>>& _values) const
@@ -1542,7 +1835,7 @@ template<typename T> struct list
     {
         if (!InRange(_begin)) return -1;
 
-        for (int i = _begin, matches = 0; i < Count && matches < _value.count(); i++)
+        for (int i = _begin, matches = 0; i < Count && matches < _value.Count; i++)
         {
             if (Elements[i] == _value[matches])
             {
@@ -1554,9 +1847,9 @@ template<typename T> struct list
                 matches = 0;
             }
 
-            if (matches == _value.count())
+            if (matches == _value.Count)
             {
-                return (i - _value.count()) + 1;
+                return (i - _value.Count) + 1;
             }
         }
 
@@ -1705,7 +1998,7 @@ template<typename T> struct list
 
         while (true)
         {
-            int index_ = IndexOf(_value, index + _value.count());
+            int index_ = IndexOf(_value, index + _value.Count);
 
             if (index_ == -1)
             {
@@ -1732,17 +2025,18 @@ template<typename T> struct list
         return - 1;
     }
 
+    //return the maximum element in the range (_begin, Count - 1)
     //count() == 0 => nullptr
-    //_sindex is outside the range of list => nullptr
+    //_begin is outside the range of list => nullptr
 	//<T> implements operator '>' or it is a primitive numerical type ->
-    T* Max(int _sindex = 0) const
+    T* Max(int _begin = 0) const
     {
         if (Count == 0) return nullptr;
-        else if (!InRange(_sindex)) return nullptr;
+        else if (!InRange(_begin)) return nullptr;
 
-        T* max = &Elements[_sindex];
+        T* max = &Elements[_begin];
 
-        for (int i = _sindex + 1; i < Count; i++)
+        for (int i = _begin; i < Count; i++)
         {
             T* element = &Elements[i];
 
@@ -1755,17 +2049,18 @@ template<typename T> struct list
         return max;
     }
 
+    //return the minimum element in the range (_begin, Count - 1)
     //count() == 0 => nullptr
-    //_sindex is outside the range of list => nullptr
+    //_begin is outside the range of list => nullptr
     //<T> implements operator '>' or it is a primitive numerical type ->
-    T* Min(int _sindex = 0) const
+    T* Min(int _begin = 0) const
     {
         if (Count == 0) return nullptr;
-        else if (!InRange(_sindex)) return nullptr;
+        else if (!InRange(_begin)) return nullptr;
 
-        T* min = &Elements[_sindex];
+        T* min = &Elements[_begin];
 
-        for (int i = _sindex; i < Count; i++)
+        for (int i = _begin; i < Count; i++)
         {
             T* element = &Elements[i];
 
@@ -1826,11 +2121,11 @@ template<typename T> struct list
     //[3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([2, 5, 7]) => (5, 10)
     //[3, 10, 15, 12, 0, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (4, 4)
     //[3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOf([4, 0, 1]) => (-1, -1)
-    Range<int> RangeOf(const list<T>& _set, int _sindex = 0) const
+    Range<int> RangeOf(const list<T>& _set, int _startIndex = 0) const
     {
-        if (!InRange(_sindex)) return {};
+        if (!InRange(_startIndex)) return {};
 
-        for (int i = _sindex, n = -1; i < Count; i++)
+        for (int i = _startIndex, n = -1; i < Count; i++)
         {
             bool equality = _set.Contains(Elements[i]);
 
@@ -1856,11 +2151,11 @@ template<typename T> struct list
     //[3, 10, 15, 12, 8, 5, 7, 2, 2, 7, 7, 3, 9].RangeOfNot([2, 5, 7]) => (0, 4)
     //[5, 7, 2, 2, 7, 7, 5, 4, 2, 7, 5].RangeOfNot([2, 5, 7]) => (7, 7)
     //[4, 0, 0, 1, 1, 4, 0, 1, 4, 4, 1].RangeOfNot([4, 0, 1]) => (-1, -1)
-    Range<int> RangeOfNot(const list<T>& _set, int _sindex = 0) const
+    Range<int> RangeOfNot(const list<T>& _set, int _startIndex = 0) const
     {
-        if (!InRange(_sindex)) return {};
+        if (!InRange(_startIndex)) return {};
 
-        for (int i = _sindex, n = - 1; i < Count; i++)
+        for (int i = _startIndex, n = - 1; i < Count; i++)
         {
             bool equality = _set.Contains(Elements[i]);
 
@@ -2068,6 +2363,12 @@ template<typename T> struct list
         }
 
         return accumulator;
+    }
+
+    //[5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange((2, 5)) => [4, 1, 9, 6]
+    list<T> Subrange(const Range<int>& _range) const
+    {
+        return Subrange(_range.begin(), _range.end());
     }
 
     list<T> Where(const std::function<bool(const T&)>& _predicate) const
