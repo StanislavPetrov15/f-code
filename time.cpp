@@ -1,5 +1,8 @@
 namespace time_
 {
+    //(!) ALL FUNCTIONALITY USES THE GREGORIAN CALENDAR
+    //(!) YEARS GIVEN AS ARGUMENTS MUST FALL IN THE RANGE (1600..9999)
+
 	const int SECONDS_IN_AN_HOUR = 3600;
 
 	const int SECONDS_IN_A_DAY = 86400;
@@ -14,6 +17,7 @@ namespace time_
 	struct DateTime;
 	bool IsLeap(int);
 	bool IsValidDate(const DateTime&);
+    void ToTimezone(int&, int&, int&, int&, int&, int&, int&, int);
 
 	struct DateTime
 	{
@@ -119,66 +123,12 @@ namespace time_
 
 		///FUNCTIONS
 
-		//23-5-2009 09:51:07 +3 -> ToTimezone(7) => 23-5-2009 13:51:07 7
-        //23-5-2009 09:51:07 +3 -> ToTimezone(-8) => 22-5-2009 22:51:07 -8
+		//{ 23-5-2009 09:51:07 +3 }.ToTimezone(7) => { 23-5-2009 13:51:07 7 }
+        //{ 23-5-2009 09:51:07 +3 }.ToTimezone(-8) => { 22-5-2009 22:51:07 -8 }
 		//_timezone_ >= -11 & _timezone_ <= 14 ->
 		void ToTimezone(int _timezone_)
 		{
-			if (_timezone_ < -11 || _timezone_ > 14) return;
-
-			if (Timezone < _timezone_)
-			{
-				Hour += _timezone_ - Timezone;
-			}
-			else if (Timezone > _timezone_)
-			{
-				Hour -= Timezone - _timezone_;
-			}
-
-			//
-
-			if (Hour < 0)
-			{
-				Hour += 24;
-				Day--;
-			}
-			else if (Hour > 23)
-			{
-				Hour -= 24;
-				Day++;
-			}
-
-			//
-
-			int month = Month - 1;
-			int monthLength = IsLeap(Year) && Month == 1 ? MONTH_LENGTHS[month] + 1 : MONTH_LENGTHS[month];
-			if (Day < 1)
-			{
-				Month--;
-			}
-			else if (Day > monthLength)
-			{
-				Month++;
-				Day = 1;
-			}
-
-			//
-
-			if (Month < 1)
-			{
-				Month = 12;
-				Year--;
-				Day = IsLeap(Year) && Month == 1 ? MONTH_LENGTHS[11] + 1 : MONTH_LENGTHS[11];
-			}
-			else if (Month > 12)
-			{
-				Month = 1;
-				Year++;
-			}
-
-			//
-
-			Timezone = _timezone_;
+            time_::ToTimezone(Year, Month, Day, Hour, Minute, Second, Timezone, _timezone_);
 		}
 
 		bool IsAfter(const DateTime& _datetime) const
@@ -256,16 +206,85 @@ namespace time_
 		}
 	};
 
-    int Year = 0;
-    int Month = 0;
-    int Day = 0;
-    int Hour = 0;
-    int Minute = 0;
-    int Second = 0;
-    int Timezone = 0;
+    //ToTimezone(2009, 5, 23, 9, 51, 07, +3, 7) -> 2009, 5, 23, 13, 51, 07, 7
+    //ToTimezone(2009, 5, 23, 9, 51, 07, +3, -8) -> 2009, 5, 22, 22, 51, 07, -8
+    //_newTimeZone >= -11 & _newTimeZone <= 14 ->
+    void ToTimezone(int& _year, int& _month, int& _day, int& _hour, int& _minute, int& _second, int& _timezone_, int _newTimeZone)
+    {
+        if (_newTimeZone < -11 || _newTimeZone > 14) return;
+
+        if (_timezone_ < _newTimeZone)
+        {
+            _hour += _newTimeZone - _timezone_;
+        }
+        else if (_timezone_ > _newTimeZone)
+        {
+            _hour -= _timezone_ - _newTimeZone;
+        }
+
+        //
+
+        if (_hour < 0)
+        {
+            _hour += 24;
+            _day--;
+        }
+        else if (_hour > 23)
+        {
+            _hour -= 24;
+            _day++;
+        }
+
+        //
+
+        int month = _month - 1;
+        int monthLength = IsLeap(_year) && _month == 1 ? MONTH_LENGTHS[month] + 1 : MONTH_LENGTHS[month];
+        if (_day < 1)
+        {
+            _month--;
+        }
+        else if (_day > monthLength)
+        {
+            _month++;
+            _day = 1;
+        }
+
+        //
+
+        if (_month < 1)
+        {
+            _month = 12;
+            _year--;
+            _day = IsLeap(_year) && _month == 1 ? MONTH_LENGTHS[11] + 1 : MONTH_LENGTHS[11];
+        }
+        else if (_month > 12)
+        {
+            _month = 1;
+            _year++;
+        }
+
+        //
+
+        _timezone_ = _newTimeZone;
+    }
+
+    //DayOfYear(2024, 2, 5) => 36
+    int DayOfYear(int _year, int _month, int _day)
+    {
+        int day = 0;
+
+        bool isLeap = IsLeap(_year);
+        for (int i = 0; i < _month - 1; i++)
+        {
+            day += isLeap && i == 1 ? MONTH_LENGTHS[i] + 1 : MONTH_LENGTHS[i];
+        }
+
+        return day + _day;
+    }
 
 	bool IsValidDateTime(const DateTime&);
-	//DayOfYear({ 2024, 2, 5, 0, 0, 0, 0 }) => 36
+    //_datetime is not valid => -1
+    //DayOfYear({ 2024, 2, 5, 0, 0, 0, 0 }) => 36
 	int DayOfYear(const DateTime& _datetime)
 	{
 	    if (!IsValidDateTime(_datetime)) return -1;
@@ -281,71 +300,163 @@ namespace time_
 		return day + _datetime.day();
 	}
 
+    //_datetime.Year >= 1600 ->
+    int DayOfWeek(int _year, int _month, int _day)
+    {
+        //determine the first day of week for _datetime.year()
+
+        int weekdayOfYear = 6; //1 January 1600 is Saturday ->
+        int datetimeYear = _year;
+
+        for (int year = 1600; year < datetimeYear; year++)
+        {
+            if (IsLeap(year))
+            {
+                if (weekdayOfYear == 6)
+                {
+                    weekdayOfYear = 1;
+                }
+                else if (weekdayOfYear == 7)
+                {
+                    weekdayOfYear = 2;
+                }
+                else
+                {
+                    weekdayOfYear += 2;
+                }
+            }
+            else
+            {
+                if (weekdayOfYear == 7)
+                {
+                    weekdayOfYear = 1;
+                }
+                else
+                {
+                    weekdayOfYear++;
+                }
+            }
+        }
+
+        //
+
+        int dayOfWeek = weekdayOfYear;
+
+        dayOfWeek += (DayOfYear(_year, _month, _day) - 1) % 7;
+
+        if (dayOfWeek > 7)
+        {
+            dayOfWeek -= 7;
+        }
+
+        return dayOfWeek;
+    }
+
+    //_datetime1 and/or _datetime2 is not valid => -1
+    //_datetime.Year >= 1600 ->
+    int DayOfWeek(const DateTime& _datetime)
+    {
+        if (!IsValidDateTime(_datetime)) return -1;
+
+        return DayOfWeek(_datetime.day(), _datetime.month(), _datetime.year());
+    }
+
 	//number of seconds since UNIX Epoch
 	long long Elapsed()
     {
 	    return time(nullptr);
     }
 
+    //returns the number of seconds between the two intervals
+    //_year1 >= 1600 && _year2 >= 1600 ->
+    unsigned long long IntervalOf(
+        int _year1, int _month1, int _day1, int _hour1, int _minute1, int _second1, int _timezone1,
+        int _year2, int _month2, int _day2, int _hour2, int _minute2, int _second2, int _timezone2)
+    {
+        ToTimezone(_year1, _month1, _day1, _hour1, _minute1, _second1, _timezone1, 0);
+        ToTimezone(_year2, _month2, _day2, _hour2, _minute2, _second2, _timezone2, 0);
+
+        int earlierYear = _year1 < _year2 ? _year1 : _year2;
+        int earlierMonth = _month1 < _month2 ? _month1 : _month2;
+        int earlierDay = _day1 < _day2 ? _day1 : _day2;
+        int earlierHour = _hour1 < _hour2 ? _hour1 : _hour2;
+        int earlierMinute = _minute1 < _minute2 ? _minute1 : _minute2;
+        int earlierSecond = _second1 < _second2 ? _second1 : _second2;
+        int laterYear = _year1 > _year2 ? _year1 : _year2;
+        int laterMonth = _month1 > _month2 ? _month1 : _month2;
+        int laterDay = _day1 > _day2 ? _day1 : _day2;
+        int laterHour = _hour1 > _hour2 ? _hour1 : _hour2;
+        int laterMinute = _minute1 > _minute2 ? _minute1 : _minute2;
+        int laterSecond = _second1 > _second2 ? _second1 : _second2;
+
+        int earlierDateSOY = (earlierHour * SECONDS_IN_AN_HOUR) + (earlierMinute * 60) + earlierSecond;
+        int laterDateSOY = (laterHour * SECONDS_IN_AN_HOUR) + (laterMinute * 60) + laterSecond;
+        int earlierDateDOY = DayOfYear(earlierYear, earlierMonth, earlierDay);
+        int laterDateDOY = DayOfYear(laterYear, laterMonth, laterDay);
+
+        if (earlierYear == laterYear && earlierDateDOY == laterDateDOY)
+        {
+            return laterDateSOY - earlierDateSOY;
+        }
+
+        int seconds = 0;
+
+        //remaining seconds until the end of the earlier day
+        seconds += SECONDS_IN_A_DAY - earlierDateSOY;
+
+        //full days between earlier and the later day
+        int days = 0;
+
+        if (earlierYear == laterYear)
+        {
+            days = (laterDateDOY - earlierDateDOY);
+        }
+        else
+        {
+            //remaining days until the end of (the year of the earlier date)
+            days += IsLeap(earlierYear) ? 366 - earlierDateDOY : 365 - earlierDateDOY;
+
+            //the days in (the years between the earlier and the later date)
+            for (int year = earlierYear + 1; year < laterYear; year++)
+            {
+                days += IsLeap(year) ? 366 : 365;
+            }
+
+            //number of days in (the year of the later date)
+            days += laterDateDOY;
+        }
+
+        seconds += (days - 1) * SECONDS_IN_A_DAY;
+
+        //number of seconds since the beginning of the later date
+        seconds += laterDateSOY;
+
+        return seconds;
+    }
+
     //returns the number of seconds between _datetime and _datetime_
 	//_datetime1 and/or _datetime2 is not valid => -1
+    //__datetime1.year() >= 1600 && _datetime2.year() >= 1600 ->
 	unsigned long long IntervalOf(const DateTime& _datetime1, const DateTime& _datetime2)
 	{
-		if (!IsValidDateTime(_datetime1) || !IsValidDateTime(_datetime2)) return -1;
+        if (!IsValidDateTime(_datetime1) || !IsValidDateTime(_datetime2)) return -1;
 
-		DateTime datetime = _datetime1;
-		DateTime datetime_ = _datetime2;
-
-		datetime.ToTimezone(0);
-		datetime_.ToTimezone(0);
-
-		DateTime& earlierDate = datetime.IsBefore(datetime_) ? datetime : datetime_;
-		DateTime& laterDate = datetime_.IsAfter(datetime_) ? datetime : datetime_;
-
-		int earlierDateSOY = (earlierDate.hour() * SECONDS_IN_AN_HOUR) + (earlierDate.minute() * 60) + earlierDate.second();
-		int laterDateSOY = (laterDate.hour() * SECONDS_IN_AN_HOUR) + (laterDate.minute() * 60) + laterDate.second();
-		int earlierDateDOY = DayOfYear(earlierDate);
-		int laterDateDOY = DayOfYear(laterDate);
-
-		if (earlierDate.year() == laterDate.year() && earlierDateDOY == laterDateDOY)
-		{
-			return laterDateSOY - earlierDateSOY;
-		}
-
-		int seconds = 0;
-
-		//remaining seconds until the end of the earlier day
-		seconds += SECONDS_IN_A_DAY - earlierDateSOY;
-
-		//full days between earlier and the later day
-		int days = 0;
-
-		if (earlierDate.year() == laterDate.year())
-		{
-			days = (laterDateDOY - earlierDateDOY);
-		}
-		else
-		{
-			//remaining days until the end of (the year of the earlier date)
-			days += IsLeap(earlierDate.year()) ? 366 - earlierDateDOY : 365 - earlierDateDOY;
-
-			//the days in (the years between the earlier and the later date)
-			for (int year = earlierDate.year() + 1; year < laterDate.year(); year++)
-			{
-				days += IsLeap(year) ? 366 : 365;
-			}
-
-			//number of days in (the year of the later date)
-			days += laterDateDOY;
-		}
-
-		seconds += (days - 1) * SECONDS_IN_A_DAY;
-
-		//number of seconds since the beginning of the later date
-		seconds += laterDateSOY;
-
-		return seconds;
-	}
+        return IntervalOf(
+            _datetime1.year(),
+            _datetime1.month(),
+            _datetime1.day(),
+            _datetime1.hour(),
+            _datetime1.minute(),
+            _datetime1.second(),
+            _datetime1.timezone(),
+            _datetime2.year(),
+            _datetime2.month(),
+            _datetime2.day(),
+            _datetime2.hour(),
+            _datetime2.minute(),
+            _datetime2.second(),
+            _datetime2.timezone());
+    }
 
 	//_year >= 1600 ->
 	bool IsLeap(int _year)
@@ -366,10 +477,10 @@ namespace time_
         }
 	}
 
-	//_datetime.year() > 4000 => false
+	//_datetime.year() > 9999 => false
 	bool IsValidDateTime(const DateTime& _datetime)
 	{
-		if (_datetime.year() < 1 || _datetime.year() > 4000) return false;
+		if (_datetime.year() < 1 || _datetime.year() > 9999) return false;
 
 		if (_datetime.month() < 1 || _datetime.month() > 12) return false;
 
@@ -397,32 +508,32 @@ namespace time_
         int month = 1;
 
         //determine the current year
-    while (true)
-    {
-        int daysInYear = IsLeap(year) ? 366 : 365;
+        while (true)
+        {
+            int daysInYear = IsLeap(year) ? 366 : 365;
 
-        if (seconds < (daysInYear * SECONDS_IN_A_DAY)) break;
+            if (seconds < (daysInYear * SECONDS_IN_A_DAY)) break;
 
-        int secondsInYear = daysInYear * SECONDS_IN_A_DAY;
+            int secondsInYear = daysInYear * SECONDS_IN_A_DAY;
 
-        seconds -= secondsInYear;
+            seconds -= secondsInYear;
 
-        year++;
-    }
+            year++;
+        }
 
-    //determine the current month
-    while (true)
-    {
-        int daysInMonth = IsLeap(year) && month == 2 ? 29 : MONTH_LENGTHS[month];
+        //determine the current month
+        while (true)
+        {
+            int daysInMonth = IsLeap(year) && month == 2 ? 29 : MONTH_LENGTHS[month];
 
-        if (seconds < (daysInMonth * SECONDS_IN_A_DAY)) break;
+            if (seconds < (daysInMonth * SECONDS_IN_A_DAY)) break;
 
-        int secondsInMonth = daysInMonth * SECONDS_IN_A_DAY;
+            int secondsInMonth = daysInMonth * SECONDS_IN_A_DAY;
 
-        seconds -= secondsInMonth;
+            seconds -= secondsInMonth;
 
-        month++;
-    }
+            month++;
+        }
 
 		int dayOfMonth = (seconds / SECONDS_IN_A_DAY) + 1;
 
