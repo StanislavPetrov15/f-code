@@ -28,8 +28,10 @@ f-code
 (!) the library consists of the following files:
 - array.cpp
 - range.cpp
-- tuple.cpp
 - pair.cpp
+- tuple.cpp
+- stack.cpp
+- queue.cpp
 - list.cpp
 - string.cpp
 - bit_operations.cpp
@@ -46,8 +48,10 @@ f-code
 - numeric.cpp - do not depend on other files
 - array.cpp - depends on <Windows.h>
 - range.cpp - do not depend on other files
-- tuple.cpp - do not depend on other files
 - pair.cpp - do not depend on other files
+- tuple.cpp - do not depend on other files
+- stack.cpp - do not depend on other files
+- queue.cpp - do not depend on other files
 - list.cpp - depends on \<functional\> and range.cpp
 - bit_operations.cpp - depends on list.cpp
 - byte_operations.cpp - depends on list.cpp
@@ -58,7 +62,8 @@ f-code
 - event.cpp - depends on list.cpp
 - timer.cpp - depends on \<chromo\>, \<thread\> and event.cpp
 - chronometer.cpp - depends on \<chrono\> 
-
+- geometry.cpp - depends on numeric.cpp and list.cpp
+- 
 (!) some functions contains notes describing the following (in the order shown below):
 - description of the function
 - description of one or more parameters of the function (if their meaning is not clear at first)
