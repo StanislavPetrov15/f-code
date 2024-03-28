@@ -1613,17 +1613,17 @@ struct string
 	
     }
 
-        //_length specifies the length of _array
+    //_length specifies the length of _array
     //_array is a UTF-32 string ->
     string(const utf32*_array, Endianity _endianity, unsigned int _length) : string(_array, _endianity, _length,
     DefaultStorageEncoding) {}
 
-        //_length specifies the length of _array
+    //_length specifies the length of _array
     //_array is a UTF-32 string ->
     string(const utf32*_array, unsigned int _length, Encoding _storageEncoding) : string(_array, DefaultEndianity,
     _length, _storageEncoding) {}
 
-        //_length specifies the length of _array
+    //_length specifies the length of _array
     //_array is a UTF-32 string ->
     string(const utf32*_array, unsigned int _length) : string(_array, DefaultEndianity, _length,
     DefaultStorageEncoding) {}
@@ -1634,7 +1634,7 @@ struct string
 
     string(const string& _string)
     {
-       if (this == &_string) return;
+        if (this == &_string) return;
 
         Extensor = _string.Extensor;
         StorageEncoding = _string.StorageEncoding;
@@ -1648,7 +1648,7 @@ struct string
         }
 
         Elements = new unsigned char[Size];
-       
+
         for (int i = 0; i < Size; i++)
         {
             Elements[i] = _string.Elements[i];
@@ -1663,9 +1663,9 @@ struct string
 
         Range<int> byteRange { _source.byteRangeOf(_begin).begin(), _source.byteRangeOf(_end).end() };
         Elements = &(_source.Elements[byteRange.begin()]);
-        CharacterCount = (_end - _begin) + 1;
         ByteCount = byteRange.length();
         Size = byteRange.length();
+        CharacterCount = (_end - _begin) + 1;
         SpatialKind = SpatialKind::SEGMENT;
     }
 
@@ -2105,14 +2105,40 @@ struct string
 
     ///
 
-    //"205" => false
-    //"205." => false
-    //"205.0" => true
-    //"205.12" => true
-    bool IsFractional() const
+    //"" => false
+    //"-026" => true
+    //"-26" => true
+    //"26" => true
+    bool IsInteger() const
     {
         if (CharacterCount == 0) return false;
-        else if ((*this)[0] != '-' && ! IsDigit((*this)[0])) return false;
+
+        bool subindex = (*this)[0] == '-' ? 1 : 0;
+
+        if (Sublist(subindex).Contains([](utf32 x) { return !IsDigit(x); }))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    //"" => false
+    //"205" => false
+    //"205."(false) => false
+    //"205."(true) => true
+    //".51"(false) => false
+    //".51"(true) => true
+    //"205.0" => true
+    //"205.12" => true
+    bool IsFractional(bool _allowMissingComponent = true) const
+    {
+        if (CharacterCount == 0) return false;
+        else if ((*this)[0] != '-' && (*this)[0] != '.' && !IsDigit((*this)[0]))
+        {
+            auto egegweg = (*this)[0];
+        return false;
+        }
 
         string absoluteValue = (*this)[0] == '-' ? Sublist(1) : Sublist(0);
 
@@ -2124,17 +2150,22 @@ struct string
         {
             return false;
         }
-        else if (absoluteValue[0] == '.')
-        {
-            return false;
-        }
-        else if (absoluteValue[CharacterCount - 1] == '.')
-        {
-            return false;
-        }
         else if (absoluteValue.CountOf('.') > 1)
         {
             return false;
+        }
+        else if (!_allowMissingComponent)
+        {
+            int indexOfDot = absoluteValue.IndexOf('.');
+            string integralPart = absoluteValue.Subrange(0, indexOfDot - 1);
+            string fractionalPart = absoluteValue.Sublist(indexOfDot + 1);
+
+            if (integralPart.CharacterCount == 0 || fractionalPart.CharacterCount == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
         else
         {
@@ -2607,6 +2638,11 @@ struct string
         return *this;
     }
 
+    string& Remove(const Range<int>& _range)
+    {
+        return Remove(_range.begin(), _range.end());
+    }
+
     string& RemoveAt(int _index, int _length = 1)
     {
         if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
@@ -2626,7 +2662,7 @@ struct string
         }
 
         copy(accumulator);
-        
+
         return *this;
     }
 
@@ -2720,6 +2756,12 @@ struct string
         return *this;
     }
 
+    //[5, 9, 0, 3, 7, 18, 4, 2, 6].Replace((4, 7), [2, 6, 1]) => [5, 9, 0, 3, 2, 6, 1, 6]
+    string Replace(const Range<int>& _range, const string& _replacement)
+    {
+        return Replace(_range.begin(), _range.end());
+    }
+
 	//replace every occurrence of _replaced with _replacement
     string& Replace(CodePoint _replaced, CodePoint _replacement)
     {
@@ -2771,7 +2813,7 @@ struct string
     //[1, 2, 3, 4, 5].RotateLeft(3) => [4, 5, 1, 2, 3]
     string& RotateLeft(int _positions = 1)
     {
-    if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         string newList = *this/*it is needed for the correct execution of byteRangeOf() in Set(); if newList is just an empty allocated space
              byteRangeOf() may return incorrect result*/;;
@@ -2800,7 +2842,7 @@ struct string
     //[1, 2, 3, 4, 5].RotateRight(3) => [3, 4, 5, 1, 2]
     string& RotateRight(int _positions = 1)
     {
-         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         string newList = *this/*it is needed for the correct execution of byteRangeOf() in Set(); if newList is just an empty allocated space
              byteRangeOf() may return incorrect result*/;
@@ -2827,11 +2869,12 @@ struct string
         return *this;
     }
 
-
     string& Set(int _index, CodePoint _value)
     {
         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (_index < 0 || _index >= characterCount()) return *this;
+
+        //(TODO) optimization for UTF32 strings
 
         Range<int> byteRange = byteRangeOf(_index);
 
@@ -2874,9 +2917,9 @@ struct string
     {
         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (!InRange(_begin)) return *this;
-        else if (!InRange(_begin + (_value.characterCount()) - 1)) return *this;
+        else if (!InRange(_begin + (_value.CharacterCount) - 1)) return *this;
 
-        for (int i = 0; i < _value.characterCount(); i++)
+        for (int i = 0; i < _value.CharacterCount; i++)
         {
             Set(_begin + i, _value[i]);
         }
@@ -2926,6 +2969,12 @@ struct string
         return *this;
     }
 
+    //[9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set((3, 5), 192) => [9, 1, 5, 192, 192, 192, 7, 0, 6, 5, 1]
+    string& Set(const Range<int>& _range, CodePoint _value)
+    {
+        return Set(_range.begin(), _range.end());
+    }
+
     string& Swap(int _index1, int _index2)
     {
         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
@@ -2962,10 +3011,10 @@ struct string
                 break;
             }
 
-		if (i == CharacterCount - 1)
-		{
-			Clear();
-		}
+            if (i == CharacterCount - 1)
+            {
+                  Clear();
+            }
         }
 
         return *this;
@@ -2984,10 +3033,10 @@ struct string
                 break;
             }
 
-	    if (i == 0)
-	    {
-		Clear();
-	    }
+            if (i == 0)
+            {
+                Clear();
+            }
         }
 
         return *this;
@@ -3180,7 +3229,7 @@ struct string
     //[5, 9, 1, 0, 3, 5, 9, 1, 4, 5, 9, 1, 10, 15, 3, 7, 5, 9, 1, 1].CountOf([5, 9, 1, 7]) => 0
     int CountOf(const string& _value) const
     {
-        if (_value.characterCount() == 0) return 0;
+        if (_value.CharacterCount == 0) return 0;
 
         int count = 0;
 
@@ -3343,7 +3392,7 @@ struct string
     {
         if (!InRange(_begin)) return -1;
 
-        for (int i = _begin, matches = 0; i < CharacterCount && matches < _value.characterCount(); i++)
+        for (int i = _begin, matches = 0; i < CharacterCount && matches < _value.CharacterCount; i++)
         {
             if ((*this)[i] == _value[matches])
             {
@@ -3797,6 +3846,12 @@ struct string
         return accumulator;
     }
 
+    //[5, 8, 4, 1, 9, 6, 2, 3, 0, 5, 5, 1, 7].Subrange((2, 5)) => [4, 1, 9, 6]
+    string Subrange(const Range<int>& _range) const
+    {
+        return Subrange(_range.begin(), _range.end());
+    }
+
     string Where(const std::function<bool(CodePoint)>& _predicate) const
     {
         string accumulator;
@@ -4012,7 +4067,7 @@ struct string
         {
             f /= 10.0;
 
-            double rounded = numeric::RoundDown(f);
+            double rounded = numeric::RoundDown_L(f);
 
             double digit_f = f - rounded;
 
@@ -4035,17 +4090,119 @@ struct string
         return accumulator;
     }
 
+    static string FromReal(double _number, int _digitsAfterDot = -1)
+    {
+        double number = _number;
+
+        if (number < 0.0)
+        {
+            number = numeric::Absolute(_number);
+        }
+
+        long long integralPart = numeric::RoundDown_L(number);
+        double fractionalPart = numeric::FractionOf(number);
+
+        //
+
+        int numberOfZeroes = 0;
+
+        fractionalPart *= 10.0;
+
+        while (true)
+        {
+            if (fractionalPart < 0.01 || fractionalPart >= 1.0)
+            {
+                break;
+            }
+            else
+            {
+                fractionalPart *= 10.0;
+                numberOfZeroes++;
+            }
+        }
+
+        //
+
+        double integerEquivalentOfFraction = fractionalPart;
+
+        while (true)
+        {
+            integerEquivalentOfFraction *= 10.0;
+            double rounded = numeric::RoundDown_L(integerEquivalentOfFraction);
+            double difference = integerEquivalentOfFraction - rounded;
+
+            if (difference < 0.01 || difference > 0.99)
+            {
+                break;
+            }
+        }
+
+        string integralPartString = FromInteger(integralPart);
+        string fractionalPartString = string::FromInteger(numeric::RoundToNearest(integerEquivalentOfFraction)); //without the zeroes in the beginning (if there are any)
+        string eventualFractionalZeroes;
+
+        eventualFractionalZeroes.Append('0', numberOfZeroes);
+
+        if (_number < 0.0)
+        {
+            return string('-') + integralPartString + '.' + eventualFractionalZeroes + fractionalPartString;
+        }
+        else
+        {
+            return integralPartString + '.' + eventualFractionalZeroes + fractionalPartString;
+        }
+    }
+
+    //".6" => 0.6
+    //"23." => 23
+    //"5" => 5.0
+    //"5.1" => 5.1
     float ToFloat() const
     {
         bool isPositive = (*this)[0] != '-';
 
         int indexOfDot = IndexOf('.');
-        int whole = string(Subrange(isPositive ? 0 : 1, indexOfDot - 1)).ToInteger(DECIMAL_A);
+
+        if (indexOfDot == -1)
+        {
+            return ToInteger(DECIMAL_A);
+        }
+
+        string integral = string(Subrange(isPositive ? 0 : 1, indexOfDot - 1));
         string fractional = string(Sublist(indexOfDot + 1));
 
-        if (fractional.ContainsOnly('0')) return whole;
+        int integral_;
+        float fractional_;
 
-        float fractional_ = string(fractional.Sublist(fractional.IndexOfNot('0'))).ToInteger(DECIMAL_A);
+        if (integral.CharacterCount == 0)
+        {
+            integral_ = 0;
+        }
+        else
+        {
+            integral_ = integral.ToInteger(DECIMAL_A);
+        }
+
+        if (fractional.CharacterCount == 0)
+        {
+              fractional_ = 0;
+        }
+        else
+        {
+            fractional_ = string(fractional.Sublist(fractional.IndexOfNot('0'))).ToInteger(DECIMAL_A);
+        }
+
+        if (fractional.ContainsOnly('0'))
+        {
+            if (isPositive)
+            {
+                return integral_;
+            }
+            else
+            {
+                return -integral_;
+            }
+        }
 
         for (int i = 0; i < fractional.CharacterCount; i++)
         {
@@ -4059,23 +4216,43 @@ struct string
 
         if (isPositive)
         {
-            return whole + fractional_;
+            return integral_ + fractional_;
         }
         else
         {
-            return - (whole + fractional_);
+            return -(integral_ + fractional_);
         }
     }
 
+    //".6" => 0.6
+    //"23." => 23
+    //"5" => 5.0
+    //"5.1" => 5.1
     double ToDouble() const
     {
         bool isPositive = (*this)[0] != '-';
 
         int indexOfDot = IndexOf('.');
-        int whole = string(Subrange(isPositive ? 0 : 1, indexOfDot - 1)).ToInteger(DECIMAL_A);
+
+        if (indexOfDot == -1)
+        {
+            return ToInteger(DECIMAL_A);
+        }
+
+        int integral = string(Subrange(isPositive ? 0 : 1, indexOfDot - 1)).ToInteger(DECIMAL_A);
         string fractional = string(Sublist(indexOfDot + 1)); //(п:А) => "0000291"
 
-        if (fractional.ContainsOnly('0')) return whole;
+        if (fractional.ContainsOnly('0'))
+        {
+            if (isPositive)
+            {
+                return integral;
+            }
+            else
+            {
+                return -integral;
+            }
+        }
 
         double fractional_ = string(fractional.Sublist(fractional.IndexOfNot('0'))).ToInteger(DECIMAL_A);
 
@@ -4091,11 +4268,11 @@ struct string
 
         if (isPositive)
         {
-            return whole + fractional_;
+            return integral + fractional_;
         }
         else
         {
-            return - (whole + fractional_);
+            return - (integral + fractional_);
         }
     }
 
