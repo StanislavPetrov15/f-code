@@ -63,7 +63,7 @@ f-code
 - timer.cpp - depends on \<chromo\>, \<thread\> and event.cpp
 - chronometer.cpp - depends on \<chrono\> 
 - geometry.cpp - depends on numeric.cpp and list.cpp
-- 
+
 (!) some functions contains notes describing the following (in the order shown below):
 - description of the function
 - description of one or more parameters of the function (if their meaning is not clear at first)
