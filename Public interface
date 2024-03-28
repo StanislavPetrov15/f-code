@@ -4580,6 +4580,8 @@ struct Chronometer:
 
 geometry.cpp:
 
+# (!!!) the result of some functions may depend on the variable 'FloatingPointPrecision'
+
 # TERMINOLOGY:
 
 # (bitex) :: 2D point
