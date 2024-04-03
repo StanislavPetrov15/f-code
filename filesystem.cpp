@@ -626,6 +626,8 @@ struct File
             Position = numeric::CircularSubtraction(0, Size - 1, Position, _value);
         }
 
+        set_position(Position);
+
         return *this;
     }
 
@@ -643,6 +645,8 @@ struct File
             Position = numeric::CircularAddition(0, Size - 1, Position, _value);
         }
 
+        set_position(Position);
+        
         return *this;
     }
 
