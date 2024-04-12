@@ -16,7 +16,7 @@ enum class MutabilityKind { MUTABLE, IMMUTABLE };
      (advance() sets the current traversal position to a value that points to the first element) */
 enum class TraversalMode { BOUNDED, CIRCULAR };
 
-/* when an instance of (a sequence type that uses ReleaseMode) is about to be destructed the elements (are freed automatically and immediately
+/* when an instance of (a sequence type that uses ReleaseMode) is about to be destructed the elements are freed automatically and immediately
 	 (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future moment (when FUTURE is used)) */
 enum class ReleaseMode { IMMEDIATE, FUTURE };
 
@@ -34,13 +34,12 @@ template<typename T> struct list
     int Count = 0;
     int Size = 0;
     int Position = 0; //iteration position
-    int ExtensionValue = 4.0; //(in percent of the current size)
     T* Elements = nullptr;
     SpatialKind SpatialKind = SpatialKind::COMPLETE;
 
     bool InRange(int _index) const
     {
-        return _index >= 0 || _index <= Count - 1;
+        return _index >= 0 && _index <= Count - 1;
     }
 
     bool InRange(int _begin, int _end) const
@@ -78,6 +77,8 @@ template<typename T> struct list
     MutabilityKind MutabilityKind = MutabilityKind::MUTABLE;
 
     ReleaseMode ReleaseMode = ReleaseMode::IMMEDIATE;
+
+    int ExtensionValue = 4.0; //(in percent of the current size)
 
     ///CONSTRUCTORS
 
@@ -2087,7 +2088,7 @@ template<typename T> struct list
         for (int i = 0; i < Count; i++)
         {
             bool match = _set.Contains(Elements[i]);
-            int index = IndexOf([&](auto _e){ return _set.Contains(_e); }, i + 1);
+            int index = IndexOf([&](T x){ return _set.Contains(x); }, i + 1);
 
             //[separator, separator]
             if (match && index == i + 1 && !_ignoreEmptyValues)
@@ -2339,9 +2340,10 @@ template<typename T> struct list
     {
         if (!InRange(_begin)) return {};
 
-        list<T> accumulator;
-
         int end = _length == 0 ? Count : _begin + _length;
+
+        list<T> accumulator(_length, false);
+
         for (int i = _begin; i < end; i++)
         {
             accumulator.Append(Elements[i]);
@@ -2355,7 +2357,7 @@ template<typename T> struct list
     {
         if (!InRange(_begin, _end)) return {};
 
-        list<T> accumulator;
+        list<T> accumulator((_end - _begin) + 1, false);
 
         for (int i = _begin; i < _end + 1; i++)
         {
@@ -2460,6 +2462,7 @@ template<typename T> struct list
 
     ///
 
+    //_size is the new size (number of elements, not bytes) of the list
 	 void resize(int _size)
      {
          T* oldElements = Elements;
