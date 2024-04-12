@@ -516,7 +516,7 @@ namespace bit_operations
 		return bits;
 	}
 
-    //returns all bits of _value; the first bit in the list is LSB
+    //returns all bits of _value; the first bit in the list is MSB
     //BitsOfR(194) => [11000010]
     list<bool> BitsOfR(unsigned char _value)
     {
