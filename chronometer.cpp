@@ -28,7 +28,7 @@ public:
     }
 
     //in microseconds
-    int Elapsed() const
+    long long Elapsed() const
     {
         if (Running)
         {
