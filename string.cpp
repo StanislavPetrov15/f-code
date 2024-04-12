@@ -100,7 +100,7 @@ Encoding DefaultStorageEncoding = UTF8;
 //(!) the size(accessed by size()) of a segment is equal to the size of the string that the segment refers to
 struct string
 {
-    protected:
+    public:
 
     int ByteCount = 0; //the size of (the sequence representing the characters) in bytes
     int Size = 0; //the size of &Elements (in bytes)
@@ -112,7 +112,7 @@ struct string
 
     bool InRange(int _index) const
     {
-        return _index >= 0 || _index <= CharacterCount - 1;
+        return _index >= 0 && _index <= CharacterCount - 1;
     }
 
     bool InRange(int _begin, int _end) const
@@ -344,7 +344,6 @@ struct string
     explicit string(int _size, size)
     {
         resize(_size);
-		ByteCount = _size;
     }
 
     //_array is an ASCII string with an available terminating character ->
@@ -2133,11 +2132,13 @@ struct string
     //"205.12" => true
     bool IsFractional(bool _allowMissingComponent = true) const
     {
-        if (CharacterCount == 0) return false;
+        if (CharacterCount == 0)
+        {
+            return false;
+        }
         else if ((*this)[0] != '-' && (*this)[0] != '.' && !IsDigit((*this)[0]))
         {
-            auto egegweg = (*this)[0];
-        return false;
+            return false;
         }
 
         string absoluteValue = (*this)[0] == '-' ? Sublist(1) : Sublist(0);
@@ -3568,7 +3569,7 @@ struct string
         for (int i = 0; i < CharacterCount; i++)
         {
             bool match = _set.Contains((*this)[i]);
-            int index = IndexOf([&](auto _e){ return _set.Contains(_e); }, i + 1);
+            int index = IndexOf([&](CodePoint x){ return _set.Contains(x); }, i + 1);
 
             //[separator, separator]
             if (match && index == i + 1 && !_ignoreEmptyValues)
@@ -3820,9 +3821,10 @@ struct string
     {
         if (!InRange(_begin)) return {};
 
-        string accumulator;
-
         int end = _length == 0 ? CharacterCount : _begin + _length;
+
+        string accumulator(_length, SIZE_A);
+
         for (int i = _begin; i < end; i++)
         {
             accumulator.Append((*this)[i]);
@@ -3836,7 +3838,7 @@ struct string
     {
         if (!InRange(_begin, _end)) return {};
 
-        string accumulator;
+        string accumulator((_end - _begin) + 1, SIZE_A);
 
         for (int i = _begin; i < _end + 1; i++)
         {
@@ -4157,7 +4159,7 @@ struct string
     //"23." => 23
     //"5" => 5.0
     //"5.1" => 5.1
-    float ToFloat() const
+    float ToFloat()
     {
         bool isPositive = (*this)[0] != '-';
 
@@ -4168,8 +4170,8 @@ struct string
             return ToInteger(DECIMAL_A);
         }
 
-        string integral = string(Subrange(isPositive ? 0 : 1, indexOfDot - 1));
-        string fractional = string(Sublist(indexOfDot + 1));
+        string integral(*this, isPositive ? 0 : 1, indexOfDot - 1);
+        string fractional(*this, indexOfDot + 1, CharacterCount - 1);
 
         int integral_;
         float fractional_;
@@ -4189,7 +4191,16 @@ struct string
         }
         else
         {
-            fractional_ = string(fractional.Sublist(fractional.IndexOfNot('0'))).ToInteger(DECIMAL_A);
+            int indexOfNotZero = fractional.IndexOfNot('0');
+
+            if (indexOfNotZero != -1)
+            {
+                fractional_ = string(fractional, indexOfNotZero, fractional.CharacterCount - 1).ToInteger(DECIMAL_A);
+            }
+            else
+            {
+                fractional_ = 0;
+            }
         }
 
         if (fractional.ContainsOnly('0'))
@@ -4239,22 +4250,50 @@ struct string
             return ToInteger(DECIMAL_A);
         }
 
-        int integral = string(Subrange(isPositive ? 0 : 1, indexOfDot - 1)).ToInteger(DECIMAL_A);
-        string fractional = string(Sublist(indexOfDot + 1)); //(п:А) => "0000291"
+        string integral(*this, isPositive ? 0 : 1, indexOfDot - 1);
+        string fractional(*this, indexOfDot + 1, CharacterCount - 1);
+
+        int integral_;
+        double fractional_;
+
+        if (integral.CharacterCount == 0)
+        {
+            integral_ = 0;
+        }
+        else
+        {
+            integral_ = integral.ToInteger(DECIMAL_A);
+        }
+
+        if (fractional.CharacterCount == 0)
+        {
+            fractional_ = 0;
+        }
+        else
+        {
+            int indexOfNotZero = fractional.IndexOfNot('0');
+
+            if (indexOfNotZero != -1)
+            {
+                fractional_ = string(fractional, indexOfNotZero, fractional.CharacterCount - 1).ToInteger(DECIMAL_A);
+            }
+            else
+            {
+                fractional_ = 0;
+            }
+        }
 
         if (fractional.ContainsOnly('0'))
         {
             if (isPositive)
             {
-                return integral;
+                return integral_;
             }
             else
             {
-                return -integral;
+                return -integral_;
             }
         }
-
-        double fractional_ = string(fractional.Sublist(fractional.IndexOfNot('0'))).ToInteger(DECIMAL_A);
 
         for (int i = 0; i < fractional.CharacterCount; i++)
         {
@@ -4268,11 +4307,11 @@ struct string
 
         if (isPositive)
         {
-            return integral + fractional_;
+            return integral_ + fractional_;
         }
         else
         {
-            return - (integral + fractional_);
+            return -(integral_ + fractional_);
         }
     }
 
@@ -4524,6 +4563,7 @@ struct string
 
     ///
 
+    //_size is the new size (in bytes) of the string
 	void resize(int _size)
 	{
 		 unsigned char* oldElements = Elements;
@@ -4545,11 +4585,10 @@ struct string
              {
                  Elements[i] = oldElements[i];
              }
-
-             ByteCount = _size;
          }
 
          Size = _size;
+
 
          delete [] oldElements;
 	}
