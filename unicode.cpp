@@ -1078,7 +1078,7 @@ namespace unicode
     {
         unsigned int number = (_codePoint - 65536);
         utf16 highSurrogate = (number >> 10) + HIGH_SURROGATES_BEGIN;
-        utf16 lowSurrogate = ((number << 22) >> 22) + LOW_SURROGATES_END;
+        utf16 lowSurrogate = ((number << 22) >> 22) + LOW_SURROGATES_BEGIN;
         return t2<utf16, utf16>(highSurrogate, lowSurrogate);
     }
 
