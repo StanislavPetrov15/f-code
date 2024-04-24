@@ -689,8 +689,11 @@ template<typename T> struct list
 				//length of the previous block
 				int previousBlockLength = *(currentBlockBegin - 2);
 
+                //a pointer to the first <int> element of the previous block
+                int* previousBlockBegin = reinterpret_cast<int*>(&(*this)[_begin - previousBlockLength]);
+
 				//new length of the previous block
-				*(currentBlockBegin + 1) = (_end - _begin) + previousBlockLength + 1;
+				*(previousBlockBegin + 1) = (_end - _begin) + previousBlockLength + 1;
 
 				//length of the current block
 				int currentBlockLength = (_end - _begin) + 1;
