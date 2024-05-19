@@ -667,10 +667,8 @@ struct string
 
         while (true)
         {
-            //if a terminating character is reached
-            if (_array[i] == 0) break;
 			//if the length is specified in bytes and the end of the string is reached
-            else if (lengthMarker == 0 && i == _length) break;
+             if (lengthMarker == 0 && i == _length) break;
 			//if the length is specified in code units and the end of the string is reached
             else if (lengthMarker == 1 && i == _length) break;
 			//if the length is specified in characters and the end of the string is reached
@@ -957,10 +955,8 @@ struct string
 
         while (true)
         {
-            //if a terminating character is reached
-            if (_array[i] == 0) break;
             //if the length is specified in bytes and the end of the string is reached
-            else if (lengthMarker == 0 && i >= _length) break;
+            if (lengthMarker == 0 && i >= _length) break;
             //if the length is specified in code units and the end of the string is reached
             else if (lengthMarker == 1 && (i / UTF16_CODE_UNIT_LENGTH) == _length) break;
 			//if the length is specified in characters and the end of the string is reached
@@ -1164,10 +1160,8 @@ struct string
 
         while (true)
         {
-			//if a terminating character is reached
-            if (_array[i] == 0) break;
 			//if the length is specified in bytes and the end of the string is reached
-            else if (lengthMarker == 0 && i >= _length) break;
+            if (lengthMarker == 0 && i >= _length) break;
 			//if the length is specified in code units and the end of the string is reached
             else if (lengthMarker == 1 && (i / UTF32_CODE_UNIT_LENGTH) == _length) break;
 			//if the length is specified in characters and the end of the string is reached
@@ -1339,7 +1333,7 @@ struct string
     //_array is a UTF-16 string ->
     string(const utf16* _array) : string(_array, DefaultEndianity, DefaultStorageEncoding) {}
 
-    //_length specifies the length of _array
+    //_length specifies the length of _array (in code units)
     //_array is a UTF-16 string ->
     string(const utf16* _array, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
     {
