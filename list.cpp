@@ -695,7 +695,7 @@ template<typename T> struct list
 				//length of the current block
 				int currentBlockLength = (_end - _begin) + 1;
 
-                //(length of the block) before the end marker
+                //new length
                 *(previousBlockBegin + 1) = previousBlockLength + currentBlockLength;
 				*(currentBlockEnd - 1) = previousBlockLength + currentBlockLength;
 
