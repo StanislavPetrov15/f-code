@@ -641,10 +641,10 @@ template<typename T> struct list
          into the new array which would slow down the program, so using exclusion instead of real deletion can increase the performance
          in some cases
        - a memory block is excluded by using the following 4 markers:
-         - an exclusion marker for the beginning of the block (at position 0 in the block)
-         - integer value (following the beginning marker) that specifies the length of the block (in number of elements, not bytes)
-         - an exclusion marker at the end of the block (at position (length - sizeof(int)))
-         - integer value (before the end marker) that specifies the length of the block (in number of elements, not bytes)
+         - an exclusion marker for the beginning of the block (at position 0 in the block) (4 bytes)
+         - integer value (following the beginning marker) that specifies the length of the block (in number of elements, not bytes) (4 bytes)
+         - an exclusion marker at the end of the block (at position (length - sizeof(int))) (4 bytes)
+         - integer value (before the end marker) that specifies the length of the block (in number of elements, not bytes) (4 bytes)
          (EXAMPLE) begin marker, length...length, end marker
        - the programmer can determine the beginning and the end of an excluded block by detecting the two exclusion markers; by default
          the function uses the constants EXCLUDED_BLOCK_BEGIN as a begin marker, and EXCLUDED_BLOCK_END as an end marker, but other values
@@ -692,13 +692,11 @@ template<typename T> struct list
                 //a pointer to the first <int> element of the previous block
                 int* previousBlockBegin = reinterpret_cast<int*>(&(*this)[_begin - previousBlockLength]);
 
-				//new length of the previous block
-				*(previousBlockBegin + 1) = (_end - _begin) + previousBlockLength + 1;
-
 				//length of the current block
 				int currentBlockLength = (_end - _begin) + 1;
 
                 //(length of the block) before the end marker
+                *(previousBlockBegin + 1) = previousBlockLength + currentBlockLength;
 				*(currentBlockEnd - 1) = previousBlockLength + currentBlockLength;
 
 				//an end marker
@@ -714,9 +712,6 @@ template<typename T> struct list
 				//begin marker
 				*currentBlockBegin = _excludedBlockBeginMarker;
 
-                //(length of the block) after the begin marker
-				*(currentBlockBegin + 1) = (_end - _begin) + 1;
-
 				//a pointer to the first <int> element of the next block
 				int* nextBlockBegin = reinterpret_cast<int*>(&(*this)[_end + 1]);
 
@@ -729,10 +724,11 @@ template<typename T> struct list
 				//length of the current block
 				int currentBlockLength = (_end - _begin) + 1;
 
-                //new length of the next block
-				*(nextBlockEnd - 1) = currentBlockLength + nextBlockLength;
+                //new length
+                *(currentBlockBegin + 1) = currentBlockLength + nextBlockLength;
+                *(nextBlockEnd - 1) = currentBlockLength + nextBlockLength;
 
-                //zeroing the last two <int> fields of the previous block
+                //zeroing the first two <int> fields of the next block
 				*(nextBlockBegin) = 0;
 				*(nextBlockBegin + 1) = 0;
 			}
