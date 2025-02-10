@@ -268,6 +268,273 @@ namespace time_
         _timezone_ = _newTimeZone;
     }
 
+    //this function is not validating; the string must be in a valid format and also the parameter _inputFormat must correspond to the given string
+    //D :: day; M :: month; Y :: year; H :: hour; M :: minute; S :: second; T :: Timezone (UTC)
+    /* possible formats for the parameter _string:
+       format 1 = D.M.Y
+       format 2 = M.D.Y
+       format 3 = D.M.Y H:M:S T
+       format 4 = M.D.Y H:M:S T
+       format 5 = D-M-Y
+       format 6 = M-D-Y
+       format 7 = D-M-Y H:M:S T
+       format 8 = M-D-Y H:M:S T
+       format 9 = D/M/Y
+       format 10 = M/D/Y
+       format 11 = D/M/Y H:M:S T
+       format 12 = M/D/Y H:M:S T
+       (EXAMPLE) "18-10-2029 3:15:41 +2"
+       (EXAMPLE) "5.7.1982" */
+    DateTime ToDateTime(const string& _string, int _inputFormat)
+    {
+        if (_inputFormat == 1)
+        {
+            list<string> elements = _string.Split('.');
+            int day = elements[0].ToInteger(DECIMAL_A);
+            int month = elements[1].ToInteger(DECIMAL_A);
+            int year = elements[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, 0, 0, 0);
+        }
+        else if (_inputFormat == 2)
+        {
+            list<string> elements = _string.Split('.');
+            int day = elements[1].ToInteger(DECIMAL_A);
+            int month = elements[0].ToInteger(DECIMAL_A);
+            int year = elements[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, 0, 0, 0);
+        }
+        else if (_inputFormat == 3)
+        {
+            list<string> parts = _string.Split(' ');
+            list<string> firstPart = parts[0].Split('.');
+            list<string> secondPart = parts[1].Split(':');
+            int day = firstPart[0].ToInteger(DECIMAL_A);
+            int month = firstPart[1].ToInteger(DECIMAL_A);
+            int year = firstPart[2].ToInteger(DECIMAL_A);
+            int hour = secondPart[0].ToInteger(DECIMAL_A);
+            int minute = secondPart[1].ToInteger(DECIMAL_A);
+            int second = secondPart[2].ToInteger(DECIMAL_A);
+            int timezone = parts[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, hour, minute, second, timezone);
+        }
+        else if (_inputFormat == 4)
+        {
+            list<string> parts = _string.Split(' ');
+            list<string> firstPart = parts[0].Split('.');
+            list<string> secondPart = parts[1].Split(':');
+            int day = firstPart[1].ToInteger(DECIMAL_A);
+            int month = firstPart[0].ToInteger(DECIMAL_A);
+            int year = firstPart[2].ToInteger(DECIMAL_A);
+            int hour = secondPart[0].ToInteger(DECIMAL_A);
+            int minute = secondPart[1].ToInteger(DECIMAL_A);
+            int second = secondPart[2].ToInteger(DECIMAL_A);
+            int timezone = parts[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, hour, minute, second, timezone);
+        }
+        else if (_inputFormat == 5)
+        {
+            list<string> elements = _string.Split('-');
+            int day = elements[0].ToInteger(DECIMAL_A);
+            int month = elements[1].ToInteger(DECIMAL_A);
+            int year = elements[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, 0, 0, 0);
+        }
+        else if (_inputFormat == 6)
+        {
+            list<string> elements = _string.Split('-');
+            int day = elements[1].ToInteger(DECIMAL_A);
+            int month = elements[0].ToInteger(DECIMAL_A);
+            int year = elements[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, 0, 0, 0);
+        }
+        else if (_inputFormat == 7)
+        {
+            list<string> parts = _string.Split(' ');
+            list<string> firstPart = parts[0].Split('-');
+            list<string> secondPart = parts[1].Split(':');
+            int day = firstPart[0].ToInteger(DECIMAL_A);
+            int month = firstPart[1].ToInteger(DECIMAL_A);
+            int year = firstPart[2].ToInteger(DECIMAL_A);
+            int hour = secondPart[0].ToInteger(DECIMAL_A);
+            int minute = secondPart[1].ToInteger(DECIMAL_A);
+            int second = secondPart[2].ToInteger(DECIMAL_A);
+            int timezone = parts[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, hour, minute, second, timezone);
+        }
+        else if (_inputFormat == 8)
+        {
+            list<string> parts = _string.Split(' ');
+            list<string> firstPart = parts[0].Split('-');
+            list<string> secondPart = parts[1].Split(':');
+            int day = firstPart[1].ToInteger(DECIMAL_A);
+            int month = firstPart[0].ToInteger(DECIMAL_A);
+            int year = firstPart[2].ToInteger(DECIMAL_A);
+            int hour = secondPart[0].ToInteger(DECIMAL_A);
+            int minute = secondPart[1].ToInteger(DECIMAL_A);
+            int second = secondPart[2].ToInteger(DECIMAL_A);
+            int timezone = parts[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, hour, minute, second, timezone);
+        }
+        else if (_inputFormat == 9)
+        {
+            list<string> elements = _string.Split('/');
+            int day = elements[0].ToInteger(DECIMAL_A);
+            int month = elements[1].ToInteger(DECIMAL_A);
+            int year = elements[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, 0, 0, 0);
+        }
+        else if (_inputFormat == 10)
+        {
+            list<string> elements = _string.Split('/');
+            int day = elements[1].ToInteger(DECIMAL_A);
+            int month = elements[0].ToInteger(DECIMAL_A);
+            int year = elements[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, 0, 0, 0);
+        }
+        else if (_inputFormat == 11)
+        {
+            list<string> parts = _string.Split(' ');
+            list<string> firstPart = parts[0].Split('/');
+            list<string> secondPart = parts[1].Split(':');
+            int day = firstPart[0].ToInteger(DECIMAL_A);
+            int month = firstPart[1].ToInteger(DECIMAL_A);
+            int year = firstPart[2].ToInteger(DECIMAL_A);
+            int hour = secondPart[0].ToInteger(DECIMAL_A);
+            int minute = secondPart[1].ToInteger(DECIMAL_A);
+            int second = secondPart[2].ToInteger(DECIMAL_A);
+            int timezone = parts[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, hour, minute, second, timezone);
+        }
+        else if (_inputFormat == 12)
+        {
+            list<string> parts = _string.Split(' ');
+            list<string> firstPart = parts[0].Split('/');
+            list<string> secondPart = parts[1].Split(':');
+            int day = firstPart[1].ToInteger(DECIMAL_A);
+            int month = firstPart[0].ToInteger(DECIMAL_A);
+            int year = firstPart[2].ToInteger(DECIMAL_A);
+            int hour = secondPart[0].ToInteger(DECIMAL_A);
+            int minute = secondPart[1].ToInteger(DECIMAL_A);
+            int second = secondPart[2].ToInteger(DECIMAL_A);
+            int timezone = parts[2].ToInteger(DECIMAL_A);
+            return DateTime(year, month, day, hour, minute, second, timezone);
+        }
+    }
+
+    //D :: day; M :: month; Y :: year; H :: hour; M :: minute; S :: second; T :: Timezone (UTC)
+    /* possible formats for the output string:
+       format 1 = D.M.Y
+       format 2 = M.D.Y
+       format 3 = D.M.Y H:M:S T
+       format 4 = M.D.Y H:M:S T
+       format 5 = D-M-Y
+       format 6 = M-D-Y
+       format 7 = D-M-Y H:M:S T
+       format 8 = M-D-Y H:M:S T
+       format 9 = D/M/Y
+       format 10 = M/D/Y
+       format 11 = D/M/Y H:M:S T
+       format 12 = M/D/Y H:M:S T */
+    string ToStringTime(const DateTime& _dateTime, int _outputFormat)
+    {
+        if (_outputFormat == 1)
+        {
+            return string::FromInteger(_dateTime.day()) + "." +
+                   string::FromInteger(_dateTime.month()) + "." +
+                   string::FromInteger(_dateTime.year());
+        }
+        else if (_outputFormat == 2)
+        {
+            return string::FromInteger(_dateTime.month()) + "." +
+                   string::FromInteger(_dateTime.day()) + "." +
+                   string::FromInteger(_dateTime.year());
+        }
+        else if (_outputFormat == 3)
+        {
+            return string::FromInteger(_dateTime.day()) + "." +
+                   string::FromInteger(_dateTime.month()) + "." +
+                   string::FromInteger(_dateTime.year()) + " " +
+                   string::FromInteger(_dateTime.hour()) + ":" +
+                   string::FromInteger(_dateTime.minute()) + ":" +
+                   string::FromInteger(_dateTime.second()) + " " +
+                   string::FromInteger(_dateTime.timezone());
+        }
+        else if (_outputFormat == 4)
+        {
+            return string::FromInteger(_dateTime.month()) + "." +
+                   string::FromInteger(_dateTime.day()) + "." +
+                   string::FromInteger(_dateTime.year()) + " " +
+                   string::FromInteger(_dateTime.hour()) + ":" +
+                   string::FromInteger(_dateTime.minute()) + ":" +
+                   string::FromInteger(_dateTime.second()) + " " +
+                   string::FromInteger(_dateTime.timezone());
+        }
+        else if (_outputFormat == 5)
+        {
+            return string::FromInteger(_dateTime.day()) + "-" +
+                   string::FromInteger(_dateTime.month()) + "-" +
+                   string::FromInteger(_dateTime.year());
+        }
+        else if (_outputFormat == 6)
+        {
+            return string::FromInteger(_dateTime.month()) + "-" +
+                   string::FromInteger(_dateTime.day()) + "-" +
+                   string::FromInteger(_dateTime.year());
+        }
+        else if (_outputFormat == 7)
+        {
+            return string::FromInteger(_dateTime.day()) + "-" +
+                   string::FromInteger(_dateTime.month()) + "-" +
+                   string::FromInteger(_dateTime.year()) + " " +
+                   string::FromInteger(_dateTime.hour()) + ":" +
+                   string::FromInteger(_dateTime.minute()) + ":" +
+                   string::FromInteger(_dateTime.second()) + " " +
+                   string::FromInteger(_dateTime.timezone());
+        }
+        else if (_outputFormat == 8)
+        {
+            return string::FromInteger(_dateTime.month()) + "-" +
+                   string::FromInteger(_dateTime.day()) + "-" +
+                   string::FromInteger(_dateTime.year()) + " " +
+                   string::FromInteger(_dateTime.hour()) + ":" +
+                   string::FromInteger(_dateTime.minute()) + ":" +
+                   string::FromInteger(_dateTime.second()) + " " +
+                   string::FromInteger(_dateTime.timezone());
+        }
+        else if (_outputFormat == 9)
+        {
+            return string::FromInteger(_dateTime.day()) + "/" +
+                   string::FromInteger(_dateTime.month()) + "/" +
+                   string::FromInteger(_dateTime.year());
+        }
+        else if (_outputFormat == 10)
+        {
+            return string::FromInteger(_dateTime.month()) + "/" +
+                   string::FromInteger(_dateTime.day()) + "/" +
+                   string::FromInteger(_dateTime.year());
+        }
+        else if (_outputFormat == 11)
+        {
+            return string::FromInteger(_dateTime.day()) + "/" +
+                   string::FromInteger(_dateTime.month()) + "/" +
+                   string::FromInteger(_dateTime.year()) + " " +
+                   string::FromInteger(_dateTime.hour()) + ":" +
+                   string::FromInteger(_dateTime.minute()) + ":" +
+                   string::FromInteger(_dateTime.second()) + " " +
+                   string::FromInteger(_dateTime.timezone());
+        }
+        else if (_outputFormat == 12)
+        {
+            return string::FromInteger(_dateTime.month()) + "/" +
+                   string::FromInteger(_dateTime.day()) + "/" +
+                   string::FromInteger(_dateTime.year()) + " " +
+                   string::FromInteger(_dateTime.hour()) + ":" +
+                   string::FromInteger(_dateTime.minute()) + ":" +
+                   string::FromInteger(_dateTime.second()) + " " +
+                   string::FromInteger(_dateTime.timezone());
+        }
+    }
+
     //DayOfYear(2024, 2, 5) => 36
     int DayOfYear(int _year, int _month, int _day)
     {
