@@ -78,7 +78,7 @@ template<typename T> struct list
 
     ReleaseMode ReleaseMode = ReleaseMode::IMMEDIATE;
 
-    int ExtensionValue = 4.0; //(in percent of the current size)
+    int ExtensionValue = 4.0; //in percent of the current size
 
     ///CONSTRUCTORS
 
@@ -361,7 +361,7 @@ template<typename T> struct list
         return Elements;
     }
 
-     T* elements() const
+    T* elements() const
     {
         return Elements;
     }
