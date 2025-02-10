@@ -582,7 +582,7 @@ struct string
 			//if the character is encoded by three bytes and the storage format is UTF-16BE
             else if ((_array[i] >> 4) == 0b1110 && _storageEncoding == UTF16BE)
             {
-                utf16 codeUnit = ToUTF16(_array[i], _array[i + 1], _array[i + 2]);;
+                utf16 codeUnit = ToUTF16(_array[i], _array[i + 1], _array[i + 2]);
                 Append(BytesOf(codeUnit).Reverse().Generate<unsigned char>());
                 i += 3;
             }
@@ -758,7 +758,7 @@ struct string
                 //if the character is encoded by three bytes and the storage format is UTF-16BE
             else if ((_array[i] >> 4) == 0b1110 && _storageEncoding == UTF16BE)
             {
-                utf16 codeUnit = ToUTF16(_array[i], _array[i + 1], _array[i + 2]);;
+                utf16 codeUnit = ToUTF16(_array[i], _array[i + 1], _array[i + 2]);
                 Append(BytesOf(codeUnit).Reverse().Generate<unsigned char>());
                 i += 3;
             }
@@ -2491,6 +2491,11 @@ struct string
         ByteCount += bytes.count();
         CharacterCount++;
 
+        if (Size < ByteCount)
+        {
+            Size += ByteCount;
+        }
+
         return *this;
     }
 
@@ -2546,6 +2551,11 @@ struct string
         ByteCount += convertedString.ByteCount;
         CharacterCount += convertedString.CharacterCount;
 
+        if (Size < ByteCount)
+        {
+            Size += ByteCount;
+        }
+
         return *this;
     }
 
@@ -2584,7 +2594,7 @@ struct string
 
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(2) => [10, 5, 4, 18, 9, 5]
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-    string Reduce(int _reducer)
+    string& Reduce(int _reducer)
     {
         if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
@@ -2593,7 +2603,7 @@ struct string
 
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(4) => [4, 18, 9, 5, 0, 3]
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-    string ReduceLeft(int _reducer)
+    string& ReduceLeft(int _reducer)
     {
         if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (_reducer < 0 || _reducer > CharacterCount) return *this;
@@ -2603,7 +2613,7 @@ struct string
 
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(4) => [11, 2, 10, 5, 4, 18]
     //[11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-    string ReduceRight(int _reducer)
+    string& ReduceRight(int _reducer)
     {
         if (SpatialKind == SpatialKind::SEGMENT || MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
         else if (_reducer < 0 || _reducer > CharacterCount) return *this;
@@ -2811,7 +2821,7 @@ struct string
         if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
 
         string newList = *this/*it is needed for the correct execution of byteRangeOf() in Set(); if newList is just an empty allocated space
-             byteRangeOf() may return incorrect result*/;;
+             byteRangeOf() may return incorrect result*/;
 
         if (_positions > CharacterCount)
         {
@@ -2904,6 +2914,11 @@ struct string
 
         ByteCount = newByteCount;
 
+        if (Size < ByteCount)
+        {
+            Size += ByteCount;
+        }
+
         return *this;
     }
 
@@ -2960,6 +2975,11 @@ struct string
         Elements = array;
 
         ByteCount = newByteCount;
+
+        if (Size < ByteCount)
+        {
+            Size += ByteCount;
+        }
 
         return *this;
     }
@@ -4086,6 +4106,7 @@ struct string
         return accumulator;
     }
 
+    //_digitsAfterDot = -1..9 ->
     static string FromReal(double _number, int _digitsAfterDot = -1)
     {
         double number = _number;
@@ -4101,19 +4122,32 @@ struct string
         //
 
         int numberOfZeroes = 0;
+        int numberOfNonZeroes = 0;
 
         fractionalPart *= 10.0;
 
         while (true)
         {
-            if (fractionalPart < 0.01 || fractionalPart >= 1.0)
+            double rounded = numeric::RoundDown(fractionalPart);
+
+            if (rounded == 0)
+            {
+                numberOfZeroes++;
+            }
+            else
+            {
+                numberOfNonZeroes++;
+            }
+
+            double fractionalPart_ = fractionalPart - rounded;
+
+            if (fractionalPart_ < 0.00000000009 || fractionalPart_ > 999999999999)
             {
                 break;
             }
             else
             {
                 fractionalPart *= 10.0;
-                numberOfZeroes++;
             }
         }
 
@@ -4127,25 +4161,41 @@ struct string
             double rounded = numeric::RoundDown_L(integerEquivalentOfFraction);
             double difference = integerEquivalentOfFraction - rounded;
 
-            if (difference < 0.01 || difference > 0.99)
+            if (difference < 0.000001 || difference > 0.999999)
             {
                 break;
             }
         }
 
         string integralPartString = FromInteger(integralPart);
-        string fractionalPartString = string::FromInteger(numeric::RoundToNearest(integerEquivalentOfFraction)); //without the zeroes in the beginning (if there are any)
-        string eventualFractionalZeroes;
+        string fractionalPartString;
 
-        eventualFractionalZeroes.Append('0', numberOfZeroes);
-
-        if (_number < 0.0)
+        if (integerEquivalentOfFraction == 0)
         {
-            return string('-') + integralPartString + '.' + eventualFractionalZeroes + fractionalPartString;
+            fractionalPartString = "0";
         }
         else
         {
-            return integralPartString + '.' + eventualFractionalZeroes + fractionalPartString;
+            fractionalPartString = string::FromInteger(integerEquivalentOfFraction);
+
+            for (int i = 0; i < numberOfZeroes; i++)
+            {
+                fractionalPartString.Insert('0', 0);
+            }
+        }
+
+        if (fractionalPartString.CharacterCount > _digitsAfterDot)
+        {
+            fractionalPartString.ReduceRight(fractionalPartString.CharacterCount - _digitsAfterDot);
+        }
+
+        if (_number < 0.0)
+        {
+            return string('-') + integralPartString + '.' + fractionalPartString;
+        }
+        else
+        {
+            return integralPartString + '.' + fractionalPartString;
         }
     }
 
@@ -4153,6 +4203,7 @@ struct string
     //"23." => 23
     //"5" => 5.0
     //"5.1" => 5.1
+    //the number contains less than 16 digits ->
     float ToFloat()
     {
         bool isPositive = (*this)[0] != '-';
@@ -4310,7 +4361,7 @@ struct string
     }
 
     //the current value of the string contains only ASCII characters ->
-    const char* ToASCII() const
+    const char* ToASCII(int _x = 0) const
     {
         char* result = new char[ByteCount + 1];
 
@@ -4582,7 +4633,6 @@ struct string
          }
 
          Size = _size;
-
 
          delete [] oldElements;
 	}
