@@ -4528,10 +4528,17 @@ struct Timer:
 
     Timer() = default
 
-    # the interval is set in microseconds
-    # _repeat specifies whether the period is repeated after the previous one ends
-    # _data is an optional data
-    Timer(int _interval, bool _repeat, void* _data = nullptr)
+    #_interval speicifes the time between two occurences of the OnTick event; it is set in milliseconds
+    # _period specifies the period used by the timer to check if the OnTick event needs to be fired;
+      (EXAMPLE) if the timer interval (_interval) is 15 second and _internalPeriod is 100ms then the timer will check (if
+      the OnTick event must be generated) every 100ms; this value shouldn't be (lower than 2ms) and (higher than 200ms)
+      higher _internalPeriod will give more CPU time to other active threads, but also will lower the precision for firing the OnTick event;
+      this value also must be atleast 10 times lower than _interval - i.e. if interval is 1.5 seconds, then this value must be lower than 150ms;
+      if _interval is lower than 10ms (the minimum possible value), then value of 1 must be used for _internalPeriod #
+    # _repeat specifies if the period is repeated after the previous one ends
+    # _data is an optional data; if there is no data supplied then this parameter must be null
+    # (!) this constructor does not validate the parameters
+    Timer(int _interval, int _period, bool _repeat, void* _data)   
 
     Timer(const Timer&) = delete
 
@@ -4551,11 +4558,11 @@ struct Timer:
 
     bool IsRunning()
 
-    void Restart()
-
     void Start()
 
     void Stop()
+	    
+    void Restart()
 
 -----------------------------------------------------------------------------------------
 
