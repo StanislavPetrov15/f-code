@@ -3,23 +3,23 @@
 Index:
 
 array.cpp - line 26
-pair.cpp - line 207
-tuple.cpp - line 235
-range.cpp - line 1100
-stack.cpp - line 1205
-queue.cpp - line 1253
-list.cpp - line 1303
-string.cpp - line 1817
-numeric.cpp - line 2526
-bit_operations.cpp - line 2679
-byte_operations.cpp - line 2848
-unicode.cpp - line 2900
-time.cpp - line 3990
-filesystem.cpp - line 4093
-event.cpp - line 4488
-timer.cpp - line 4512
-chronometer.cpp - line 4551
-geometry.cpp - line 4582
+pair.cpp - line 211
+tuple.cpp - line 239
+range.cpp - line 1104
+stack.cpp - line 1209
+queue.cpp - line 1257
+list.cpp - line 1308
+string.cpp - line 1827
+numeric.cpp - line 2541
+bit_operations.cpp - line 2726
+byte_operations.cpp - line 2910
+unicode.cpp - line 2963
+time.cpp - line 4053
+filesystem.cpp - line 4191
+event.cpp - line 4587
+timer.cpp - line 4611
+chronometer.cpp - line 4660
+geometry.cpp - line 4689
 
 -----------------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ array.cpp:
 
 struct array:
     # FIELDS:
-    T* pointer
+    T* elements
     int length
 
 struct range:
@@ -54,12 +54,12 @@ template<typename T> bool contains(const T* const _array, int _length, const T* 
 
 # _length specifies the length of _array
 # except([2, 9, 0, 1, 4, 9, 7, 3], 8, 9) => [2, 0, 1, 4, 7, 3]
-template<typename T> array except(const T* const _array, int _length, T _value)
+template<typename T> array except(const T* const _array, int _length, T _value) -> delete [] <array>.elements
 
 # _length is the length of _array
 # _length_ is the length of _set
 # except([2, 9, 0, 1, 4, 9, 7, 3], [9, 7, 0], 8, 3) => array([2, 1, 4, 3], 4)
-template<typename T> array<T> except(const T* _array, const T* _set, int _length, int _length_)
+template<typename T> array<T> except(const T* _array, const T* _set, int _length, int _length_) -> delete [] <array>.elements
 
 # _length1 specifies the length of _array1
 # _length2 specifies the length of _array2
@@ -136,6 +136,10 @@ template<typename T> T** split(T* const _array, int _length, T _separator, bool 
 template<typename T> array where(const T* const _array, int _length, const std::function<bool(T)>& _predicate)
 
 # MUTATION FUNCTIONS:
+
+# _length specifies the length of _first
+# _length_ specifies the length of _second
+template<typename T> array<T> concatenate(const T* _first, const T* _second, int _length, int _length_) -> delete [] result.elements
 
 # it copies segment (from _source to _destination) (beginning at _sourceBegin) and (with length specified by _length)
 # copy("variance", "namespace", 8, 9, 2, 4, 5) >> "namerianc"
@@ -1330,6 +1334,8 @@ struct list<T>:
       (when IMMEDIATE is used)) or (are stored for future use and are freed manually in a specific future moment (when FUTURE is used)) #
     ReleaseMode ReleaseMode
 
+    int ExtensionValue = 4.0; # in percent of the current size
+
     # CONSTRUCTORS:
 
     list() = default
@@ -1425,7 +1431,7 @@ struct list<T>:
     # traversalMode() == CIRCULAR && position() == count() - 1 => [0]
     T& next() const
 
-    # _position < -1 || _position > count() - 1 => -1
+    # returns 0 on successful execution
     int set_position(int _position)
 
     # MUTATION FUNCTIONS:
@@ -1460,10 +1466,10 @@ struct list<T>:
          into the new array which would slow down the program, so using exclusion instead of real deletion can increase the performance
          in some cases
        - a memory block is excluded by using the following 4 markers:
-         - an exclusion marker for the beginning of the block (at position 0 in the block)
-         - integer value (following the beginning marker) that specifies the length of the block (in number of elements, not bytes)
-         - an exclusion marker at the end of the block (at position (length - sizeof(int)))
-         - integer value (before the end marker) that specifies the length of the block (in number of elements, not bytes)
+         - an exclusion marker for the beginning of the block (at position 0 in the block) (4 bytes)
+         - integer value (following the beginning marker) that specifies the length of the block (in number of elements, not bytes) (4 bytes)
+         - an exclusion marker at the end of the block (at position (length - sizeof(int))) (4 bytes)
+         - integer value (before the end marker) that specifies the length of the block (in number of elements, not bytes) (4 bytes)
          (EXAMPLE) begin marker, length...length, end marker
        - the programmer can determine the beginning and the end of an excluded block by detecting the two exclusion markers; by default
          the function uses the constants EXCLUDED_BLOCK_BEGIN as a begin marker, and EXCLUDED_BLOCK_END as an end marker, but other values
@@ -1701,12 +1707,15 @@ struct list<T>:
     # count() > 1 ->
     bool IsHomogeneous() const
 
+    # returns >-2 on successful execution
     # the specified value does not exist => -1
     int LastIndexOf(const T& _value) const
 
+    # returns >-2 on successful execution
     # the specified value does not exist => -1
     int LastIndexOf(const list<T>& _value) const
 
+    # returns >-2 on successful execution
     # the specified value does not exist => -1
     int LastIndexOf(const std::function<bool(const T&)>& _predicate) const
 
@@ -1810,7 +1819,8 @@ struct list<T>:
 
     #
 
-    void resize(int _size = -1)
+    # _size is the new size (number of elements, not bytes) of the list
+    void resize(int _size)
 
 -----------------------------------------------------------------------------------------
 
@@ -2009,7 +2019,7 @@ struct String:
     # _array is a UTF-16 string ->
     string(const utf16* _array) -> string(_array, DefaultEndianity, DefaultStorageEncoding)
 
-    # _length specifies the length of _array
+    # _length specifies the length of _array (in code units)
     # _array is a UTF-16 string ->
     string(const utf16* _array, Endianity _endianity, unsigned int _length, Encoding _storageEncoding)
 
@@ -2205,15 +2215,15 @@ struct String:
 
     # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(2) => [10, 5, 4, 18, 9, 5]
     # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].Reduce(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-    string Reduce(int _reducer)
+    string& Reduce(int _reducer)
 
     # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(4) => [4, 18, 9, 5, 0, 3]
     # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceLeft(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-    string ReduceLeft(int _reducer)
+    string& ReduceLeft(int _reducer)
 
     # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(4) => [11, 2, 10, 5, 4, 18]
     # [11, 2, 10, 5, 4, 18, 9, 5, 0, 3].ReduceRight(11) => [11, 2, 10, 5, 4, 18, 9, 5, 0, 3]
-    string ReduceRight(int _reducer)
+    string& ReduceRight(int _reducer)
 
     string& Remove(int _begin, int _end)
 
@@ -2490,10 +2500,14 @@ struct String:
     # _number < 1 quadrillion ->
     static string FromInteger(long long _number)
 
+    # _digitsAfterDot = -1..9 ->
+    static string FromReal(double _number, int _digitsAfterDot = -1)
+
     # ".6" => 0.6
     # "23." => 23
     # "5" => 5.0
     # "5.1" => 5.1
+    # the number contains less than 16 digits ->
     float ToFloat() const
 
     # ".6" => 0.6
@@ -2516,7 +2530,8 @@ struct String:
 
     #
 
-    void resize(int _size = -1)
+    # _size is the new size (in bytes) of the string
+    void resize(int _size)
 
 # the value of _string contains only ASCII characters ->
 void print(const string& _string)
@@ -2646,6 +2661,38 @@ float RoundToNearest(float _value)
 # (-2.50) -> -3.0
 double RoundToNearest(double _value)
 
+# "stl" :: smaller to larger
+# (252, 103, 35) => 155
+# (103, 252, 35) => 155
+# (-103, 252, 35) => 21
+# (252, -103, 35) => 21
+# (-117, -106, 35) => -113
+int LinearInterpolationSTL(int _a, int _b, int _percentage)
+
+# "stl" :: smaller to larger
+# (252, 103, 35) => 155.15
+# (103, 252, 35) => 155.15
+# (-103, 252, 35) => 21.25
+# (252, -103, 35) => 21.25
+# (-117, -106, 35) => -113.15
+double LinearInterpolationSTL(double _a, double _b, double _percentage)
+
+# "fts" :: first to second
+# (252, 103, 35) => 199
+# (103, 252, 35) => 155
+# (-103, 252, 35) => 21
+# (252, -103, 35) => 127
+# (-117, -106, 35) => -113
+int LinearInterpolationFTS(int _a, int _b, int _percentage)
+
+# "fts" :: first to second
+# (252, 103, 35) => 199.85
+# (103, 252, 35) => 155.15
+# (-103, 252, 35) => 21.25
+# (252, -103, 35) => 127.75
+# (-117, -106, 35) => -113.15
+double LinearInterpolationFTS(double _a, double _b, double _percentage)
+
 # (3, 5) => 2
 # (5, 3) => 2
 # (511, 96) => 415
@@ -2694,7 +2741,11 @@ struct BitSet:
 
      BitSet(const BitSet&)
 
+     BitSet(unsigned char* _bitArray, int _bitCount)
+
      BitSet& operator=(const BitSet&)
+
+     bool operator[](int _index)
 
      int bitCount() const
 
@@ -2702,15 +2753,26 @@ struct BitSet:
 
      unsigned char* byteSequence() const
 
+     # lower index position means less significant bit of the containing byte;
+       (EXAMPLE) SetBit(9, X) means "set bit 2 of the second byte"
+       (EXAMPLE) SetBit(14, X) means "set bit 6 of the second byte" #
      void SetBit(int _index, bool _value)
 
+     # _bitIndex specifies the bit index within the specified byte
+     void SetBit(int _byteIndex, int _bitIndex, bool _value)
+
      bool GetBit(int _index) const
+
+     # _bitIndex specifies the bit index within the specified byte
+     bool GetBit(int _byteIndex, int _bitIndex)
 
      # (0000000000).SetBits((111001), 3) => 0111001000
      void SetBits(const list<bool>& _bits, int _begin)
 
      # (0000000000).SetBits((111001), 3) => 0100111000
      void SetBitsReversed(const list<bool>& _bits, int _begin)
+
+     void SetByte(int _byteIndex, int _byteValue)
 
 # Reverse<unsigned char>(01001010) => 01010010
 # Reverse<unsigned short>(0000000001001010) => 0101001000000000
@@ -2800,7 +2862,7 @@ list<bool> BitsOf(unsigned int _value)
 # BitsOf(41092) => [0010000100000101000000000000000000000000000000000000000000000000]
 list<bool> BitsOf(unsigned long long _value)
 
-# returns all bits of _value; the first bit in the list is LSB
+# returns all bits of _value; the first bit in the list is MSB
 # BitsOfR(194) => [11000010]
 list<bool> BitsOfR(unsigned char _value)
 
@@ -4053,6 +4115,41 @@ long MINUTES_IN_A_DAY = 1440
 # _newTimeZone >= -11 & _newTimeZone <= 14 ->
 void ToTimezone(int& _year, int& _month, int& _day, int& _hour, int& _minute, int& _second, int& _timezone_, int _newTimeZone)
 
+# this function is not validating; the string must be in a valid format and also the parameter _inputFormat must correspond to the given string
+# D :: day; M :: month; Y :: year; H :: hour; M :: minute; S :: second; T :: Timezone (UTC)
+# possible formats for the parameter _string:
+  format 1 = D.M.Y
+  format 2 = M.D.Y
+  format 3 = D.M.Y H:M:S T
+  format 4 = M.D.Y H:M:S T
+  format 5 = D-M-Y
+  format 6 = M-D-Y
+  format 7 = D-M-Y H:M:S T
+  format 8 = M-D-Y H:M:S T
+  format 9 = D/M/Y
+  format 10 = M/D/Y
+  format 11 = D/M/Y H:M:S T
+  format 12 = M/D/Y H:M:S T
+  (EXAMPLE) "18-10-2029 3:15:41 +2"
+  (EXAMPLE) "5.7.1982" #
+DateTime ToDateTime(const string& _string, int _inputFormat)
+
+# D :: day; M :: month; Y :: year; H :: hour; M :: minute; S :: second; T :: Timezone (UTC)
+# possible formats for the output string:
+   format 1 = D.M.Y
+   format 2 = M.D.Y
+   format 3 = D.M.Y H:M:S T
+   format 4 = M.D.Y H:M:S T
+   format 5 = D-M-Y
+   format 6 = M-D-Y
+   format 7 = D-M-Y H:M:S T
+   format 8 = M-D-Y H:M:S T
+   format 9 = D/M/Y
+   format 10 = M/D/Y
+   format 11 = D/M/Y H:M:S T
+   format 12 = M/D/Y H:M:S T #
+string ToStringTime(const DateTime& _dateTime, int _outputFormat)
+
 # DayOfYear(2024, 2, 5) => 36
 int DayOfYear(int _year, int _month, int _day)
 
@@ -4208,11 +4305,9 @@ struct File:
 
     # OPERATORS:
 
-    # if the function returns UNSUCCESSFUL_OPERATION then it is recommended to check field &os_
     # _index is in the range of file ->
     unsigned char operator[](int _index)
 
-    # if the function returns UNSUCCESSFUL_OPERATION then it is recommended to check field &os_
     # _index is in the range of file ->
     unsigned char operator[](int _index) const
 
@@ -4289,12 +4384,15 @@ struct File:
 
     bool EndsWith(const list<unsigned char>& _value) const
 
+    # returns >-2 on successful execution
     # the specified value does not exist => -1
     int IndexOf(unsigned char _value, int _begin = 0) const
 
+    # returns >-2 on successful execution
     # the specified value does not exist => -1
     int IndexOf(const list<unsigned char>& _value, int _begin = 0) const
 
+    # returns >-2 on successful execution
     # the specified value does not exist or _begin is outside the range of list => -1
     int IndexOf(std::function<bool(unsigned char)> _predicate, int _begin = 0) const
 
@@ -4517,10 +4615,17 @@ struct Timer:
 
     Timer() = default
 
-    # the interval is set in microseconds
-    # _repeat specifies whether the period is repeated after the previous one ends
-    # _data is an optional data
-    Timer(int _interval, bool _repeat, void* _data = nullptr)
+    #_interval speicifes the time between two occurences of the OnTick event; it is set in milliseconds
+    # _period specifies the period used by the timer to check if the OnTick event needs to be fired;
+      (EXAMPLE) if the timer interval (_interval) is 15 second and _internalPeriod is 100ms then the timer will check (if
+      the OnTick event must be generated) every 100ms; this value shouldn't be (lower than 2ms) and (higher than 200ms)
+      higher _internalPeriod will give more CPU time to other active threads, but also will lower the precision for firing the OnTick event;
+      this value also must be atleast 10 times lower than _interval - i.e. if interval is 1.5 seconds, then this value must be lower than 150ms;
+      if _interval is lower than 10ms (the minimum possible value), then value of 1 must be used for _internalPeriod*/
+    # _repeat specifies if the period is repeated after the previous one ends
+    # _data is an optional data; if there is no data supplied then this parameter must be null
+    # (!) this constructor does not validate the parameters
+    Timer(int _interval, int _period, bool _repeat, void* _data)
 
     Timer(const Timer&) = delete
 
@@ -4540,11 +4645,14 @@ struct Timer:
 
     bool IsRunning()
 
+    # the timer is running ->
     void Restart()
 
     void Start()
 
     void Stop()
+
+    void Restart()
 
 -----------------------------------------------------------------------------------------
 
@@ -4800,15 +4908,15 @@ struct Polygon
     list<Bitex> Vertices
 
     # CONSTRUCTORS:
-    
+
     Polygon() = default
 
-    Polygon(const list<Bitex>& _vertices) 
+    Polygon(const list<Bitex>& _vertices)
 
     Polygon(const Polygon&) = default
 
     # OPERATORS:
-    
+
     Polygon& operator=(const Polygon&) = default;
 
     # [(20, 7) (9, 15) (30, 14) (16, 3)] == [(30, 14) (16, 3) (20, 7) (9, 15)] => true
@@ -4820,7 +4928,7 @@ struct Polygon
     # [(20, 7) (9, 15) (30, 14) (16, 3)] == [(30, 14) (20, 7) (9, 15) (16, 3)] => false
     # [(20, 7) (9, 15) (30, 14)] == [(20, 7) (7, 15) (30, 14)] => false
     bool operator!=(const Polygon& _polygon) const
-    
+
 # CONSTANTS:
 
 double PI = 3.1415926535897932384
@@ -4872,8 +4980,13 @@ double DistanceOf(double x1, double y1, double x2, double y2)
 
 double DistanceOf(const Bitex& b1, const Bitex& b2)
 
+# the parameters must be positive; faster than DistanceOf()
+double DistanceOf_fast(double originX, double originY, double pointX, double pointY)
+
+# parameters can be positive or negative
 double DistanceOf(double x1, double y1, double z1, double x2, double y2, double z2)
 
+# parameters can be positive or negative
 double DistanceOf(Tritex t1, Tritex t2)
 
 Bitex CentexOf(double x1, double y1, double x2, double y2)
