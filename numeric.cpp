@@ -26,7 +26,7 @@ namespace numeric
     {
         if (_number < 0.0)
         {
-            return Absolute(_number);
+            return Abs(_number);
         }
         else
         {
@@ -35,13 +35,14 @@ namespace numeric
     }
 
     int RoundDown(double);
+    long long RoundDown_L(double);
 
     //(6.02645) => 0.02645
     //(-18.823569) => 0.823569
     //(0) => 0.0
     double FractionOf(double N)
     {
-        return Absolute(N - RoundDown(N));
+        return Absolute(N - RoundDown_L(N));
     }
 
     int Mod(int, int);
@@ -149,6 +150,12 @@ namespace numeric
     }
 
     //N1 == N2 => N2
+    long long LargerOf_L(long long N1, long long N2)
+    {
+        return N1 > N2 ? N1 : N2;
+    }
+
+    //N1 == N2 => N2
     double LargerOf(double N1, double N2)
     {
         return N1 > N2 ? N1 : N2;
@@ -156,6 +163,12 @@ namespace numeric
 
     //N1 == N2 => N2
     int SmallerOf(int N1, int N2)
+    {
+        return N1 < N2 ? N1 : N2;
+    }
+
+    //N1 == N2 => N2
+    long long SmallerOf_L(long long N1, long long N2)
     {
         return N1 < N2 ? N1 : N2;
     }
@@ -191,36 +204,123 @@ namespace numeric
     }
 
     //(385.91) => 385.0
-    //_value >= 0.0 ->
+    //(-2.36) => -3.0
     int RoundDown(float _value)
     {
-        return _value;
+        if (_value >= 0.0)
+        {
+            return _value;
+        }
+        else
+        {
+            return _value - 1.0;
+        }
     }
 
     //(385.91) => 385.0
-    //_value >= 0.0 ->
+    //(-2.36) => -3.0
     int RoundDown(double _value)
     {
-        return _value;
+        if (_value >= 0.0)
+        {
+            return _value;
+        }
+        else
+        {
+            return _value - 1.0;
+        }
+    }
+
+    //(385.91) => 385.0
+    //(-2.36) => -3.0
+    long long RoundDown_L(float _value)
+    {
+        if (_value >= 0.0)
+        {
+            return _value;
+        }
+        else
+        {
+            return _value - 1.0;
+        }
+    }
+
+    //(385.91) => 385.0
+    //(-2.36) => -3.0
+    long long RoundDown_L(double _value)
+    {
+        if (_value >= 0.0)
+        {
+            return _value;
+        }
+        else
+        {
+            return _value - 1.0;
+        }
     }
 
     //(385.91) => 386.0
-    //_value >= 0.0 ->
+    //(-2.36) => 2.0
     int RoundUp(float _value)
     {
-        return _value + 1;
+        if (_value >= 0.0)
+        {
+            return _value + 1;
+        }
+        else
+        {
+            return _value;
+        }
     }
 
     //(385.91) => 386.0
-    //_value >= 0.0 ->
+    //(-2.36) => 2.0
     int RoundUp(double _value)
     {
-        return _value + 1;
+        if (_value >= 0.0)
+        {
+            return _value + 1;
+        }
+        else
+        {
+            return _value;
+        }
     }
 
     //(385.91) => 386.0
+    //(-2.36) => 2.0
+    long long RoundUp_L(float _value)
+    {
+        if (_value >= 0.0)
+        {
+            return _value + 1;
+        }
+        else
+        {
+            return _value;
+        }
+    }
+
+    //(385.91) => 386.0
+    //(-2.36) => 2.0
+    long long RoundUp_L(double _value)
+    {
+        if (_value >= 0.0)
+        {
+            return _value + 1;
+        }
+        else
+        {
+            return _value;
+        }
+    }
+
+    //(385.45 => 385.0
+    //(385.91) => 386.0
     //(385.50) => 385.0
-    //_value >= 0.0 ->
+    //(-2.36) => -2.0
+    //(-2.79) -> -3.0
+    //(-2.50) -> -3.0
     float RoundToNearest(float _value)
     {
         float roundedDown = RoundDown(_value);
@@ -238,13 +338,16 @@ namespace numeric
         }
     }
 
+    //(385.45 => 385.0
     //(385.91) => 386.0
     //(385.50) => 385.0
-    //_value >= 0.0 ->
+    //(-2.36) => -2.0
+    //(-2.79) -> -3.0
+    //(-2.50) -> -3.0
     double RoundToNearest(double _value)
     {
-        float roundedDown = RoundDown(_value);
-        float roundedUp = RoundUp(_value);
+        float roundedDown = RoundDown_L(_value);
+        float roundedUp = RoundUp_L(_value);
         float f1 = _value - roundedDown;
         float f2 = roundedUp - _value;
 
@@ -268,6 +371,82 @@ namespace numeric
     int DistanceOf(int N1, int N2)
     {
         return (LargerOf(N1, N2) - SmallerOf(N1, N2));
+    }
+
+    //"stl" :: smaller to larger
+    //(252, 103, 35) => 155
+    //(103, 252, 35) => 155
+    //(-103, 252, 35) => 21
+    //(252, -103, 35) => 21
+    //(-117, -106, 35) => -113
+    int LinearInterpolationSTL(int _a, int _b, int _percentage)
+    {
+        if (_a <= _b)
+        {
+            int difference = _b - _a;
+            return _a + FromPercent(_percentage, difference);
+        }
+        else
+        {
+            int difference = _a - _b;
+            return _b + FromPercent(_percentage, difference);
+        }
+    }
+
+    //"stl" :: smaller to larger
+    //(252, 103, 35) => 155.15
+    //(103, 252, 35) => 155.15
+    //(-103, 252, 35) => 21.25
+    //(252, -103, 35) => 21.25
+    //(-117, -106, 35) => -113.15
+    double LinearInterpolationSTL(double _a, double _b, double _percentage)
+    {
+        if (_a <= _b)
+        {
+            double difference = _b - _a;
+            return _a + FromPercent(_percentage, difference);
+        }
+        else
+        {
+            double difference = _a - _b;
+            return _b + FromPercent(_percentage, difference);
+        }
+    }
+
+    //"fts" :: first to second
+    //(252, 103, 35) => 199
+    //(103, 252, 35) => 155
+    //(-103, 252, 35) => 21
+    //(252, -103, 35) => 127
+    //(-117, -106, 35) => -113
+    int LinearInterpolationFTS(int _a, int _b, int _percentage)
+    {
+        int difference = _b - _a;
+        return _a + FromPercent(_percentage, difference);
+    }
+
+    //"fts" :: first to second
+    //(252, 103, 35) => 199.85
+    //(103, 252, 35) => 155.15
+    //(-103, 252, 35) => 21.25
+    //(252, -103, 35) => 127.75
+    //(-117, -106, 35) => -113.15
+    double LinearInterpolationFTS(double _a, double _b, double _percentage)
+    {
+        double difference = _b - _a;
+        return _a + FromPercent(_percentage, difference);
+    }
+
+    //(3, 5) => 2
+    //(5, 3) => 2
+    //(511, 96) => 415
+    //(96, 511) => 415
+    //(-4, 5) => 9
+    //(5, -4) => 9
+    //N == N => 0
+    long long DistanceOf_L(long long N1, long long N2)
+    {
+        return (LargerOf_L(N1, N2) - SmallerOf_L(N1, N2));
     }
 
     //(3.2, 5.1) => 1.9
