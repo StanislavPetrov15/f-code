@@ -14,6 +14,7 @@ namespace bit_operations
 
 		int BitCount = 0;
 		unsigned char* Bytes = nullptr;
+        bool IsReference;
 
 	public:
 
@@ -40,6 +41,8 @@ namespace bit_operations
 			{
 				Bytes[i] = 0;
 			}
+
+			IsReference = false;
 		} //-> the value of each bit is 0
 
 		BitSet(unsigned long long _value)
@@ -65,6 +68,8 @@ namespace bit_operations
 			{
 				SetBit(i, bits[i]);
 			}
+
+			IsReference = false;
 		}
 
 		BitSet(const BitSet& _bitset)
@@ -84,7 +89,16 @@ namespace bit_operations
 					Bytes[i] = _bitset.Bytes[i];
 				}
 			}
+
+			IsReference = false;
 		}
+
+        BitSet(unsigned char* _bitArray, int _bitCount)
+        {
+            Bytes = _bitArray;
+            BitCount = _bitCount;
+            IsReference = true;
+        }
 
 		BitSet& operator=(const BitSet& _bitset)
 		{
@@ -105,9 +119,19 @@ namespace bit_operations
 			return *this;
 		}
 
+        bool operator[](int _index)
+        {
+            div_t result = std::div(_index, 8);
+
+            return bit_operations::GetBit(Bytes[result.quot], result.rem);
+        }
+
 		~BitSet()
 		{
-			delete [] Bytes;
+		    if (!IsReference)
+            {
+			    delete [] Bytes;
+            }
 		}
 
 		int bitCount() const
@@ -125,6 +149,9 @@ namespace bit_operations
 			return Bytes;
 		}
 
+        /* lower index position means less significant bit of the containing byte;
+           (EXAMPLE) SetBit(9, X) means "set bit 2 of the second byte"
+           (EXAMPLE) SetBit(14, X) means "set bit 6 of the second byte" */
 		void SetBit(int _index, bool _value)
 		{
 			div_t result = std::div(_index, 8);
@@ -132,12 +159,24 @@ namespace bit_operations
 			bit_operations::SetBit(Bytes[result.quot], result.rem, _value);
 		}
 
+        //_bitIndex specifies the bit index within the specified byte
+        void SetBit(int _byteIndex, int _bitIndex, bool _value)
+        {
+            bit_operations::SetBit(Bytes[_byteIndex], _bitIndex, _value);
+        }
+
         bool GetBit(int _index) const
 		{
 			div_t result = std::div(_index, 8);
 
 			return bit_operations::GetBit(Bytes[result.quot], result.rem);
 		}
+
+        //_bitIndex specifies the bit index within the specified byte
+        bool GetBit(int _byteIndex, int _bitIndex)
+        {
+            return bit_operations::GetBit(Bytes[_byteIndex], _bitIndex);
+        }
 
         list<bool> GetBits(int _begin, int _end)
         {
@@ -168,6 +207,11 @@ namespace bit_operations
                 SetBit(_begin + i, _bits[i]);
             }
         }
+
+        void SetByte(int _byteIndex, int _byteValue)
+        {
+            Bytes[_byteIndex] = _byteValue;
+        }
 	};
 
 	//Reverse<unsigned char>(01001010) => 01010010
@@ -197,7 +241,6 @@ namespace bit_operations
 	{
 		_number = _number << (7 - _index);
 		_number = _number >> 7;
-
 		return _number;
 	}
 
@@ -206,7 +249,6 @@ namespace bit_operations
 	{
 		_number = _number << (15 - _index);
 		_number = _number >> 15;
-
 		return _number;
 	}
 
@@ -215,7 +257,6 @@ namespace bit_operations
 	{
 		_number = _number << (31 - _index);
 		_number = _number >> 31;
-
 		return _number;
 	}
 
@@ -224,35 +265,31 @@ namespace bit_operations
 	{
 		_number = _number << (63 - _index);
 		_number = _number >> 63;
-
 		return _number;
 	}
 
 	//GetBits(53, 1, 3) => [0, 1, 0] = Dx2
-	// _begin >= 0 || _end <= 7, _begin < _end ->
+	//_begin >= 0 || _end <= 7, _begin < _end ->
 	unsigned char GetBits(unsigned char _number, int _begin, int _end)
 	{
 		_number = _number << (7 - _end);
 		_number = _number >> ((7 - _end) + _begin);
-
 		return _number;
 	}
 
-	// _begin >= 0 || _end <= 15, _begin < _end ->
+	//_begin >= 0 || _end <= 15, _begin < _end ->
 	unsigned short GetBits(unsigned short _number, int _begin, int _end)
 	{
 		_number = _number << (15 - _end);
 		_number = _number >> ((15 - _end) + _begin);
-
 		return _number;
 	}
 
-	// _begin >= 0 || _end <= 31, _begin < _end ->
+	//_begin >= 0 || _end <= 31, _begin < _end ->
 	unsigned int GetBits(unsigned int _number, int _begin, int _end)
 	{
 		_number = _number << (31 - _end);
 		_number = _number >> ((31 - _end) + _begin);
-
 		return _number;
 	}
 
@@ -316,108 +353,60 @@ namespace bit_operations
     //_begin >= 0 || _end <= 7, _begin < _end ->
     void SetBits(unsigned char& _number, int _begin, int _end, unsigned char _value)
     {
-            //extracting the (0.._begin) segment
-            unsigned char n = _number << (8 - _begin);
-            unsigned char rightSegment = n >> (8 - _begin);
-
-            //clearing the (_begin.._end) segment so the bitwise OR operator can be used to 'insert' the _value into _number
-
-            //(A)
-            if (_end < 7)
-            {
-                _number >>= _end + 1;
-                _number <<= _end + 1;
-            }
-            else
-            {
-                _number = 0;
-            }
-
-            _number |= rightSegment; //
-
-            _value <<= _begin;
-            _number |= _value;
+        unsigned char left = (_end < 7 ? _number >> (_end + 1) : 0);
+        left <<= (_end < 7 ? _end + 1 : 0);
+        unsigned char right = _begin > 0 ? _number << (7 - (_begin - 1)) : 0;
+        right >>= 7 - (_begin - 1);
+        unsigned char value = _value << _begin;
+        unsigned char result = right;
+        result |= left;
+        result |= value;
+        _number = result;
     }
 
     //SetBits(x = 236, 4, 7, 0b1011) -> x = 188
     //_begin >= 0 || _end <= 15, _begin < _end ->
     void SetBits(unsigned short& _number, int _begin, int _end, unsigned short _value)
     {
-        //extracting the (0.._begin) segment
-        unsigned short n = _number << (16 - _begin);
-        unsigned short rightSegment = n >> (16 - _begin);
-
-        //clearing the (_begin.._end) segment so the bitwise OR operator can be used to 'insert' the _value into _number
-
-        //(A)
-        if (_end < 15)
-        {
-            _number >>= _end + 1;
-            _number <<= _end + 1;
-        }
-        else
-        {
-            _number = 0;
-        }
-
-        _number |= rightSegment; //
-
-        _value <<= _begin;
-        _number |= _value;
+        unsigned short left = (_end < 15 ? _number >> (_end + 1) : 0);
+        left <<= (_end < 15 ? _end + 1 : 0);
+        unsigned short right = _begin > 0 ? _number << (15 - (_begin - 1)) : 0;
+        right >>= 15 - (_begin - 1);
+        unsigned short value = _value << _begin;
+        unsigned short result = right;
+        result |= left;
+        result |= value;
+        _number = result;
     }
 
     //SetBits(x = 236, 4, 7, 0b1011) -> x = 188
     //_begin >= 0 || _end <= 31, _begin < _end ->
     void SetBits(unsigned int& _number, int _begin, int _end, unsigned int _value)
     {
-        //extracting the (0.._begin) segment
-        unsigned int n = _number << (32 - _begin);
-        unsigned int rightSegment = n >> (32 - _begin);
-
-        //clearing the (_begin.._end) segment so the bitwise OR operator can be used to 'insert' the _value into _number
-
-        //(A)
-        if (_end < 31)
-        {
-            _number >>= _end + 1;
-            _number <<= _end + 1;
-        }
-        else
-        {
-            _number = 0;
-        }
-
-        _number |= rightSegment; //
-
-        _value <<= _begin;
-        _number |= _value;
+        unsigned int left = (_end < 31 ? _number >> (_end + 1) : 0);
+        left <<= (_end < 31 ? _end + 1 : 0);
+        unsigned int right = _begin > 0 ? _number << (31 - (_begin - 1)) : 0;
+        right >>= 31 - (_begin - 1);
+        unsigned int value = _value << _begin;
+        unsigned int result = right;
+        result |= left;
+        result |= value;
+        _number = result;
     }
 
     //SetBits(x = 236, 4, 7, 0b1011) -> x = 188
     //_begin >= 0 || _end <= 63, _begin < _end ->
     void SetBits(unsigned long long& _number, int _begin, int _end, unsigned long long _value)
     {
-        //extracting the (0.._begin) segment
-        unsigned long long n = _number << (64 - _begin);
-        unsigned long long rightSegment = n >> (64 - _begin);
-
-        //clearing the (_begin.._end) segment so the bitwise OR operator can be used to 'insert' the _value into _number
-
-        //(A)
-        if (_end < 63)
-        {
-            _number >>= _end + 1;
-            _number <<= _end + 1;
-        }
-        else
-        {
-            _number = 0;
-        }
-
-        _number |= rightSegment; //
-
-        _value <<= _begin;
-        _number |= _value;
+        unsigned long long left = (_end < 63 ? _number >> (_end + 1) : 0);
+        left <<= (_end < 63 ? _end + 1 : 0);
+        unsigned long long right = _begin > 0 ? _number << (63 - (_begin - 1)) : 0;
+        right >>= 63 - (_begin - 1);
+        unsigned long long value = _value << _begin;
+        unsigned long long result = right;
+        result |= left;
+        result |= value;
+        _number = result;
     }
 
     //SetBits(x = 0, 3, { 1, 1, 0, 0, 1 }) -> x = 11001000
@@ -457,6 +446,374 @@ namespace bit_operations
         for (int i = 0; i < _bits.count(); i++)
         {
             SetBit(_number, _begin + i, _bits[_bits.count() - (i + 1)]);
+        }
+    }
+
+    //RemoveLeadingZeros(x = 11001000) -> x = 11001
+    void RemoveLeadingZeros(unsigned char& _number)
+    {
+          if (_number == 0) return;
+
+          while (true)
+          {
+                unsigned char number = _number;
+                number = number << 7;
+                number = number >> 7;
+
+                if (number == 1)
+                {
+                    return;
+                }
+                else
+                {
+                     _number >>= 1;
+                }
+          }
+    }
+
+    //RemoveLeadingZeros(x = 11001000) -> x = 11001
+    void RemoveLeadingZeros(unsigned short& _number)
+    {
+        if (_number == 0) return;
+
+        while (true)
+        {
+            unsigned short number = _number;
+            number = number << 15;
+            number = number >> 15;
+
+            if (number == 1)
+            {
+                return;
+            }
+            else
+            {
+                _number >>= 1;
+            }
+        }
+    }
+
+    //RemoveLeadingZeros(x = 11001000) -> x = 11001
+    void RemoveLeadingZeros(unsigned int& _number)
+    {
+        if (_number == 0) return;
+
+        while (true)
+        {
+            unsigned int number = _number;
+            number = number << 31;
+            number = number >> 31;
+
+            if (number == 1)
+            {
+                return;
+            }
+            else
+            {
+                _number >>= 1;
+            }
+        }
+    }
+
+    //RemoveLeadingZeros(x = 11001000) -> x = 11001
+    void RemoveLeadingZeros(unsigned long long& _number)
+    {
+        if (_number == 0) return;
+
+        while (true)
+        {
+            unsigned long long number = _number;
+            number = number << 63;
+            number = number >> 63;
+
+            if (number == 1)
+            {
+                return;
+            }
+            else
+            {
+                _number >>= 1;
+            }
+        }
+    }
+
+    //RemoveTrailingZeros(x = 00001110) -> x = 11100000
+    void RemoveTrailingZeros(unsigned char& _number)
+    {
+        if (_number == 0) return;
+
+        while (true)
+        {
+            unsigned char number = _number;
+            number = number >> 7;
+            number = number << 7;
+
+            if (number == 128)
+            {
+                return;
+            }
+            else
+            {
+                _number <<= 1;
+            }
+        }
+    }
+
+    //RemoveTrailingZeros(x = 00001110) -> x = 11100000
+    void RemoveTrailingZeros(unsigned short& _number)
+    {
+        if (_number == 0) return;
+
+        while (true)
+        {
+            unsigned short number = _number;
+            number = number >> 15;
+            number = number << 15;
+
+            if (number == 32768)
+            {
+                return;
+            }
+            else
+            {
+                _number <<= 1;
+            }
+        }
+    }
+
+    //RemoveTrailingZeros(x = 00001110) -> x = 11100000
+    void RemoveTrailingZeros(unsigned int& _number)
+    {
+        if (_number == 0) return;
+
+        while (true)
+        {
+            unsigned int number = _number;
+            number = number >> 31;
+            number = number << 31;
+
+            if (number == 2147483648)
+            {
+                return;
+            }
+            else
+            {
+                _number <<= 1;
+            }
+        }
+    }
+
+    //RemoveTrailingZeros(x = 00001110) -> x = 11100000
+    void RemoveTrailingZeros(unsigned long long& _number)
+    {
+        if (_number == 0) return;
+
+        while (true)
+        {
+            unsigned long long number = _number;
+            number = number >> 63;
+            number = number << 63;
+
+            if (number == 9223372036854775808)
+            {
+                return;
+            }
+            else
+            {
+                _number <<= 1;
+            }
+        }
+    }
+
+    int NumberOfLeadingZeros(unsigned char _number)
+    {
+        if (_number == 0) return 8;
+
+        int count = 0;
+
+        while (true)
+        {
+            unsigned char number = _number;
+            number = number << 7;
+            number = number >> 7;
+
+            if (number == 1)
+            {
+                return count;
+            }
+            else
+            {
+                _number >>= 1;
+                count++;
+            }
+        }
+    }
+
+    int NumberOfLeadingZeros(unsigned short _number)
+    {
+        if (_number == 0) return 8;
+
+        int count = 0;
+
+        while (true)
+        {
+            unsigned short number = _number;
+            number = number << 15;
+            number = number >> 15;
+
+            if (number == 1)
+            {
+                return count;
+            }
+            else
+            {
+                _number >>= 1;
+                count++;
+            }
+        }
+    }
+
+    int NumberOfLeadingZeros(unsigned int _number)
+    {
+        if (_number == 0) return 8;
+
+        int count = 0;
+
+        while (true)
+        {
+            unsigned int number = _number;
+            number = number << 31;
+            number = number >> 31;
+
+            if (number == 1)
+            {
+                return count;
+            }
+            else
+            {
+                _number >>= 1;
+                count++;
+            }
+        }
+    }
+
+    int NumberOfLeadingZeros(unsigned long long _number)
+    {
+        if (_number == 0) return 8;
+
+        int count = 0;
+
+        while (true)
+        {
+            unsigned long long number = _number;
+            number = number << 63;
+            number = number >> 63;
+
+            if (number == 1)
+            {
+                return count;
+            }
+            else
+            {
+                _number >>= 1;
+                count++;
+            }
+        }
+    }
+
+    int NumberOfTrailingZeros(unsigned char _number)
+    {
+        if (_number == 0) return 8;
+
+        int count = 0;
+
+        while (true)
+        {
+            unsigned char number = _number;
+            number = number >> 7;
+            number = number << 7;
+
+            if (number == 128)
+            {
+                return count;
+            }
+            else
+            {
+                _number <<= 1;
+                count++;
+            }
+        }
+    }
+
+    int NumberOfTrailingZeros(unsigned short _number)
+    {
+        if (_number == 0) return 8;
+
+        int count = 0;
+
+        while (true)
+        {
+            unsigned short number = _number;
+            number = number >> 15;
+            number = number << 15;
+
+            if (number == 32768)
+            {
+                return count;
+            }
+            else
+            {
+                _number <<= 1;
+                count++;
+            }
+        }
+    }
+
+    int NumberOfTrailingZeros(unsigned int _number)
+    {
+        if (_number == 0) return 8;
+
+        int count = 0;
+
+        while (true)
+        {
+            unsigned int number = _number;
+            number = number >> 31;
+            number = number << 31;
+
+            if (number == 2147483648)
+            {
+                return count;
+            }
+            else
+            {
+                _number <<= 1;
+                count++;
+            }
+        }
+    }
+
+    int NumberOfTrailingZeros(unsigned long long _number)
+    {
+        if (_number == 0) return 8;
+
+        int count = 0;
+
+        while (true)
+        {
+            unsigned long long number = _number;
+            number = number >> 63;
+            number = number << 63;
+
+            if (number == 9223372036854775808)
+            {
+                return count;
+            }
+            else
+            {
+                _number <<= 1;
+                count++;
+            }
         }
     }
 
