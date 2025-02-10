@@ -43,6 +43,7 @@ f-code
 - event.cpp
 - timer.cpp
 - chronometer.cpp
+- geometry.cpp
 
 (!) file dependencies:
 - numeric.cpp - do not depend on other files
