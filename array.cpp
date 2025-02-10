@@ -5,7 +5,7 @@
 
 template<typename T> struct array
 {
-    T* pointer;
+    T* elements;
     int length;
 };
 
@@ -115,7 +115,7 @@ template<typename T> array<T> except(const T* _array, int _length, T _value)
     resize(accumulator, _length, matchCount);
 
     return { accumulator, matchCount };
-} //-> delete [] <array>.pointer
+} //-> delete [] <array>.elements
 
 //_length is the length of _array
 //_length_ is the length of _set
@@ -137,7 +137,7 @@ template<typename T> array<T> except(const T* _array, const T* _set, int _length
     resize(accumulator, _length, matchCount);
 
     return { accumulator, matchCount };
-} //-> delete [] <array.pointer>
+} //-> delete [] <array>.elements
 
 //_length1 specifies the length of _array1
 //_length2 specifies the length of _array2
@@ -358,7 +358,7 @@ template<typename T> array<T> where(const T* _array, int _length, const std::fun
     resize(accumulator, _length, matchCount);
 
     return { accumulator, matchCount };
-} //-> delete [] <array>.pointer
+} //-> delete [] <array>.elements
 
 /* - the first element represent the number of matches in the sequence
    - the elements after the first are (begin, end) pairs for each match in the sequence; therefore a sequence with 2 matches will consist of
@@ -462,9 +462,28 @@ template<typename T> int* split(T* _array, int _length, T _separator, bool _igno
     }
 
     return accumulator;
-} //-> delete [] <array>.pointer
+} //-> delete [] <array>.elements
 
 ///MUTATION FUNCTIONS
+
+//_length specifies the length of _first
+//_length_ specifies the length of _second
+template<typename T> array<T> concatenate(const T* _first, const T* _second, int _length, int _length_)
+{
+    T* array = new T[_length + _length_];
+
+    for (int i = 0; i < _length; i++)
+    {
+        array[i] = _first[i];
+    }
+
+    for (int i = 0; i < _length_; i++)
+    {
+        array[_length + i] = _second[i];
+    }
+
+    return { array, _length + _length_ };
+} //-> delete [] result.elements
 
 //it copies segment (from _source to _destination) (beginning at _sourceBegin) and (with length specified by _length)
 //copy("variance", "namespace", 8, 9, 2, 4, 5) >> "namerianc"
