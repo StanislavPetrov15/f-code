@@ -29,9 +29,9 @@ const int EXCLUDED_BLOCK_END = INT_MAX - 1;
 //(!) the size(accessed by size()) of a segment is equal to the size of the list that the segment refers to
 template<typename T> struct list
 {
+    int Count = 0;
     protected:
 
-    int Count = 0;
     int Size = 0;
     int Position = 0; //iteration position
     T* Elements = nullptr;
@@ -803,7 +803,7 @@ template<typename T> struct list
             Insert(_value, 0);
         }
 
-        return *this; this();
+        return *this;
     }
 
     //[1, 2, 10].FillRight(5, 7) => [1, 2, 10, 5, 5, 5, 5]
@@ -1269,6 +1269,28 @@ template<typename T> struct list
         for (int i = 0; i < _value.Count; i++)
         {
             Elements[_begin + i] = _value[i];
+        }
+
+        return *this;
+    }
+
+    list<T>& Shuffle()
+    {
+        if (MutabilityKind == MutabilityKind::IMMUTABLE) return *this;
+
+        std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+        int lowerBound = 0;
+        int upperBound = Count - 1;
+        std::uniform_int_distribution<> distribution(lowerBound, upperBound);
+
+        for (int i = 0; i < Count; i++)
+        {
+            int index1 = distribution(generator);
+            int index2 = distribution(generator);
+            T element = Elements[index1];
+            Elements[index1] = Elements[index2];
+            Elements[index2] = element;
         }
 
         return *this;
