@@ -3,23 +3,23 @@
 Index:
 
 array.cpp - line 26
-pair.cpp - line 211
-tuple.cpp - line 239
-range.cpp - line 1104
-stack.cpp - line 1209
-queue.cpp - line 1257
-list.cpp - line 1308
-string.cpp - line 1827
-numeric.cpp - line 2541
-bit_operations.cpp - line 2726
-byte_operations.cpp - line 2910
-unicode.cpp - line 2963
-time.cpp - line 4053
-filesystem.cpp - line 4191
-event.cpp - line 4587
-timer.cpp - line 4611
-chronometer.cpp - line 4660
-geometry.cpp - line 4689
+pair.cpp - line 236
+tuple.cpp - line 264
+range.cpp - line 1129
+stack.cpp - line 1234
+queue.cpp - line 1282
+list.cpp - line 1333
+string.cpp - line 1854
+numeric.cpp - line 2568
+bit_operations.cpp - line 2753
+byte_operations.cpp - line 2937
+unicode.cpp - line 2989
+time.cpp - line 4079
+filesystem.cpp - line 41217
+event.cpp - line 4613
+timer.cpp - line 4653
+chronometer.cpp - line 4702
+geometry.cpp - line 4732
 
 -----------------------------------------------------------------------------------------
 
@@ -42,8 +42,12 @@ struct range:
 template<typename T> bool beginsWith(const T* _array, int _length, const T* _value, int _length_)
 
 # _length specifies the length of _array
-# _length_ specifies the length of _value
-template<typename T> bool endsWith(const T* _array, int _length, const T* _value, int _length_)
+# countof([3, 5, 9, 5, 4, 9, 0, 5], 8, 5) => 3
+template<typename T> int countOf(const T* _array, int _length, const T& _value)
+
+# _length specifies the length of _array
+# countOf([3, 5, 9, 5, 4, 9, 0, 5], 8, [](int x) { return x == 4; }) => 1
+template<typename T> int countOf(const T* _array, int _length, const std::function<bool(const T&)>& _predicate)
 
 # _length specifies the length of _array
 template<typename T> bool contains(const T* const _array, int _length, T _value)
@@ -51,6 +55,10 @@ template<typename T> bool contains(const T* const _array, int _length, T _value)
 # _length specifies the length of _array
 # _length_ specifies the length of _value
 template<typename T> bool contains(const T* const _array, int _length, const T* const _value, int _length_)
+
+# _length specifies the length of _array
+# _length_ specifies the length of _value
+template<typename T> bool endsWith(const T* _array, int _length, const T* _value, int _length_)
 
 # _length specifies the length of _array
 # except([2, 9, 0, 1, 4, 9, 7, 3], 8, 9) => [2, 0, 1, 4, 7, 3]
@@ -71,6 +79,11 @@ template<typename T> array<T> except(const T* _array, const T* _set, int _length
 template<typename T> bool equality(const T* const _array1, const T* const _array2, int _length1, int _length2)
 
 # _length specifies the length of _array
+# (if the element specified by the predicate is present in the list) the function returns a pointer to it
+# (if the element specified by the predicate is not present in the list) the functions returns a null pointer
+template<typename T> T* first(const T* _array, int _length, const std::function<bool(T)>& _predicate)
+
+# _length specifies the length of _array
 # the specified value does not exist => -1
 template<typename T> int indexOf(const T* const _array, int _length, T _value)
 
@@ -79,10 +92,18 @@ template<typename T> int indexOf(const T* const _array, int _length, T _value)
 # _value2 does not exist in _value1 or _begin is outside the range of list => -1
 template<typename T> int indexOf(const T* _array1, const T* _array2, int _length1, int _length2, int _begin)
 
+# _length1 specifies the length of _array1
+# _length2 specifies the length of _array2
+# the specified value does not exist or _begin is outside the range of list => -1
+template<typename T> int indexOf(const T* _array, int _length, const std::function<bool(const T&)>& _predicate)
+
 # _length specifies the length of _array
 # indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 9) => 3
 # indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 4) => 0
 template<typename T> int indexOfNot(const T* const _array, int _length, T _value)
+
+# _length specifies the length of _array
+template<typename T> int IndexOfNot(const T* _array, int _length, const std::function<bool(const T&)>& _predicate)
 
 # _length specifies the length of _array
 template<typename T> bool isHeterogenous(const T* const _array, int _length)
@@ -162,6 +183,10 @@ template<typename T> void extendLeft(T*& _array, int _extensor)
 # _length specifies the length of _array
 # extendRight([1, 2, 3, 4, 5], 5, 2) >> [1, 2, 3, 4, 5, x, x]
 template<typename T> void extendRight(T*& _array, int _extensor)
+
+# _length specifies the length of _array
+# _array has atleast one free element at the end ->
+template<typename T> void insert(T*& _array, int _length, const T& _value, int _index)
 
 # _length specifies the length of _array
 # reduceLeft([1, 2, 3, 4, 5], 5, 2) >> [3, 4, 5]
@@ -1581,6 +1606,8 @@ struct list<T>:
 
     # [9, 1, 5, 3, 0, 4, 7, 0, 6, 5, 1].Set(3, [8, 2, 0, 1]) => [9, 1, 5, 8, 2, 0, 1, 0, 6, 5, 1]
     list<T>& Set(int _begin, const list<bool>& _value)
+
+    list<T>& Shuffle()
 
     list<T>& Swap(int _index1, int _index2)
 
@@ -4595,11 +4622,27 @@ template<typename... args> struct event:
 
     event& operator=(const event&) = default
 
+    # (SYNONYM:append_subscriber)
     # adds a subscriber to the list of subscribers
     void operator+= (void(*_subscriber)(args...))
 
-    # notifies each subscriber when the event occurs
+    # removes a subscriber from the list of subscribers
+    void operator-= (void(*_subscriber)(args...))
+
+    # (SYNONYM:call_suscribers)
+    # calls each subscriber when the event occurs
     void operator()(args... _parameters) const
+
+    # FUNCTIONS:
+
+    # adds a subscriber to the list of subscribers
+    void append_subscriber(void(*_subscriber)(args...))
+
+    # notifies each subscriber when the event occurs
+    void call_subscribers(args... _parameters) const
+
+    # removes a subscriber from the list of subscribers
+    void remove_subscriber(int _index)
 
     # FIELDS:
 
@@ -4621,7 +4664,7 @@ struct Timer:
       the OnTick event must be generated) every 100ms; this value shouldn't be (lower than 2ms) and (higher than 200ms)
       higher _internalPeriod will give more CPU time to other active threads, but also will lower the precision for firing the OnTick event;
       this value also must be atleast 10 times lower than _interval - i.e. if interval is 1.5 seconds, then this value must be lower than 150ms;
-      if _interval is lower than 10ms (the minimum possible value), then value of 1 must be used for _internalPeriod*/
+      if _interval is lower than 10ms (the minimum possible value), then value of 1 must be used for _internalPeriod #
     # _repeat specifies if the period is repeated after the previous one ends
     # _data is an optional data; if there is no data supplied then this parameter must be null
     # (!) this constructor does not validate the parameters
