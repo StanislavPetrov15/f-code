@@ -35,21 +35,37 @@ template<typename T> bool beginsWith(const T* _array, const T* _value, int _leng
 }
 
 //_length specifies the length of _array
-//_length_ specifies the length of _value
-template<typename T> bool endsWith(const T* _array, const T* _value, int _length, int _length_)
+//countOf([3, 5, 9, 5, 4, 9, 0, 5], 8, 5) => 3
+template<typename T> int countOf(const T* _array, int _length, const T& _value)
 {
-    if (_length_ > _length) return false;
+    int count = 0;
 
-    int counter = 0;
-    for (int i = _length - 1, n = _length_ - 1; (i > - 1) && (n > - 1); i--, n--)
-    {
-        if (_array[i] == _value[n])
+     for (int i = 0; i < _length; i++)
+     {
+        if (_array[i] == _value)
         {
-            counter++;
+            count++;
+        }
+     }
+
+     return count;
+}
+
+//_length specifies the length of _array
+//countOf([3, 5, 9, 5, 4, 9, 0, 5], 8, [](int x) { return x == 4; }) => 1
+template<typename T> int countOf(const T* _array, int _length, const std::function<bool(const T&)>& _predicate)
+{
+    int count = 0;
+
+    for (int i = 0; i < _length; i++)
+    {
+        if (_predicate(_array[i]))
+        {
+            count++;
         }
     }
 
-    return _length_ == counter;
+    return count;
 }
 
 //_length specifies the length of _array
@@ -92,6 +108,24 @@ template<typename T> bool contains(const T* _array, const T* _value, int _length
     }
 
     return false;
+}
+
+//_length specifies the length of _array
+//_length_ specifies the length of _value
+template<typename T> bool endsWith(const T* _array, const T* _value, int _length, int _length_)
+{
+    if (_length_ > _length) return false;
+
+    int counter = 0;
+    for (int i = _length - 1, n = _length_ - 1; (i > - 1) && (n > - 1); i--, n--)
+    {
+        if (_array[i] == _value[n])
+        {
+            counter++;
+        }
+    }
+
+    return _length_ == counter;
 }
 
 template<typename T> void resize(T*&, int, int);
@@ -168,6 +202,24 @@ template<typename T> bool equality(const T* _array1, const T* _array2, int _leng
 }
 
 //_length specifies the length of _array
+//(if the element specified by the predicate is present in the array) the function returns a pointer to it
+//(if the element specified by the predicate is not present in the array) the functions returns a null pointer
+template<typename T> T* first(T* _array, int _length, const std::function<bool(const T&)>& _predicate)
+{
+    for (int i = 0; i < _length; i++)
+    {
+        T& element = _array[i];
+
+        if (_predicate(element))
+        {
+            return &element;
+        }
+    }
+
+    return nullptr;
+}
+
+//_length specifies the length of _array
 //the specified value does not exist => -1
 template<typename T> int indexOf(const T* _array, int _length, T _value)
 {
@@ -209,6 +261,21 @@ template<typename T> int indexOf(const T* _array1, const T* _array2, int _length
 }
 
 //_length specifies the length of _array
+//the specified value does not exist or _begin is outside the range of array => -1
+template<typename T> int indexOf(const T* _array, int _length, const std::function<bool(const T&)>& _predicate)
+{
+    for (int i = 0; i < _length; i++)
+    {
+        if (_predicate(_array[i]))
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+//_length specifies the length of _array
 //indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 9) => 3
 //indexOfNot([9, 9, 9, 5, 8, 10, 2, 7], 8, 4) => 0
 template<typename T> int indexOfNot(const T* _array, int _length, T _value)
@@ -222,6 +289,20 @@ template<typename T> int indexOfNot(const T* _array, int _length, T _value)
     }
 
     return 0;
+}
+
+//_length specifies the length of _array
+template<typename T> int indexOfNot(const T* _array, int _length, const std::function<bool(const T&)>& _predicate)
+{
+    for (int i = 0; i < _length; i++)
+    {
+        if (!_predicate(_array[i]))
+        {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 //_length specifies the length of _array
@@ -568,6 +649,19 @@ template<typename T> void extendRight(T*& _array, int _length, int _extensor)
 }
 
 //_length specifies the length of _array
+//_array has atleast one free element at the end ->
+template<typename T> void insert(T*& _array, int _length, const T& _value, int _index)
+{
+    //moving of (the elements after _index) one position to the right
+    for (int i = _length - 1; i > _index; i--)
+    {
+        _array[i] = _array[i - 1];
+    }
+
+    _array[_index] = _value;
+}
+
+//_length specifies the length of _array
 //reduceLeft([1, 2, 3, 4, 5], 5, 2) >> [3, 4, 5]
 template<typename T> void reduceLeft(T*& _array, int _length, int _reducer)
 {
@@ -644,7 +738,7 @@ template<typename T > void resize(T*& _array, int _currentLength, int _newLength
 
      _array = new T[_newLength];
 
-     //if the list is being extended
+     //if the array is being extended
      if (_newLength > _currentLength)
      {
          for (int i = 0; i < _currentLength; i ++)
@@ -652,7 +746,7 @@ template<typename T > void resize(T*& _array, int _currentLength, int _newLength
              _array[i] = oldElements[i];
          }
      }
-     //if the list is being shrinked
+     //if the array is being shrinked
      else if (_newLength < _currentLength)
      {
          for (int i = 0; i < _newLength; i ++)
@@ -729,6 +823,33 @@ template<typename T> void rotateRight(T*& _array, int _length, int _positions)
     _array = newArray;
 }
 
+//performs an unstable sorting
+//<T> implements operator '<' or it is a primitive numerical type ->
+template<typename T> void selectionSort(T*& _array, int _length, const std::function<bool(const T&, const T&)>& _predicate, bool _ascending = true)
+{
+    for (int i = 0; i < _length; i++)
+    {
+        T* min = &_array[i];
+
+        for (int n = i; n < _length; n++)
+        {
+            T* element = &_array[n];
+
+            if (_predicate(*element, *min))
+            {
+                min = element;
+            }
+        }
+
+        swap(_array, _length, &_array[i], min);
+    }
+
+    if (!_ascending)
+    {
+        reverse(_array, _length);
+    }
+}
+
 //_length specifies the length of _array
 //set([1, 2, 3, 4, 5], 5, 2, 4, 19) >> [1, 2, 19, 19, 19]
 template<typename T> void set(T*& _array, int _length, int _begin, int _end, T _value)
@@ -745,6 +866,14 @@ template<typename T> void swap(T*& _array, int _length, int _i1, int _i2)
     T c = _array[_i1];
     _array[_i1] = _array[_i2];
     _array[_i2] = c;
+}
+
+//_element1 and _element2 are pointers to elements of the array ->
+template<typename T> void swap(T*& _array, int _length, T* _element1, T* _element2)
+{
+    T element = *_element1;
+    *_element1 = *_element2;
+    *_element2 = element;
 }
 
 //_length specifies the length of _array
