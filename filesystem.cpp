@@ -1080,6 +1080,10 @@ namespace filesystem
             {
                  Position += _size;
             }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
+            }
         }
 
         //position() + 1 < (size() + 1) ->
@@ -1090,6 +1094,10 @@ namespace filesystem
             if (_advancePosition)
             {
                  Position++;
+            }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
             }
 
             return x;
@@ -1106,6 +1114,10 @@ namespace filesystem
             if (_advancePosition)
             {
                 Position += 2;
+            }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
             }
 
             return _16(byte1, byte2, _endianity);
@@ -1124,6 +1136,10 @@ namespace filesystem
             if (_advancePosition)
             {
                 Position += 4;
+            }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
             }
 
             return _32(byte1, byte2, byte3, byte4, _endianity);
@@ -1146,6 +1162,10 @@ namespace filesystem
             if (_advancePosition)
             {
                 Position += 8;
+            }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
             }
 
             return _64(byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8, _endianity);
@@ -1429,6 +1449,10 @@ namespace filesystem
             {
                 Position += _size;
             }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
+            }
 
             return *this;
         }
@@ -1446,6 +1470,10 @@ namespace filesystem
             if (_advancePosition)
             {
                 Position += 1;
+            }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
             }
 
             return *this;
@@ -1474,6 +1502,10 @@ namespace filesystem
             if (_advancePosition)
             {
                  Position += 2;
+            }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
             }
 
             return *this;
@@ -1506,6 +1538,10 @@ namespace filesystem
             if (_advancePosition)
             {
                 Position += 4;
+            }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
             }
 
             return *this;
@@ -1546,6 +1582,10 @@ namespace filesystem
             if (_advancePosition)
             {
                 Position += 8;
+            }
+            else
+            {
+                fseek(Stream, Position, SEEK_SET);
             }
 
             return *this;
