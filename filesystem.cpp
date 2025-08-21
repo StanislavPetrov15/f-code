@@ -1822,7 +1822,10 @@ namespace filesystem
     {
         using namespace time_;
 
-        HANDLE file = ::CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        const wchar_t* path = _path.ToWide();
+        HANDLE file = ::CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        delete [] path;
+
         FILETIME filetime;
 
         GetFileTime(file, &filetime, NULL, NULL);
@@ -1888,7 +1891,10 @@ namespace filesystem
     {
         using namespace time_;
 
-        HANDLE file = ::CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        const wchar_t* path = _path.ToWide();
+        HANDLE file = ::CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        delete [] path;
+
         FILETIME filetime;
 
         GetFileTime(file, NULL, &filetime, NULL);
@@ -1955,7 +1961,10 @@ namespace filesystem
     {
         using namespace time_;
 
-        HANDLE file = ::CreateFileW(_path.ToWide(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        const wchar_t* path = _path.ToWide();
+        HANDLE file = ::CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        delete [] path;
+
         FILETIME filetime;
 
         GetFileTime(file, NULL, NULL, &filetime);
@@ -2036,12 +2045,12 @@ namespace filesystem
 
         FILE *file = _wfopen(path, L"w+b");
 
+        delete [] path;
+
         if (file == nullptr)
         {
             return E_UNKNOWN_ERROR;
         }
-
-        delete [] path;
 
         fclose(file);
 
@@ -2346,6 +2355,8 @@ namespace filesystem
     {
         const wchar_t* path = _path.ToWide();
         DWORD attributes = GetFileAttributesW(path);
+        delete [] path;
+
         bool result;
 
         if (!FileExists(_path))
@@ -2390,6 +2401,8 @@ namespace filesystem
     {
         const wchar_t* path = _path.ToWide();
         DWORD attributes = GetFileAttributesW(path);
+        delete [] path;
+
         bool result;
 
         if (!DirectoryExists(_path))
