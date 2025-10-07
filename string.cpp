@@ -101,7 +101,7 @@ Encoding DefaultStorageEncoding = UTF8;
 struct string
 {
     public:
-
+const char* xxx = nullptr;
     int ByteCount = 0; //the size of (the sequence representing the characters) in bytes
     int Size = 0; //the size of &Elements (in bytes)
     int CharacterCount = 0; //number of characters
@@ -321,6 +321,7 @@ struct string
         Size = _source.Size;
         ByteCount = _source.ByteCount;
         CharacterCount = _source.CharacterCount;
+        DefaultStorageEncoding = StorageEncoding;
     }
 
     public:
@@ -351,38 +352,49 @@ struct string
     {
       /* (!) calling the appropriate constructor directly through string(...) creates a local copy (i.e. the state of &this is not updated);
               for this reason the 'this->string::string(...)' construct has to be used */
-        this->string::string(_array, ascii, DefaultStorageEncoding);
-    }
+        //this->string::string(_array, ascii, DefaultStorageEncoding);
 
-    //_array is an ASCII|UTF-8|UTF-16|UTF-32 string with an available terminating character ->
-    string(const unsigned char* _array)
-    {
-        /* (!) calling the appropriate constructor directly through string(...) creates a local copy (i.e. the state of &this is not updated);
-                for this reason the 'this->string::string(...)' construct has to be used */
+        if (_array == nullptr) return;
 
-        if (DefaultInputEncoding == ASCII_)
+        StorageEncoding = DefaultStorageEncoding;
+
+        int i = 0;
+
+        while (true)
         {
-            this->string::string(reinterpret_cast<const char*>(_array), ascii, DefaultStorageEncoding);
-        }
-        else if (DefaultInputEncoding == UTF8)
-        {
-            this->string::string(_array, u8, DefaultStorageEncoding);
-        }
-        else if (DefaultInputEncoding == UTF16LE)
-        {
-            this->string::string(_array, u16, LE, DefaultStorageEncoding);
-        }
-        else if (DefaultInputEncoding == UTF16BE)
-        {
-            this->string::string(_array, u16, BE, DefaultStorageEncoding);
-        }
-        else if (DefaultInputEncoding == UTF32LE)
-        {
-            this->string::string(_array, u32, LE, DefaultStorageEncoding);
-        }
-        else if (DefaultInputEncoding == UTF32BE)
-        {
-            this->string::string(_array, u32, BE, DefaultStorageEncoding);
+            if (_array[i] == 0)
+            {
+                break;
+            }
+            else
+            {
+                if (StorageEncoding == UTF8)
+                {
+                    Append(_array[i]);
+                }
+                else if (StorageEncoding == UTF16LE)
+                {
+                    utf16 codeUnit = _array[i];
+                    Append(BytesOf(codeUnit).Generate<unsigned char>());
+                }
+                else if (StorageEncoding == UTF16BE)
+                {
+                    utf16 codeUnit = _array[i];
+                    Append(BytesOf(codeUnit).Reverse().Generate<unsigned char>());
+                }
+                else if (StorageEncoding == UTF32LE)
+                {
+                    utf32 codeUnit = _array[i];
+                    Append(BytesOf(codeUnit).Generate<unsigned char>());
+                }
+                else if (StorageEncoding == UTF32BE)
+                {
+                    utf32 codeUnit = _array[i];
+                    Append(BytesOf(codeUnit).Reverse().Generate<unsigned char>());
+                }
+            }
+
+            i++;
         }
     }
 
@@ -1798,6 +1810,7 @@ struct string
 
     ~string()
     {
+        auto grgrrgrg = xxx;
         if (SpatialKind == SpatialKind::SEGMENT)
         {
             return;
@@ -2334,6 +2347,20 @@ struct string
         _string.Elements = nullptr;
     }
 
+    //it generates a segment
+    void AcquireSegment(const string& _source, int _begin, int _end)
+    {
+        if (_begin < 0 || _end > _source.CharacterCount - 1) return;
+        else if (_begin > _end) return;
+
+        Range<int> byteRange { _source.byteRangeOf(_begin).begin(), _source.byteRangeOf(_end).end() };
+        Elements = &(_source.Elements[byteRange.begin()]);
+        ByteCount = byteRange.length();
+        Size = byteRange.length();
+        CharacterCount = (_end - _begin) + 1;
+        SpatialKind = SpatialKind::SEGMENT;
+    }
+
     //the bytes in _value represent a single character (in a specific encoding) and (are appended to &elements() in the same order as they are in _value)
     string& Append(const list<unsigned char>& _value)
     {
@@ -2638,8 +2665,8 @@ struct string
             accumulator.Append((*this)[i]);
         }
 
-        copy(accumulator);
-
+       // copy(accumulator);
+        Acquire(accumulator);
         return *this;
     }
 
@@ -2666,8 +2693,8 @@ struct string
             accumulator.Append((*this)[i]);
         }
 
-        copy(accumulator);
-
+       // copy(accumulator);
+        Acquire(accumulator);
         return *this;
     }
 
@@ -2687,8 +2714,8 @@ struct string
             }
         }
 
-        copy(accumulator);
-
+        //copy(accumulator);
+Acquire(accumulator);
         return *this;
     }
 
@@ -2708,7 +2735,8 @@ struct string
             }
         }
 
-        copy(accumulator);
+      //  copy(accumulator);
+        Acquire(accumulator);
 
         return *this;
     }
@@ -2727,7 +2755,8 @@ struct string
             }
         }
 
-        copy(accumulator);
+        //copy(accumulator);
+        Acquire(accumulator);
 
         return *this;
     }
@@ -2839,7 +2868,8 @@ struct string
             newList.Set(n, (*this)[i]);
         } //-> [x, x, x, 1, 2]
 
-        copy(newList);
+        //copy(newList);
+        Acquire(newList);
 
         return *this;
     }
@@ -2869,7 +2899,8 @@ struct string
             newList.Set(n, (*this)[i]);
         } //-> [x, x, 1, 2, 3]
 
-        copy(newList);
+        //copy(newList);
+        Acquire(newList);
 
         return *this;
     }
