@@ -74,12 +74,12 @@ f-code
   does not matter for the specific example; the examples not always show every possible variant of the particular function call; most of the time
   only the variants for which the result is not clear (which is subjective) are shown - (a set of one or more argument values) followed by character '->' means that (the   argument(s) must have the specified values) for the correct execution of the function
 
-(!) (a character '->' after the body of a function) followed by (set of object values) means that the objects receive the specified values
+- (a character '->' after the body of a function) followed by (set of object values) means that the objects receive the specified values
 
-(!) (a character '->' after the body of a function) followed by (an operation or operations) means that the specified operation(s) must be executed after
+- (a character '->' after the body of a function) followed by (an operation or operations) means that the specified operation(s) must be executed after
     the function is finished
 
-(!) f-code use five tags that gives additional information to the programmer; these tags can be applied to a file or
+- f-code use five tags that gives additional information to the programmer; these tags can be applied to a file or
     a program object (a variable, function, structure, etc.); some tags can be applied only to specific program objects;
     if a tag is applied to a file then the tag should be included in the beginning of the file, and if it's applied to a program object it is included right before the object; the tags used in the library (and the description of their meaning) are the following:
    - (!) { value } - a very important note
