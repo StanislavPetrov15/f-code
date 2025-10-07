@@ -45,25 +45,25 @@ f-code
   - chronometer.cpp
   - geometry.cpp (not very well tested)
 
-(!) file dependencies:
-- numeric.cpp - do not depend on other files
-- array.cpp - depends on <Windows.h>
-- range.cpp - do not depend on other files
-- pair.cpp - do not depend on other files
-- tuple.cpp - do not depend on other files
-- stack.cpp - do not depend on other files
-- queue.cpp - do not depend on other files
-- list.cpp - depends on \<functional\> and range.cpp
-- bit_operations.cpp - depends on list.cpp
-- byte_operations.cpp - depends on list.cpp
-- unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
-- string.cpp - depends on \<iostream\>, byte_operations.cpp, numeric.cpp and unicode.cpp
-- time.cpp - depends on \<ctime\> and numeric.cpp
-- filesystem.cpp - depends on string.cpp and time.cpp
-- event.cpp - depends on list.cpp
-- timer.cpp - depends on \<chromo\>, \<thread\> and event.cpp
-- chronometer.cpp - depends on \<chrono\> 
-- geometry.cpp - depends on numeric.cpp and list.cpp
+- file dependencies:
+  - numeric.cpp - do not depend on other files
+  - array.cpp - depends on <Windows.h>
+  - range.cpp - do not depend on other files
+  - pair.cpp - do not depend on other files
+  - tuple.cpp - do not depend on other files
+  - stack.cpp - do not depend on other files
+  - queue.cpp - do not depend on other files
+  - list.cpp - depends on \<functional\> and range.cpp
+  - bit_operations.cpp - depends on list.cpp
+  - byte_operations.cpp - depends on list.cpp
+  - unicode.cpp - depends on bit_operations.cpp, list.cpp, range.cpp and tuple.cpp
+  - string.cpp - depends on \<iostream\>, byte_operations.cpp, numeric.cpp and unicode.cpp
+  - time.cpp - depends on \<ctime\> and numeric.cpp
+  - filesystem.cpp - depends on string.cpp and time.cpp
+  - event.cpp - depends on list.cpp
+  - timer.cpp - depends on \<chromo\>, \<thread\> and event.cpp
+  - chronometer.cpp - depends on \<chrono\> 
+  - geometry.cpp - depends on numeric.cpp and list.cpp
 
 (!) some functions contains notes describing the following (in the order shown below):
 - description of the function
