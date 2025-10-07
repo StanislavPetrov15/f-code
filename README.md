@@ -6,7 +6,7 @@ f-code
 
 (!!!) the library is tested on Windows only (Visual Studio, C++14)
 
-(!) it's C files only, no headers...and i have no plans to change that
+(!) it's CPP files only, no headers...and i have no plans to change that
 
 (!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation, networking, time functions, regular expressions, 2D graphics rendering and few other things; this is a very early version - at this stage the library contains only a small portion of the planned features and it also may contain some bugs
 
