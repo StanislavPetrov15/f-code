@@ -6,44 +6,44 @@ f-code
 
 (!!!) the library is tested on Windows only (Visual Studio, C++14)
 
-(!) it's CPP files only, no headers...and i have no plans to change that
+- it's CPP files only, no headers...and i have no plans to change that
 
-(!) f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation, networking, time functions, regular expressions, 2D graphics rendering and few other things; this is a very early version - at this stage the library contains only a small portion of the planned features and it also may contain some bugs
+- f-code stands for 'fundamental code'; it is supposed to contain only (relatively) fundamental code - data collections, filesystem manipulation, networking, time functions, regular expressions, 2D graphics rendering and few other things; this is a very early version - at this stage the library contains only a small portion of the planned features and it also may contain some bugs
 
-(!) the file ['public interface'](https://github.com/StanislavPetrov15/f-code/blob/main/Public%20interface) describes the constants, types and functions in the library 
+- the file ['public interface'](https://github.com/StanislavPetrov15/f-code/blob/main/Public%20interface) describes the constants, types and functions in the library 
 
-(!) the library does not use third-party source code
+- the library does not use third-party source code
 
-(!) the functionality of the library will be expanded in the near future by (adding new files) and (expanding the capabilities of the existing files)
+- the functionality of the library will be expanded in the near future by (adding new files) and (expanding the capabilities of the existing files)
 
-(!) sometimes in the comments the name of a (global object, local object(that is not an argument) or pointer 'this') is preceded by character '&'
+- sometimes in the comments the name of a (global object, local object(that is not an argument) or pointer 'this') is preceded by character '&'
 
-(!) some constructors/functions accept 'activation atoms' - these are enum values that force a specific constructor/function call; this is needed when there is a
+- some constructors/functions accept 'activation atoms' - these are enum values that force a specific constructor/function call; this is needed when there is a
     conflict between constructors/functions with otherwise exact signatures
 
-(!) the ranges used in the library are inclusive
+- the ranges used in the library are inclusive
 
-(!) some of the things in the library are quite easy to implement but they still have to be there (for completeness)
+- some of the things in the library are quite easy to implement but they still have to be there (for completeness)
 
-(!) the library consists of the following files:
-- array.cpp
-- range.cpp
-- pair.cpp
-- tuple.cpp
-- stack.cpp
-- queue.cpp
-- list.cpp
-- string.cpp
-- bit_operations.cpp
-- byte_operations.cpp
-- numeric.cpp
-- unicode.cpp
-- time.cpp
-- filesystem.cpp
-- event.cpp
-- timer.cpp
-- chronometer.cpp
-- geometry.cpp
+- the library consists of the following files:
+  - array.cpp
+  - range.cpp
+  - pair.cpp
+  - tuple.cpp
+  - stack.cpp
+  - queue.cpp
+  - list.cpp
+  - string.cpp
+  - bit_operations.cpp
+  - byte_operations.cpp
+  - numeric.cpp
+  - unicode.cpp 
+  - time.cpp
+  - filesystem.cpp
+  - event.cpp
+  - timer.cpp
+  - chronometer.cpp
+  - geometry.cpp (not very well tested)
 
 (!) file dependencies:
 - numeric.cpp - do not depend on other files
